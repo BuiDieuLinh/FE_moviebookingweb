@@ -1,0 +1,117 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, Link } from "react-router-dom";
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import Container from 'react-bootstrap/Container';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
+import NavDropdown from 'react-bootstrap/NavDropdown';
+import "./header.css"
+
+
+export const Header = () => {
+  {/* Lấy dữ liệu */}
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Lấy user từ localStorage
+    const storedUser = localStorage.getItem("user");
+
+    // if (!storedUser) {
+    //   navigate("/auth"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
+    //   return;
+    // }
+
+    setUser(JSON.parse(storedUser)); // Chuyển từ JSON về object
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    localStorage.removeItem("user_id");
+    navigate("/auth");
+  };
+
+
+  {/* hiệu ứng đổi bg header */}
+  const [navbarBg, setNavbarBg] = useState("black"); // Màu mặc định trong suốt
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setNavbarBg("rgba(255,255,255,0.1)"); // Đổi màu khi cuộn xuống
+      } else {
+        setNavbarBg("black"); // Trở về trong suốt khi lên đầu trang
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+
+  return (
+    <div >
+      
+      <Navbar collapseOnSelect className="navbar-blur" expand="lg" bg="dark" variant="dark"  fixed="top" 
+          style={{ backgroundColor: navbarBg, transition: "background-color 0.3s ease-in-out" }} >
+        <Container>
+          <Navbar.Brand as={Link} to="/">
+            <img src="logo-removebg-preview.png" style={{ width: "100px", height: "50px", objectFit: "cover"}} alt="Logo" />
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="responsive-navbar-nav" />
+          <Navbar.Collapse id="responsive-navbar-nav text-white">
+            <Nav className="me-auto gap-4">
+                <Nav.Link as={Link} to="/movie">Phim</Nav.Link>
+                <Nav.Link as={Link} to="/showtime">Lịch chiếu</Nav.Link>
+                <Nav.Link as={Link} to="/info-cinemas">Rạp chiếu phim</Nav.Link>
+                <Nav.Link as={Link} to="/promotions">Ưu đãi</Nav.Link>
+            </Nav>
+            <Nav className='gap-4'>
+              {/* <NavDropdown
+                title="Chọn rạp"
+                id="collapsible-nav-dropdown"
+                className="custom-dropdown" // Thêm class riêng để style
+                align="end"
+              >
+                <NavDropdown.Item href="#action/3.1">Chế độ tối</NavDropdown.Item>
+                <NavDropdown.Item href="#action/3.2">Ngôn ngữ</NavDropdown.Item>
+                <NavDropdown.Item href="#action/3.3">Tài khoản</NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
+              </NavDropdown> */}
+              <Nav.Link as={Link} to="/my-ticket">
+                <img src='ticket_2.png'alt='ticket' width={20}/> Vé của tôi
+              </Nav.Link>
+              <NavDropdown
+                  title={
+                    <>
+                      <i className="fa-regular fa-user"></i>{" "}
+                      {user ? user.username : "Guest"}
+                    </>
+                  }
+                  id="collapsible-nav-dropdown"
+                  align="end"
+                >                
+                <NavDropdown.Item as={Link} to="#action/3.1">Chế độ tối</NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="#action/3.2"> Ngôn ngữ </NavDropdown.Item>
+                <NavDropdown.Item as={Link} to="/account">Tài khoản</NavDropdown.Item>
+                <NavDropdown.Divider />
+                <NavDropdown.Item as={Link} to="#action/3.4" onClick={handleLogout}>
+                  Đăng xuất 
+                </NavDropdown.Item>
+              </NavDropdown>
+              {/* <Nav.Link eventKey={2} href="#memes">
+                Dank memes
+              </Nav.Link> */}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+    </div>
+  )
+}
+export default Header;

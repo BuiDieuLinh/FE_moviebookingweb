@@ -1,0 +1,36 @@
+:root{
+    --main-color: rgba(255, 0, 0, 0.7);
+  }
+  .movie-nav {
+    width: 70%;
+    margin: 0 auto; /* Căn giữa */
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Khoảng cách giữa các mục */
+    padding: 15px 0;
+    border-bottom: 3px solid var(--main-color);
+    margin-top: 20px;
+  }
+  
+  .movie-nav .nav-link {
+    font-size: 16px;
+    font-family: "Oswald", sans-serif; /* Font chữ phong cách rạp chiếu phim */
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white !important; /* Màu chữ trắng */
+    transition: 0.3s;
+    letter-spacing: 1px; /* Tạo khoảng cách giữa chữ */
+    padding: 0px 15px;
+  }
+  
+  .movie-nav .nav-link:hover {
+    color: var(--main-color) !important; /* Màu vàng rạp chiếu phim */
+    text-shadow: 0 0 10px var(--main-color)
+  }
+  
+  .movie-nav .nav-link.active {
+    color: var(--main-color) !important;
+    border-bottom: 2px solid var(--main-color); /* Gạch chân khi được chọn */
+  }
+  

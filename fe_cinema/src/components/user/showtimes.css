@@ -1,0 +1,127 @@
+.showtime-container{
+    width: 70%;
+    min-height: 1000px;
+    margin: 140px auto 20px;
+}
+
+.showtime {
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* Mỗi hàng 5 button */
+    gap: 20px;
+}
+
+.date.selected {
+    background-color: rgb(168, 0, 0); /* Màu đỏ khi được chọn */
+  }
+.showtime button {
+    background-color: rgb(30, 41, 59);
+    border: none;
+    color: #fff;
+    border-radius: 8px;
+    padding: 5px;
+    text-align: center;
+    width: 100%; /* Button mở rộng theo ô lưới */
+}
+
+  .showtime button:hover{
+    background-color: rgb(30, 41, 59);
+    border: none;
+  }
+.container-listmovie{
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    font-size: 14px;
+}
+.container-listmovie p{
+    margin-bottom: 5px;
+}
+.genre-duration{
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    color: #555;
+}
+.detail-movie{
+    border: 1px solid #bbbbbb;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    min-height: 290px;
+    position: relative;
+}
+.movie-img{
+    width: 40%;
+    height: 290px;
+    overflow: hidden; /* Tránh ảnh tràn ra ngoài */
+    display: inline-block;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+.movie-img img{
+    object-fit: cover;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.movie-img:hover img {
+    transform: scale(1.2); /* Phóng to 120% */
+    /* box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.3);  */
+}
+
+.movie-info{
+    padding: 10px 20px;
+}
+
+.container-hour{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.container-hour button{
+    border: 1px solid #fff;
+    background-color: transparent;
+    border-radius: 8px;
+    color: #fff;
+    padding: 5px 10px;
+}
+.standard-format{
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: white;
+    font-size: 18px;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-weight: 600;
+}
+
+/* Khi màn hình nhỏ hơn hoặc bằng 14 inch (~1366px hoặc 1280px) */
+@media screen and (max-width: 1366px) {
+    .showtime-container {
+        width: 80%; /* Chuyển sang full width */
+    }
+}
+@media screen and (max-width: 992px){
+    .container-listmovie{
+        grid-template-columns: 1fr;
+    }
+
+}
+@media screen and (max-width: 672px){
+    .movie-img{
+        width: 60%;
+    }
+    .genre-duration{
+       visibility: hidden;
+    }
+    .movie-info{
+        font-size: 12px;
+    }
+    .container-date{
+        scrollbar-width: none;
+    }
+}

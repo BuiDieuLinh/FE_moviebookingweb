@@ -1,0 +1,45 @@
+.container-info{
+    color: white;
+    width: 70%;
+    margin: 100px auto 20px;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+}
+.detail-cinema{
+    flex: flex-start;
+    width: 60%;
+}
+
+.detail-cinema img{
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+.detail-cinema p{
+    text-align: justify;
+}
+.movies-highlight h2{
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    text-align: center;
+}
+
+@media screen and (max-width: 768px) {
+    .container-info{
+        display: flex;
+        flex-direction: column;
+    }
+    .detail-cinema{
+        width: 100%;
+    }
+}
+.network{
+    display: inline-flex;
+    gap: 5px;
+    align-items: center;
+    font-size: 12px;
+    margin-bottom: 20px;
+}
+.network button{
+    font-size: 12px;
+}

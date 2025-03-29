@@ -1,0 +1,35 @@
+body{
+    font-family: "Oswald", sans-serif;
+}
+.custom-dropdown {
+    border: 2px solid #ccc; /* Viền */
+    border-radius: 10px; /* Bo góc */
+    margin-right: 20px; /* Dịch sang trái 20px */
+  }
+  
+  .custom-dropdown .dropdown-toggle {
+    color: white !important; /* Đổi màu chữ */
+    background: #222; /* Màu nền */
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+  
+  .custom-dropdown .dropdown-toggle:hover {
+    background: #333; /* Đổi màu khi hover */
+  }
+  
+  /* .navbar-blur {
+    background: rgba(255, 255, 255, 0.3) !important; 
+    backdrop-filter: blur(10px); 
+    transition: background 0.3s ease-in-out;
+    color: white !important;
+  } */
+  .navbar-blur {
+    background-color: black; /* Màu mặc định */
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .navbar-blur.scrolled {
+    background-color: rgba(255, 255, 255, 0.1); /* Màu khi cuộn xuống */
+  }
+  

@@ -1,0 +1,41 @@
+.container-moviemng{
+  margin-top: 70px;
+  background-color: white;
+  border-radius: 30px;
+  padding: 15px;
+}
+/* Loại bỏ border-bottom của tất cả các <td> */
+.table tbody tr td {
+    border-bottom: none !important;
+    padding: 10px ;
+    font-size: 15px;
+  }
+  
+  .table thead tr th{
+    padding: 15px ;
+  }
+
+  .accordion-item{
+    border-radius: 30px !important;
+    overflow: hidden;
+  }
+  .accordion-header button{
+    font-weight: 600 !important;
+}
+
+.nowshowing{
+  border: 1px solid rgb(0, 112, 0);
+  color: rgb(0, 112, 0);
+  background-color: rgba(0, 150, 0, 0.2);
+  padding:3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+.commingshow{
+  border: 1px solid rgb(205, 219, 0);
+  color: rgb(205, 219, 0);
+  background-color: rgba(200, 150, 0, 0.2);
+  padding:3px 5px;
+  border-radius: 5px;
+  font-size: 13px;
+}
