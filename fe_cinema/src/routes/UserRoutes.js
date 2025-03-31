@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, BrowserRouter } from "react-router-dom";
 import HomePage from "../pages/index";
 import Movie from "../pages/moviedetail";
 import Cinemas from "../pages/cinemas";
@@ -16,16 +16,16 @@ function Layout() {
   return (
     <>
       {!hideHeaderFooter && <Header />}
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/movie/:id" element={<Movie />} />
+          <Route path="/showtime" element={<Showtimepage />} />
+          <Route path="/info-cinemas" element={<Cinemas />} />
+          <Route path="/promotions" element={<Promotions />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/auth" element={<CinemaAuth />} />
+        </Routes>
       
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/movie" element={<Movie />} />
-        <Route path="/showtime" element={<Showtimepage />} />
-        <Route path="/info-cinemas" element={<Cinemas />} />
-        <Route path="/promotions" element={<Promotions />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/auth" element={<CinemaAuth />} />
-      </Routes>
 
       {!hideHeaderFooter && <Footer />}
     </>
@@ -34,8 +34,8 @@ function Layout() {
 
 export default function UserRoutes() {
   return (
-    <Router>
+    <BrowserRouter>
       <Layout />
-    </Router>
+    </BrowserRouter>
   );
 }

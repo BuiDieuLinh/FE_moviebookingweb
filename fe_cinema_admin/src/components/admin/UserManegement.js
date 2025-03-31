@@ -100,7 +100,7 @@ const UserManagement = () => {
                   <td>{new Date(user.created_at).toISOString().split("T")[0]}</td>
                   <td>
                     <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(user)}>
-                      <i className="fas fa-edit"></i> Sửa
+                      <i className="fas fa-edit"></i> Xem
                     </Button>
                     <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => handleDeleteUser(user.id)}>
                       <i className="fas fa-trash"></i> Xóa

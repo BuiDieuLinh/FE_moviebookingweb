@@ -110,14 +110,15 @@ export const Room = () => {
         // Thêm mới phòng
         try {
           const response = await axios.post(`${API_URL}/rooms`, dataToSave);
-          if (response.status === 201 && response.data.insertId) {
-            console.log("Phòng đã được thêm thành công:", response.data);
+          console.log("🟢 Phản hồi khi thêm phòng:", response.data);
+  
+          if (response.status === 200 && response.data) {
             showToast("Phòng", "Thêm phòng thành công!");
           } else {
             throw new Error("Lỗi: Không có dữ liệu nào được thêm!");
           }
         } catch (error) {
-          console.error("Lỗi khi thêm phòng:", error.response ? error.response.data : error.message);
+          console.error("🔴 Lỗi khi thêm phòng:", error.response ? error.response.data : error.message);
           showToast("Warning", "Lỗi khi thêm phòng");
         }
       }
@@ -284,7 +285,7 @@ export const Room = () => {
                     label="Sẵn sàng"
                     name="room_status"
                     type="radio"
-                    value="Sẵn sàng"
+                    value="0"
                     checked={formData.room_status === 0}
                     onChange={handleInputChange}
                     required
@@ -294,7 +295,7 @@ export const Room = () => {
                     label="Đang chiếu"
                     name="room_status"
                     type="radio"
-                    value="Đang chiếu"
+                    value="1"
                     checked={formData.room_status === 1}
                     onChange={handleInputChange}
                     required

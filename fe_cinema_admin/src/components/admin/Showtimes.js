@@ -73,12 +73,8 @@ export const Showtimes = () => {
   const fetchScreening = async () => {
     try {
       const response = await axios.get(`${API_URL}/screenings`);
-      if (Array.isArray(response.data)) {
         setScreening(response.data);
-      } else {
-        console.error("Dữ liệu suất chiếu không phải mảng:", response.data);
-        setScreening([]);
-      }
+        console.log(response.data)
     } catch (error) {
       console.error("Lỗi khi lấy danh sách suất chiếu:", error.response ? error.response.data : error.message);
       setScreening([]);
@@ -100,8 +96,12 @@ export const Showtimes = () => {
     if (showtime) {
       setFormDataShowtime({
         movie_id: showtime.movie_id || '',
-        start_time: showtime.start_time ? new Date(showtime.start_time).toISOString().split("T")[0] : "",
-        end_time: showtime.end_time ? new Date(showtime.end_time).toISOString().split("T")[0] : ""
+        start_time: showtime.start_time 
+            ? new Date(showtime.start_time).toLocaleDateString("sv-SE") 
+            : "",
+        end_time: showtime.end_time 
+            ? new Date(showtime.end_time).toLocaleDateString("sv-SE") 
+            : "",
       });
     } else {
       setFormDataShowtime({ movie_id: '', start_time: '', end_time: '' });
@@ -115,7 +115,7 @@ export const Showtimes = () => {
       setFormDataScreen({
         showtime_id: screening.showtime_id || '',
         room_id: screening.room_id || '',
-        screening_date: screening.screening_date ? new Date(screening.screening_date).toISOString().split("T")[0] : '',
+        screening_date: screening.screening_date ? new Date(screening.screening_date).toLocaleDateString("sv-SE") : "",
         start_time: screening.start_time || '',
         end_time: screening.end_time || '',
         screening_format: screening.screening_format || '',
@@ -172,37 +172,104 @@ export const Showtimes = () => {
     }
   };
 
+  // validate dữ liệu
+  function isValidDate(dateString) {
+    const regex = /^\d{4}-\d{2}-\d{2}$/; // Kiểm tra định dạng YYYY-MM-DD
+    if (!regex.test(dateString)) return false;
+    const date = new Date(dateString);
+    return date instanceof Date && !isNaN(date);
+}
+
+function isValidTime(timeString) {
+    const regex = /^([01]\d|2[0-3]):([0-5]\d)$/; // Kiểm tra định dạng HH:MM
+    return regex.test(timeString);
+}
+
+// Chuẩn hóa giờ thành dạng HH:MM:SS
+function formatTimeInput(timeString) {
+    return timeString.length === 5 ? timeString + ":00" : timeString; // Thêm giây nếu thiếu
+}
+
+function isValidScreeningTime(startTime, endTime) {
+    startTime = formatTimeInput(startTime);
+    endTime = formatTimeInput(endTime);
+    return endTime > startTime || endTime < "06:00"; // Cho phép kết thúc sau 0h nhưng không quá 6h sáng
+}
+
+// Kiểm tra dữ liệu đầu vào
+function validateScreeningData(screeningDate, startTime, endTime) {
+    if (!isValidDate(screeningDate)) {
+        showToast("Lỗi", "Ngày chiếu không hợp lệ! Định dạng đúng: YYYY-MM-DD");
+        return false;
+    }
+    
+    if (!isValidTime(startTime) || !isValidTime(endTime)) {
+        showToast("Lỗi", "Giờ chiếu không hợp lệ! Định dạng đúng: HH:MM");
+        return false;
+    }
+
+    if (!isValidScreeningTime(startTime, endTime)) {
+        showToast("Lỗi", "Giờ kết thúc phải lớn hơn giờ bắt đầu hoặc không muộn hơn 06:00 sáng!");
+        return false;
+    }
+
+    return true;
+}
+
   const handleSaveScreening = async () => {
     try {
-      if (!formDataScreen.showtime_id || !formDataScreen.room_id || !formDataScreen.screening_date || 
-          !formDataScreen.start_time || !formDataScreen.end_time || !formDataScreen.screening_format || 
-          !formDataScreen.screening_translation) {
-        showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin suất chiếu!");
-        return;
-      }
-      const formattedData = {
-        ...formDataScreen,
-        screening_date: new Date(formDataScreen.screening_date).toLocaleDateString("en-CA"),
-      };
-      if (selectedScreen) {
-        const res = await axios.put(`${API_URL}/screenings/${selectedScreen.screening_id}`, formattedData);
-        if (res.status === 200) showToast("Suất chiếu", "Cập nhật suất chiếu thành công!");
-      } else {
-        const response = await axios.post(`${API_URL}/screenings`, formattedData);
-        if (response.status === 201) showToast("Suất chiếu", "Thêm suất chiếu thành công!");
-      }
-      fetchScreening();
-      handleCloseModalScreen();
+        if (!formDataScreen.showtime_id || !formDataScreen.room_id || !formDataScreen.screening_date || 
+            !formDataScreen.start_time || !formDataScreen.end_time || !formDataScreen.screening_format || 
+            !formDataScreen.screening_translation) {
+            showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin suất chiếu!");
+            return;
+        }
+
+        // Kiểm tra định dạng dữ liệu
+        if (!validateScreeningData(formDataScreen.screening_date, formDataScreen.start_time, formDataScreen.end_time)) {
+            return; // Nếu không hợp lệ thì dừng lại
+        }
+
+        // Định dạng lại ngày chiếu về dạng YYYY-MM-DD (MySQL yêu cầu)
+        const formattedData = {
+            ...formDataScreen,
+            screening_date: new Date(formDataScreen.screening_date).toLocaleDateString("en-CA"), // Chuyển về format YYYY-MM-DD
+            start_time: formatTimeInput(formDataScreen.start_time),
+            end_time: formatTimeInput(formDataScreen.end_time),
+        };
+
+        if (selectedScreen) {
+            const res = await axios.put(`${API_URL}/screenings/${selectedScreen.screening_id}`, formattedData);
+            if (res.status === 200) showToast("Suất chiếu", "Cập nhật suất chiếu thành công!");
+        } else {
+            const response = await axios.post(`${API_URL}/screenings`, formattedData);
+            console.log(response);
+            if (response.status === 201) showToast("Suất chiếu", "Thêm suất chiếu thành công!");
+        }
+        
+        fetchScreening();
+        handleCloseModalScreen();
     } catch (error) {
-      console.error("Lỗi khi lưu suất chiếu:", error.response ? error.response.data : error.message);
-      showToast("Lỗi", "Lưu suất chiếu thất bại!");
+        console.error("Lỗi khi lưu suất chiếu:", error.response ? error.response.data : error.message);
+        showToast("Lỗi", "Lưu suất chiếu thất bại!");
     }
-  };
+};
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", year: "numeric" });
   };
+
+
+  const now = new Date();
+  const upcomingTime = new Date();
+  upcomingTime.setHours(upcomingTime.getHours() + 24); // Chỉ lấy suất chiếu trong 24h tới
+  
+  const upcomingShowtimes = showtime.filter((show) => {
+    const startDate = new Date(show.start_time);
+    return startDate >= now && startDate <= upcomingTime;
+  });
 
   return (
     <div style={{ marginTop: '70px' }}>
@@ -236,7 +303,7 @@ export const Showtimes = () => {
                         statusStyle = "completed";
                       } else if (startDate > today) {
                         status = "Sắp chiếu";
-                        statusStyle = "commingsoom";
+                        statusStyle = "commingsoon";
                       } else {
                         status = "Đang chiếu";
                         statusStyle = "nowshowing";
@@ -272,6 +339,7 @@ export const Showtimes = () => {
               </Table>
             </div>
 
+            {/** popup lịch chiếu */}
             <Modal show={showModal} onHide={handleCloseModal}>
               <Modal.Header closeButton>
                 <Modal.Title>{selectedST ? "Chỉnh Sửa Lịch Chiếu" : "Thêm Lịch Chiếu"}</Modal.Title>
@@ -316,6 +384,8 @@ export const Showtimes = () => {
             </Modal>
           </Accordion.Body>
         </Accordion.Item>
+
+        {/** Suất chiếu */}
         <Accordion.Item eventKey="1">
           <Accordion.Header>Suất chiếu</Accordion.Header>
           <Accordion.Body>
@@ -366,7 +436,7 @@ export const Showtimes = () => {
                       const today = new Date();
                       const screeningDate = new Date(screen.screening_date);
                       let status = screeningDate < today ? "Đã chiếu" : screeningDate > today ? "Sắp chiếu" : "Đang chiếu";
-                      let statusStyle = screeningDate < today ? "completed" : screeningDate > today ? "comingsoom" : "nowshowing";
+                      let statusStyle = screeningDate < today ? "completed" : screeningDate > today ? "commingsoon" : "nowshowing";
                       let format, formatStyle;
                       if (screen.screening_format === "2D") {
                         format = "2D";
@@ -409,6 +479,7 @@ export const Showtimes = () => {
               </Table>
             </div>
 
+            {/** popup suất chiếu */}
             <Modal show={showModalScreen} onHide={handleCloseModalScreen}>
               <Modal.Header closeButton>
                 <Modal.Title>{selectedScreen ? "Chỉnh Sửa Suất Chiếu" : "Thêm Suất Chiếu"}</Modal.Title>
@@ -417,22 +488,23 @@ export const Showtimes = () => {
                 <Form>
                   <Form.Group className="mb-3">
                     <Form.Label>Phim chiếu</Form.Label>
-                    <Form.Select name="movie_id" value={formDataScreen.movie_id} onChange={handleInputChangeScreen}>
-                      <option value="">Chọn phim</option>
-                      {movies.map((movie) => (
-                        <option key={movie.movie_id} value={movie.movie_id}>{movie.title}</option>
+                    <Form.Select name="showtime_id" value={formDataScreen.showtime_id} onChange={handleInputChangeScreen}>
+                      <option value="">Chọn suất chiếu</option>
+                      {upcomingShowtimes.map((show) => (
+                        <option key={show.showtime_id} value={show.showtime_id}>
+                          {show.movie_title} - {new Date(show.start_time).toLocaleDateString()} → {new Date(show.end_time).toLocaleDateString()}
+                        </option>
                       ))}
                     </Form.Select>
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Phòng chiếu</Form.Label>
-                    <Form.Control
-                      type="text"
-                      name="room_name"
-                      value={formDataScreen.room_name}
-                      onChange={handleInputChangeScreen}
-                      required
-                    />
+                    <Form.Select name='room_id' value={formDataScreen.room_id} onChange={handleInputChangeScreen}>
+                      <option value='' disabled>-- chọn phòng --</option>
+                      {rooms.map((room) =>(
+                        <option key={room.room_id} value={room.room_id}>{room.room_name}</option>
+                      ))}
+                    </Form.Select>
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Ngày chiếu</Form.Label>
@@ -444,26 +516,29 @@ export const Showtimes = () => {
                       required
                     />
                   </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Giờ bắt đầu</Form.Label>
-                    <Form.Control
-                      type="time"
-                      name="start_time"
-                      value={formDataScreen.start_time}
-                      onChange={handleInputChangeScreen}
-                      required
-                    />
-                  </Form.Group>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Giờ kết thúc</Form.Label>
-                    <Form.Control
-                      type="time"
-                      name="end_time"
-                      value={formDataScreen.end_time}
-                      onChange={handleInputChangeScreen}
-                      required
-                    />
-                  </Form.Group>
+                  <Row>
+                      <Form.Group as={Col} className="mb-3">
+                      <Form.Label>Giờ bắt đầu</Form.Label>
+                      <Form.Control
+                        type="time"
+                        name="start_time"
+                        value={formDataScreen.start_time}
+                        onChange={handleInputChangeScreen}
+                        required
+                      />
+                    </Form.Group>
+                    <Form.Group as={Col} className="mb-3">
+                      <Form.Label>Giờ kết thúc</Form.Label>
+                      <Form.Control
+                        type="time"
+                        name="end_time"
+                        value={formDataScreen.end_time}
+                        onChange={handleInputChangeScreen}
+                        required
+                      />
+                    </Form.Group>
+                  </Row>
+                  
                   <Form.Group className="mb-3">
                     <Form.Label>Hình thức chiếu</Form.Label>
                     <Form.Select

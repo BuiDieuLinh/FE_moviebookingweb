@@ -1,7 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 .container-details{
     width: 100%;
-    min-height: 1000px;
     background-color: black !important;
     margin-top: 75px;
     /* font-family: Arial, Helvetica, sans-serif */
@@ -28,16 +27,13 @@
     margin: 0 auto;
     display: grid;
     grid-template-columns: 0.4fr 0.6fr;
-    grid-template-areas: 
-    "card-logo title"
-    "card-logo info-detail"
+    grid-template-areas: "card-logo info-detail";
   }
   
   .card-logo{
     grid-area: card-logo;
-  }
-  .title-movie{
-    grid-area: title;
+    height: 350px;
+
   }
   .info-detail{
     grid-area: info-detail;
