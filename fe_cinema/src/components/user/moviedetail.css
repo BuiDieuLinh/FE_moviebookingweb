@@ -119,3 +119,63 @@
     background-color: rgb(30, 41, 59);
     border: 1px solid rgb(30, 41, 59);
   }
+
+  .seat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    margin: 3px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    border: none;
+    font-size: 15px;
+  }
+  
+  .seat.thuong {
+    background-color: rgb(36, 36, 36); /* Màu ghế thường */
+  }
+  
+  .seat.vip {
+    background-color: rgb(255, 132, 19); /* Màu ghế VIP */
+  }
+  
+  .seat.doi {
+    background-color: rgb(255, 55, 65); /* Màu ghế đôi */
+    width: 76px; /* Ghế đôi rộng hơn */
+  }
+  
+  .seat.selected {
+    background-color: rgb(13, 202, 240) !important;
+    color: white;
+  }
+  
+  .seat:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Sắp xếp ghế theo hàng */
+  .seat-row {
+    display: flex;
+    justify-content: center;
+  }
+
+  .seat1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    margin: 3px;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    border: none;
+  }

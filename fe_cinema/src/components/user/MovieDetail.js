@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import "./moviedetail.css";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -38,15 +38,47 @@ function MyVerticallyCenteredModal(props) {
   );
 }
 
+// tạo ghế
+const generateSeats = (type) => {
+  let totalSeats = type === 1 ? 100 : type === 2 ? 90 : 80;
+  let rows = totalSeats / 10;
+  let seats = [];
+
+  for (let i = 1; i <= rows; i++) {
+    if (i < rows) {
+      for (let j = 1; j <= 10; j++) {
+        let seatId = `${String.fromCharCode(64 + i)}${j}`;
+        let seatType = i <= 4 ? "thuong" : "vip";
+        seats.push({ id: seatId, type: seatType });
+      }
+    } else {
+      for (let j = 1; j <= 5; j++) {
+        let seatId = `${String.fromCharCode(64 + i)}${j * 2 - 1}-${j * 2}`;
+        seats.push({ id: seatId, type: "doi" });
+      }
+    }
+  }
+
+  return seats;
+};
+
 export const MovieDetail = () => {
   const [modalShow, setModalShow] = React.useState(false);
   const { id } = useParams();
+  const navigate = useNavigate();
+  const countdownRef = useRef(null);
   const [movie, setMovie] = useState(null);
   const [dates, setDates] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [screenings, setScreenings] = useState([]);
   const [showtimes, setShowtimes] = useState([]);
   const [allScreenings, setAllScreenings] = useState([]); // State mới để lưu dữ liệu từ bảng screenings
+  const [seatData, setSeatData] = useState(generateSeats("1"));
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [selectedScreening, setSelectedScreening] = useState(null);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [countdown, setCountdown] = useState(600);
+  const [countdownDisplay, setCountdownDisplay] = useState("10:00");
 
   useEffect(() => {
     fetchMovie();
@@ -167,6 +199,114 @@ export const MovieDetail = () => {
     return `${hours}:${minutes}`;
   };
 
+  const startCountdown = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+    }
+  
+    setCountdown(600);
+    setCountdownDisplay("10:00");
+  
+    countdownRef.current = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 0) {
+          clearInterval(countdownRef.current);
+          window.location.reload();
+          return 0;
+        }
+  
+        const minutes = Math.floor(prev / 60);
+        const seconds = prev % 60;
+        setCountdownDisplay(
+          `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
+        );
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Hàm xử lý khi người dùng chọn suất chiếu
+  const handleSelectScreening = (screening) => {
+    setSelectedScreening(screening);
+
+    // Xác định loại phòng dựa trên room_id (giả định logic)
+    // Ví dụ: R0001 -> roomType 1, R0002 -> roomType 2, R0003 -> roomType 3
+    let roomType;
+    if (screening.room_type === 1) {
+      roomType = 1; // normal: 100 ghế
+    } else if (screening.room_type === 2) {
+      roomType = 2; // standard: 90 ghế
+    } else if (screening.room_type === 3) {
+      roomType = 3; // vip: 80 ghế
+    } else {
+      roomType = 1; // Mặc định là normal nếu không xác định được
+    }
+
+    // Reset ghế đã chọn và tổng tiền khi chọn suất chiếu mới
+    setSelectedSeats([]);
+    setTotalPrice(0);
+
+    // Load sơ đồ ghế dựa trên loại phòng
+    const newSeatData = generateSeats(roomType);
+    setSeatData(newSeatData);
+
+    startCountdown(); // Bắt đầu đếm ngược
+  };
+
+  // Hàm xử lý chọn ghế và tính tổng tiền
+  const toggleSeat = (seatId) => {
+    setSelectedSeats((prevSelected) => {
+      let newSelected;
+      if (prevSelected.includes(seatId)) {
+        // Bỏ chọn ghế
+        newSelected = prevSelected.filter((id) => id !== seatId);
+      } else {
+        // Chọn ghế mới
+        newSelected = [...prevSelected, seatId];
+      }
+
+      // Tính tổng tiền dựa trên các ghế đã chọn
+      let total = 0;
+      newSelected.forEach((selectedSeatId) => {
+        const seat = seatData.find((s) => s.id === selectedSeatId);
+        if (seat) {
+          if (seat.type === "thuong") {
+            total += 60000; // Ghế thường: 60,000 VNĐ
+          } else if (seat.type === "vip") {
+            total += 65000; // Ghế VIP: 65,000 VNĐ
+          } else if (seat.type === "doi") {
+            total += 150000; // Ghế đôi: 150,000 VNĐ
+          }
+        }
+      });
+
+      setTotalPrice(total);
+      return newSelected;
+    });
+  };
+
+  const handlePayment = () => {
+    if (countdownRef.current) {
+      clearInterval(countdownRef.current);
+    }
+    
+    navigate('/order', {
+    state: {
+      screening_id: selectedScreening.screening_id,
+      selectedSeats: selectedSeats.map(seatId => {
+        const seat = seatData.find(s => s.id === seatId);
+        return {
+          seat_name: seatId,
+          price: seat.type === "thuong" ? 60000 : seat.type === "vip" ? 65000 : 150000
+        };
+      }),
+      totalPrice: totalPrice
+      
+    }
+    });
+    alert("Thanh toán thành công!");
+    window.location.reload();
+  };
   if (!movie) return <p style={{ marginTop: '70px' }}>Đang tải...</p>;
 
   return (
@@ -233,7 +373,7 @@ export const MovieDetail = () => {
         <div className='showtime'>
           {screenings.length > 0 ? (
             screenings.map(screening => (
-              <button key={screening.screening_id}>
+              <button key={screening.screening_id} onClick={() => handleSelectScreening(screening)}>
                 {formatTime(screening.start_time)} - {formatTime(screening.end_time)} 
               </button>
             ))
@@ -242,6 +382,79 @@ export const MovieDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Danh sách ghế */}
+      {/* Danh sách ghế */}
+      {selectedScreening ? (
+        <div className='w-75 m-auto text-light my-4'>
+          <div className='d-flex justify-content-between'>
+            <p>
+              Giờ chiếu: <span className='fw-bold'>{formatTime(selectedScreening.start_time)} - {formatTime(selectedScreening.end_time)}</span>
+            </p>
+            <div className='border border-warning rounded p-2'>
+              <span>Thời gian chọn ghế: </span>
+              <span className='fw-bold'>{countdownDisplay}</span>
+            </div>
+          </div>
+
+          <div className='my-2'>
+            <img src='screen.jpg' alt='Screen' />
+            <h5 className='text-center fw-bold'>{selectedScreening.room_name}</h5>
+          </div>
+
+          {Array.from(new Set(seatData.map((seat) => seat.id[0]))).map((row) => (
+            <div key={row} className="seat-row">
+              {seatData
+                .filter((seat) => seat.id.startsWith(row))
+                .map((seat) => (
+                  <Button
+                    key={seat.id}
+                    className={`seat ${seat.type} ${
+                      selectedSeats.includes(seat.id) ? "selected" : ""
+                    }`}
+                    onClick={() => toggleSeat(seat.id)}
+                  >
+                    {seat.id}
+                  </Button>
+                ))}
+            </div>
+          ))}
+
+          <div className='d-flex justify-content-around my-2'>
+            <div className='d-flex gap-2 align-items-center'>
+              <button className='seat1'>X</button> <span>Đã đặt</span>
+            </div>
+            <div className='d-flex gap-2 align-items-center'>
+              <button className='seat1' style={{ backgroundColor: 'rgb(13, 202, 240)' }}></button> <span>Đang chọn</span>
+            </div>
+            <div className='d-flex gap-2 align-items-center'>
+              <button className='seat1' style={{ backgroundColor: 'rgb(36, 36, 36)' }}></button> <span>Ghế thường</span>
+            </div>
+            <div className='d-flex gap-2 align-items-center'>
+              <button className='seat1' style={{ backgroundColor: 'rgb(255, 132, 19)' }}></button> <span>Ghế vip</span>
+            </div>
+            <div className='d-flex gap-2 align-items-center'>
+              <button className='seat1' style={{ backgroundColor: 'rgb(255, 55, 65)' }}></button> <span>Ghế đôi</span>
+            </div>
+          </div>
+
+          <div className='d-flex justify-content-between my-4'>
+            <div className='fs-6'>
+              <p className='m-0'>Ghế đã chọn: <span>{selectedSeats.length > 0 ? selectedSeats.join(", ") : " "}</span></p>
+              <p>Tổng tiền: <span>{totalPrice.toLocaleString('vi-VN')} VNĐ</span></p>
+            </div>
+            <div>
+              <Button variant='dark' className='rounded-pill mx-2 p-2'>Quay lại</Button>
+              <Button variant='danger' 
+                className='rounded-pill p-2' 
+                onClick={handlePayment} 
+                disabled={selectedSeats.length === 0}>Thanh toán</Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className='text-light text-center my-4'>Vui lòng chọn một suất chiếu để xem sơ đồ ghế.</p>
+      )}
     </div>
   );
 };

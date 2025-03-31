@@ -110,7 +110,7 @@ export const Room = () => {
         // Thêm mới phòng
         try {
           const response = await axios.post(`${API_URL}/rooms`, dataToSave);
-          console.log("🟢 Phản hồi khi thêm phòng:", response.data);
+          console.log("Phản hồi khi thêm phòng:", response.data);
   
           if (response.status === 200 && response.data) {
             showToast("Phòng", "Thêm phòng thành công!");
@@ -118,7 +118,7 @@ export const Room = () => {
             throw new Error("Lỗi: Không có dữ liệu nào được thêm!");
           }
         } catch (error) {
-          console.error("🔴 Lỗi khi thêm phòng:", error.response ? error.response.data : error.message);
+          console.error("Lỗi khi thêm phòng:", error.response ? error.response.data : error.message);
           showToast("Warning", "Lỗi khi thêm phòng");
         }
       }
@@ -185,6 +185,7 @@ export const Room = () => {
           </div>
         </div>
 
+        {/* Danh sách phòng */}
         <div className="table-responsive rounded-2">
           <Table hover>
             <thead>
@@ -245,6 +246,7 @@ export const Room = () => {
           </Table>
         </div>
 
+        {/* Popup */}
         <Modal show={showModal} onHide={handleCloseModal} size="xl">
           <Modal.Header closeButton>
             <Modal.Title>{selectedRoom ? "Chỉnh Sửa Phòng" : "Tạo phòng"}</Modal.Title>

@@ -4,7 +4,6 @@ export default function MovieDetailPage() {
   return (
     <div>
       <MovieDetail></MovieDetail>
-      <Seat/>
     </div>
     
   );
