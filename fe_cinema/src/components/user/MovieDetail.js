@@ -38,30 +38,6 @@ function MyVerticallyCenteredModal(props) {
   );
 }
 
-// tạo ghế
-const generateSeats = (type) => {
-  let totalSeats = type === 1 ? 100 : type === 2 ? 90 : 80;
-  let rows = totalSeats / 10;
-  let seats = [];
-
-  for (let i = 1; i <= rows; i++) {
-    if (i < rows) {
-      for (let j = 1; j <= 10; j++) {
-        let seatId = `${String.fromCharCode(64 + i)}${j}`;
-        let seatType = i <= 4 ? "thuong" : "vip";
-        seats.push({ id: seatId, type: seatType });
-      }
-    } else {
-      for (let j = 1; j <= 5; j++) {
-        let seatId = `${String.fromCharCode(64 + i)}${j * 2 - 1}-${j * 2}`;
-        seats.push({ id: seatId, type: "doi" });
-      }
-    }
-  }
-
-  return seats;
-};
-
 export const MovieDetail = () => {
   const [modalShow, setModalShow] = React.useState(false);
   const { id } = useParams();
@@ -73,7 +49,7 @@ export const MovieDetail = () => {
   const [screenings, setScreenings] = useState([]);
   const [showtimes, setShowtimes] = useState([]);
   const [allScreenings, setAllScreenings] = useState([]); // State mới để lưu dữ liệu từ bảng screenings
-  const [seatData, setSeatData] = useState(generateSeats("1"));
+  const [seatData, setSeatData] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedScreening, setSelectedScreening] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -114,6 +90,18 @@ export const MovieDetail = () => {
     }
   };
 
+  // Hàm lấy ghế theo room_id
+  const fetchSeatsByRoom = async (room_id) => {
+    try {
+      const response = await axios.get(`${API_URL}/seats/room/${room_id}`);
+      setSeatData(response.data); // Cập nhật seatData từ backend
+      console.log(response);
+    } catch (err) {
+      console.error("Lỗi khi lấy danh sách ghế: ", err);
+      setSeatData([]); // Nếu lỗi, đặt lại rỗng
+    }
+  };
+
   // Function to generate all dates between start_time and end_time
   const getDatesBetween = (startDate, endDate) => {
     const dates = [];
@@ -140,7 +128,8 @@ export const MovieDetail = () => {
       .filter(st => st.movie_id === id)
       .filter(st => {
         const startDate = new Date(st.start_time);
-        return startDate >= now; // Chỉ lấy các suất chiếu từ ngày hiện tại trở đi
+        const endDate = new Date(st.end_time);
+        return now <= endDate;; // Chỉ lấy các suất chiếu từ ngày hiện tại trở đi
       });
 
     // Generate all dates between start_time and end_time for each showtime
@@ -187,6 +176,7 @@ export const MovieDetail = () => {
       .filter(sc => movieShowtimeIds.includes(sc.showtime_id))
       .filter(sc => {
         const screeningDate = new Date(sc.screening_date).toISOString().split("T")[0];
+        
         return screeningDate === selectedDate;
       });
 
@@ -200,55 +190,40 @@ export const MovieDetail = () => {
   };
 
   const startCountdown = () => {
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-    }
-  
-    setCountdown(600);
-    setCountdownDisplay("10:00");
-  
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 0) {
-          clearInterval(countdownRef.current);
-          window.location.reload();
-          return 0;
-        }
-  
-        const minutes = Math.floor(prev / 60);
-        const seconds = prev % 60;
-        setCountdownDisplay(
-          `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
-        );
-        return prev - 1;
-      });
-    }, 1000);
+      if (countdownRef.current) {
+        clearInterval(countdownRef.current);
+      }
+    
+      setCountdown(600);
+      setCountdownDisplay("10:00");
+    
+      countdownRef.current = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 0) {
+            clearInterval(countdownRef.current);
+            window.location.reload();
+            return 0;
+          }
+    
+          const minutes = Math.floor(prev / 60);
+          const seconds = prev % 60;
+          setCountdownDisplay(
+            `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
+          );
+          return prev - 1;
+        });
+      }, 1000);
+    
+    
   };
 
   // Hàm xử lý khi người dùng chọn suất chiếu
   const handleSelectScreening = (screening) => {
     setSelectedScreening(screening);
-
-    // Xác định loại phòng dựa trên room_id (giả định logic)
-    // Ví dụ: R0001 -> roomType 1, R0002 -> roomType 2, R0003 -> roomType 3
-    let roomType;
-    if (screening.room_type === 1) {
-      roomType = 1; // normal: 100 ghế
-    } else if (screening.room_type === 2) {
-      roomType = 2; // standard: 90 ghế
-    } else if (screening.room_type === 3) {
-      roomType = 3; // vip: 80 ghế
-    } else {
-      roomType = 1; // Mặc định là normal nếu không xác định được
-    }
-
-    // Reset ghế đã chọn và tổng tiền khi chọn suất chiếu mới
     setSelectedSeats([]);
     setTotalPrice(0);
-
-    // Load sơ đồ ghế dựa trên loại phòng
-    const newSeatData = generateSeats(roomType);
-    setSeatData(newSeatData);
+    // Lấy danh sách ghế từ backend dựa trên room_id
+    fetchSeatsByRoom(screening.room_id);
 
     startCountdown(); // Bắt đầu đếm ngược
   };
@@ -258,28 +233,25 @@ export const MovieDetail = () => {
     setSelectedSeats((prevSelected) => {
       let newSelected;
       if (prevSelected.includes(seatId)) {
-        // Bỏ chọn ghế
         newSelected = prevSelected.filter((id) => id !== seatId);
       } else {
-        // Chọn ghế mới
         newSelected = [...prevSelected, seatId];
       }
 
-      // Tính tổng tiền dựa trên các ghế đã chọn
+      // Tính tổng tiền dựa trên type từ backend
       let total = 0;
       newSelected.forEach((selectedSeatId) => {
-        const seat = seatData.find((s) => s.id === selectedSeatId);
+        const seat = seatData.find((s) => s.seat_id === selectedSeatId);
         if (seat) {
-          if (seat.type === "thuong") {
+          if (seat.seat_type === "regular") {
             total += 60000; // Ghế thường: 60,000 VNĐ
-          } else if (seat.type === "vip") {
+          } else if (seat.seat_type === "vip") {
             total += 65000; // Ghế VIP: 65,000 VNĐ
-          } else if (seat.type === "doi") {
+          } else if (seat.seat_type === "couple") {
             total += 150000; // Ghế đôi: 150,000 VNĐ
           }
         }
       });
-
       setTotalPrice(total);
       return newSelected;
     });
@@ -290,22 +262,30 @@ export const MovieDetail = () => {
       clearInterval(countdownRef.current);
     }
     
-    navigate('/order', {
-    state: {
-      screening_id: selectedScreening.screening_id,
-      selectedSeats: selectedSeats.map(seatId => {
-        const seat = seatData.find(s => s.id === seatId);
-        return {
-          seat_name: seatId,
-          price: seat.type === "thuong" ? 60000 : seat.type === "vip" ? 65000 : 150000
-        };
-      }),
-      totalPrice: totalPrice
-      
-    }
+    navigate('/checkout', {
+      state: {
+        screening_id: selectedScreening.screening_id,
+        selectedSeats: selectedSeats.map((seatId) => {
+          const seat = seatData.find((s) => s.seat_id === seatId);
+          let price;
+          if (seat.seat_type === "regular") price = 60000;
+          else if (seat.seat_type === "vip") price = 65000;
+          else if (seat.seat_type === "couple") price = 150000;
+          return {
+            seat_id: seat.seat_id,
+            seat_name: seat.seat_number,
+            price: price,
+          };
+        }),
+        totalPrice: totalPrice,
+        title: selectedScreening.movie_title,
+        screening_date: new Date(selectedScreening.screening_date).toLocaleDateString(),
+        time: `${formatTime(selectedScreening.start_time)} - ${formatTime(selectedScreening.end_time)}`,
+        screening_format: selectedScreening.screening_format,
+        room_name: selectedScreening.room_name,
+      },
     });
-    alert("Thanh toán thành công!");
-    window.location.reload();
+    // window.location.reload();
   };
   if (!movie) return <p style={{ marginTop: '70px' }}>Đang tải...</p>;
 
@@ -384,7 +364,6 @@ export const MovieDetail = () => {
       </div>
 
       {/* Danh sách ghế */}
-      {/* Danh sách ghế */}
       {selectedScreening ? (
         <div className='w-75 m-auto text-light my-4'>
           <div className='d-flex justify-content-between'>
@@ -402,27 +381,32 @@ export const MovieDetail = () => {
             <h5 className='text-center fw-bold'>{selectedScreening.room_name}</h5>
           </div>
 
-          {Array.from(new Set(seatData.map((seat) => seat.id[0]))).map((row) => (
-            <div key={row} className="seat-row">
-              {seatData
-                .filter((seat) => seat.id.startsWith(row))
-                .map((seat) => (
-                  <Button
-                    key={seat.id}
-                    className={`seat ${seat.type} ${
-                      selectedSeats.includes(seat.id) ? "selected" : ""
-                    }`}
-                    onClick={() => toggleSeat(seat.id)}
-                  >
-                    {seat.id}
-                  </Button>
-                ))}
-            </div>
-          ))}
+          {seatData.length > 0 ? (
+            Array.from(new Set(seatData.map((seat) => seat.seat_number[0]))).map((row) => (
+              <div key={row} className="seat-row">
+                {seatData
+                  .filter((seat) => seat.seat_number.startsWith(row))
+                  .map((seat) => (
+                    <Button
+                      key={seat.seat_id}
+                      className={`seat ${seat.seat_type} ${seat.seat_status === "booked" ? "booked" : ""} ${selectedSeats.includes(seat.seat_id) ? "selected" : ""}`}
+                      style={seat.seat_status === "booked" ? { backgroundImage: 'url(/vietnam.png) ', zIndex: '100'} : {}}
+                     
+                      disabled={seat.seat_status === "booked"}
+                      onClick={() => toggleSeat(seat.seat_id)}
+                    >
+                      {seat.seat_number}
+                    </Button>
+                  ))}
+              </div>
+            ))
+          ) : (
+            <p>Đang tải ghế...</p>
+          )}
 
           <div className='d-flex justify-content-around my-2'>
             <div className='d-flex gap-2 align-items-center'>
-              <button className='seat1'>X</button> <span>Đã đặt</span>
+              <button style={{backgroundImage: 'url(/vietnam.png)'}} className='seat1'></button> <span>Đã đặt</span>
             </div>
             <div className='d-flex gap-2 align-items-center'>
               <button className='seat1' style={{ backgroundColor: 'rgb(13, 202, 240)' }}></button> <span>Đang chọn</span>
@@ -440,7 +424,15 @@ export const MovieDetail = () => {
 
           <div className='d-flex justify-content-between my-4'>
             <div className='fs-6'>
-              <p className='m-0'>Ghế đã chọn: <span>{selectedSeats.length > 0 ? selectedSeats.join(", ") : " "}</span></p>
+              <p className='m-0'>Ghế đã chọn: <span>
+                {selectedSeats.length > 0
+                  ? selectedSeats
+                      .map((seatId) => {
+                        const seat = seatData.find((s) => s.seat_id === seatId);
+                        return seat ? seat.seat_number : seatId;
+                      })
+                      .join(", ")
+                  : " "}</span></p>
               <p>Tổng tiền: <span>{totalPrice.toLocaleString('vi-VN')} VNĐ</span></p>
             </div>
             <div>

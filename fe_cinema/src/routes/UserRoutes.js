@@ -25,7 +25,7 @@ function Layout() {
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/account" element={<Account />} />
           <Route path="/auth" element={<CinemaAuth />} />
-          <Route path="/order" element={<Order/>}/>
+          <Route path="/checkout" element={<Order/>}/>
         </Routes>
       
 

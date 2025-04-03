@@ -13,13 +13,13 @@ const generateSeats = (type) => {
     if (i < rows) {
       for (let j = 1; j <= 10; j++) {
         let seatId = `${String.fromCharCode(64 + i)}${j}`;
-        let seatType = i <= 4 ? "thuong" : "vip";
+        let seatType = i <= 4 ? "regular" : "vip";
         seats.push({ id: seatId, type: seatType });
       }
     } else {
       for (let j = 1; j <= 5; j++) {
         let seatId = `${String.fromCharCode(64 + i)}${j * 2 - 1}-${j * 2}`;
-        seats.push({ id: seatId, type: "doi" });
+        seats.push({ id: seatId, type: "couple" });
       }
     }
   }
@@ -38,6 +38,7 @@ export const Room = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [formData, setFormData] = useState({
+    room_id: '',
     room_name: "",
     room_type: 1, // Khởi tạo mặc định
     total_seats: "",
@@ -82,6 +83,8 @@ export const Room = () => {
         showToast("Warning", "Vui lòng nhập đầy đủ thông tin phòng!");
         return;
       }
+      // Tạo room_id ngẫu nhiên: R + 4 chữ số (ví dụ: R0993)
+      const roomId = `R${Math.floor(1000 + Math.random() * 9000)}`; // Ví dụ: R0993
 
       // Tính toán total_seats dựa trên room_type
       const total_seats = {
@@ -90,8 +93,7 @@ export const Room = () => {
         3: 80,
       }[formData.room_type];
       console.log(formData.room_type)
-      const dataToSave = { ...formData, total_seats };
-       console.log(dataToSave)
+      const dataToSave = { room_id: roomId, room_name: formData.room_name, room_type: formData.room_type, total_seats };       console.log(dataToSave)
       if (selectedRoom) {
         // Cập nhật phòng
         try {
@@ -108,19 +110,28 @@ export const Room = () => {
         }
       } else {
         // Thêm mới phòng
-        try {
           const response = await axios.post(`${API_URL}/rooms`, dataToSave);
           console.log("Phản hồi khi thêm phòng:", response.data);
   
-          if (response.status === 200 && response.data) {
-            showToast("Phòng", "Thêm phòng thành công!");
-          } else {
-            throw new Error("Lỗi: Không có dữ liệu nào được thêm!");
-          }
-        } catch (error) {
-          console.error("Lỗi khi thêm phòng:", error.response ? error.response.data : error.message);
-          showToast("Warning", "Lỗi khi thêm phòng");
-        }
+          // Kiểm tra phản hồi từ API /rooms
+          // if (response.status !== 200 || !response.data.message) {
+          //   throw new Error("Lỗi: Không thể thêm phòng!");
+          // }
+          showToast("Phòng", "Thêm phòng thành công!");
+
+          const seatsToCreate = seatData.map((seat) => ({
+            seat_id: `${seat.id}-${roomId}`,
+            seat_number: seat.id,
+            seat_type: seat.type,
+            room_id: roomId,
+          }));
+          console.log("Danh sách ghế gửi lên:", seatsToCreate);
+
+          const seatResponse = await axios.post(`${API_URL}/seats/bulk`, seatsToCreate);
+          console.log("Phản hồi khi thêm ghế:", seatResponse.data);
+          showToast("Ghế", "Tạo ghế cho phòng thành công!");
+
+        
       }
 
       fetchRoom(); // Load lại danh sách phòng

@@ -264,11 +264,12 @@ function validateScreeningData(screeningDate, startTime, endTime) {
 
   const now = new Date();
   const upcomingTime = new Date();
-  upcomingTime.setHours(upcomingTime.getHours() + 24); // Chỉ lấy suất chiếu trong 24h tới
   
   const upcomingShowtimes = showtime.filter((show) => {
     const startDate = new Date(show.start_time);
-    return startDate >= now && startDate <= upcomingTime;
+    const endDate = new Date(show.end_time);
+    return now >= startDate && now <= endDate;
+    
   });
 
   return (

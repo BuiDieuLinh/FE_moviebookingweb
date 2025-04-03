@@ -9,6 +9,7 @@ import Header from "./Header";
 import UserManagement from "./UserManegement";
 import Showtimes from "./Showtimes";
 import Room from "./Room";
+import Order from "./Order";
 
 const Sidebar = () => {
   const [collapsed, setcollapsed] = useState(false);
@@ -100,8 +101,7 @@ const Sidebar = () => {
                 <UserManagement/>
               </Tab.Pane>
               <Tab.Pane eventKey="order">
-                <h4>Order</h4>
-                <p>Nội dung đặt vé</p>
+                <Order/>
               </Tab.Pane>
               <Tab.Pane eventKey="reports">
                 <h4>Report</h4>

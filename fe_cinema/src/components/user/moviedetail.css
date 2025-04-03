@@ -134,9 +134,12 @@
     transition: all 0.3s ease-in-out;
     border: none;
     font-size: 15px;
+    background-size: cover; /* Đảm bảo hình ảnh fit trong button */
+    background-repeat: no-repeat; /* Không lặp lại hình ảnh */
+    background-position: center; /* Căn giữa hình ảnh */
   }
   
-  .seat.thuong {
+  .seat.regular {
     background-color: rgb(36, 36, 36); /* Màu ghế thường */
   }
   
@@ -144,7 +147,7 @@
     background-color: rgb(255, 132, 19); /* Màu ghế VIP */
   }
   
-  .seat.doi {
+  .seat.couple {
     background-color: rgb(255, 55, 65); /* Màu ghế đôi */
     width: 76px; /* Ghế đôi rộng hơn */
   }
@@ -178,4 +181,23 @@
     border-radius: 8px;
     transition: all 0.3s ease-in-out;
     border: none;
+    background-size: cover; /* Đảm bảo hình ảnh fit trong button */
+    background-repeat: no-repeat; /* Không lặp lại hình ảnh */
+    background-position: center; /* Căn giữa hình ảnh */
   }
+  /* .bg-booked{
+    background-image: url('/vietnam.png'); 
+    background-size: cover;
+    background-position: center; 
+    */
+    /* Style cho trạng thái booked */
+.seat.booked {
+  /* background-image: url('/vietnam.png'); */
+  color: transparent; /* Ẩn số ghế bằng cách làm chữ trong suốt */
+  cursor: not-allowed;
+}
+/* Ghi đè style của trạng thái disabled để không làm mờ */
+.seat:disabled {
+  opacity: 1 !important; /* Giữ nguyên độ sáng, không làm mờ */
+  cursor: not-allowed;
+}

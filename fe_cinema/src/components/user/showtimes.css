@@ -45,7 +45,7 @@
     color: #555;
 }
 .detail-movie{
-    border: 1px solid #bbbbbb;
+    border: 1px solid #666666;
     border-radius: 20px;
     display: flex;
     flex-direction: row;
@@ -53,7 +53,7 @@
     position: relative;
 }
 .movie-img{
-    width: 40%;
+    width: 50%;
     height: 290px;
     overflow: hidden; /* Tránh ảnh tràn ra ngoài */
     display: inline-block;
