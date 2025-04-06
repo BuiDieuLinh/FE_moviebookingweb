@@ -9,6 +9,8 @@ import Account from "../pages/account";
 import Footer from "../components/user/Footer";
 import CinemaAuth from "../components/user/Login";
 import Order from "../components/user/Order";
+import Payment from "../components/user/Payment";
+import MyTickets from "../components/user/Myticket";
 
 function Layout() {
   const location = useLocation();
@@ -24,8 +26,10 @@ function Layout() {
           <Route path="/info-cinemas" element={<Cinemas />} />
           <Route path="/promotions" element={<Promotions />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/my-ticket" element={<MyTickets />} />
           <Route path="/auth" element={<CinemaAuth />} />
           <Route path="/checkout" element={<Order/>}/>
+          <Route path="/payment" element={<Payment/>}/>
         </Routes>
       
 

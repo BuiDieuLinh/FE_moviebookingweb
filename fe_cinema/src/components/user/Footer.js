@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="row">
           {/* Cột 1: Logo & Menu */}
           <div className="col-md-2">
-            <img src="logo-removebg-preview.png" alt="Star Cinemas" className="mb-3" width="100" height="60" style={{objectFit: 'cover'}}/>
+            <img src="/logo-removebg-preview.png" alt="Star Cinemas" className="mb-3" width="100" height="60" style={{objectFit: 'cover'}}/>
             <ul className="list-unstyled">
               <li><a href="#"><i class="fa-solid fa-angle-right"></i> Giới thiệu</a></li>
               <li><a href="#"><i class="fa-solid fa-angle-right"></i> Tuyển dụng</a></li>
@@ -36,11 +36,11 @@ const Footer = () => {
           <div className="col-md-3">
             <h5 className="fw-bold d-inline-block border-bottom border-3 pb-1 border-danger text-nowrap">KẾT NỐI VỚI CHÚNG TÔI</h5>
             <div className="d-flex gap-2">
-              <a href="#"><img src="facebook.png"  alt="Facebook" /></a>
-              <a href="#"><img src="tiktok.png"  alt="Tiktok" /></a>
-              <a href="#"><img src="instagram.png" alt="Instagram" /></a>
+              <a href="#"><img src="/facebook.png"  alt="Facebook" /></a>
+              <a href="#"><img src="/tiktok.png"  alt="Tiktok" /></a>
+              <a href="#"><img src="/instagram.png" alt="Instagram" /></a>
             </div>
-            <img src="dathongbao.png" className="mt-3" width="120" alt="Bộ Công Thương" />
+            <img src="/dathongbao.png" className="mt-3" width="120" alt="Bộ Công Thương" />
           </div>
 
           {/* Cột 4: Liên hệ */}

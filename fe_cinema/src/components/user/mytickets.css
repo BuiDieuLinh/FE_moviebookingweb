@@ -1,0 +1,120 @@
+/* Container chính */
+.mytickets-container {
+    background-color: transparent;
+    color: white;
+    min-height: 100vh;
+    padding-left: 5%;
+    padding-right: 5%;
+    width: 70%;
+    margin-top: 70px;
+  }
+  
+  /* Bảng vé */
+  .custom-ticket-table {
+    background-color: transparent;
+    border: 1px solid #8b949e !important;
+    border-radius: 15px !important;
+    color: white;
+    font-size: 14px;
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  
+  /* Áp dụng border-radius cho phần đầu */
+  .custom-ticket-table thead > tr:first-child th:first-child {
+    border-top-left-radius: 15px;
+  }
+  
+  .custom-ticket-table thead > tr:first-child th:last-child {
+    border-top-right-radius: 15px;
+  }
+  
+  /* Áp dụng border-radius cho phần cuối nếu có */
+  .custom-ticket-table tbody > tr:last-child td:first-child {
+    border-bottom-left-radius: 15px;
+  }
+  
+  .custom-ticket-table tbody > tr:last-child td:last-child {
+    border-bottom-right-radius: 15px;
+  }
+  
+  
+  .custom-ticket-table thead {
+    background-color: transparent;
+    color: #c9d1d9;
+    font-weight: bold;
+  }
+  
+  .custom-ticket-table th,
+  .custom-ticket-table td {
+    background-color: transparent;
+    padding: 10px;
+    color: #c9d1d9;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+  }
+  
+  .custom-ticket-table tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+  }
+  
+  .custom-ticket-table tbody tr:hover {
+    background-color: #1d1d1d;
+  }
+  
+  /* Alert khi không có vé */
+  .custom-alert {
+    background-color: #1c2128;
+    color: #8b949e;
+    border: 1px solid #30363d;
+    padding: 2rem;
+    font-size: 1.1rem;
+    border-radius: 12px;
+  }
+  
+  /* Nút trong alert */
+  .custom-button {
+    font-weight: 500;
+    padding: 8px 20px;
+    background-color: #238636;
+    border: none;
+    color: white;
+    transition: background-color 0.3s ease-in-out;
+  }
+  
+  .custom-button:hover {
+    background-color: #2ea043;
+  }
+  
+  /* Modal hiển thị vé */
+  .custom-ticket-modal .modal-content {
+    background-color: #161b22;
+    color: #c9d1d9;
+    border-radius: 12px;
+    border: none;
+  }
+  
+  .ticket-details {
+    font-size: 0.95rem;
+  }
+  
+  .ticket-details h4 {
+    color: #58a6ff;
+  }
+  
+  .ticket-details strong {
+    color: #e6edf3;
+  }
+  
+  .barcode-section .barcode-image {
+    margin: auto;
+    max-width: 60%;
+  }
+  
+  .barcode-section p {
+    margin-top: 0.5rem;
+  }
+  

@@ -60,7 +60,7 @@ export const Header = () => {
           style={{ backgroundColor: navbarBg, transition: "background-color 0.3s ease-in-out" }} >
         <Container>
           <Navbar.Brand as={Link} to="/">
-            <img src="logo-removebg-preview.png" style={{ width: "100px", height: "50px", objectFit: "cover"}} alt="Logo" />
+            <img src="/logo-removebg-preview.png" style={{ width: "100px", height: "50px", objectFit: "cover"}} alt="Logo" />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav text-white">
@@ -84,7 +84,7 @@ export const Header = () => {
                 <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
               </NavDropdown> */}
               <Nav.Link as={Link} to="/my-ticket">
-                <img src='ticket_2.png'alt='ticket' width={20}/> Vé của tôi
+                <img src='/ticket_2.png'alt='ticket' width={20}/> Vé của tôi
               </Nav.Link>
               <NavDropdown
                   title={
