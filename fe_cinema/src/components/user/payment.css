@@ -1,0 +1,81 @@
+.payment-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+  }
+  
+  .bg-dark {
+    background-color: #1a1a1a !important;
+  }
+  
+  .shadow {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .success-container {
+    animation: fadeIn 1s ease-in-out;
+  }
+  
+  /* Hiệu ứng checkmark */
+  .checkmark-circle {
+    width: 60px;
+    height: 60px;
+    position: relative;
+    margin: 0 auto;
+    background: #28a745;
+    border-radius: 50%;
+    animation: scaleIn 0.5s ease-in-out;
+  }
+  
+  .checkmark {
+    width: 24px;
+    height: 12px;
+    border-left: 4px solid white;
+    border-bottom: 4px solid white;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -70%) rotate(-45deg);
+    animation: drawCheck 0.5s ease-in-out forwards;
+  }
+  
+  /* Animation keyframes */
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @keyframes scaleIn {
+    0% {
+      transform: scale(0);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  @keyframes drawCheck {
+    0% {
+      width: 0;
+      height: 0;
+    }
+    100% {
+      width: 24px;
+      height: 12px;
+    }
+  }
+  
+  button.rounded-pill {
+    font-weight: bold;
+    transition: transform 0.2s;
+  }
+  
+  button.rounded-pill:hover {
+    transform: scale(1.05);
+  }

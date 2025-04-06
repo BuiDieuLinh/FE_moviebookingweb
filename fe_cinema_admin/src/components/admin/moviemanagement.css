@@ -10,6 +10,33 @@
     padding: 10px ;
     font-size: 15px;
   }
+  .table-movie {
+    table-layout: fixed; /* Cố định độ rộng của cột */
+    width: 100%;         /* Đảm bảo bảng chiếm hết chiều rộng */
+}
+
+.table-movie td:nth-child(1), .table-movie th:nth-child(1) {
+    width: 300px;            /* Đặt độ rộng cột cố định */
+    white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
+    overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
+    text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
+}
+.table-movie td:nth-child(2), .table-movie th:nth-child(2) {
+  width: 200px;            /* Đặt độ rộng cột cố định */
+  white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
+  overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
+}
+.table-movie td:nth-child(3), .table-movie th:nth-child(3) {
+  width: 250px;            /* Đặt độ rộng cột cố định */
+  white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
+  overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
+}
+.table-movie td:last-child, .table-movie th:last-child{
+  width: 70px; 
+}
+
   
   .table thead tr th{
     padding: 15px ;
@@ -39,3 +66,4 @@
   border-radius: 5px;
   font-size: 13px;
 }
+

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {Row, Col, Table, Button, Card, Form} from 'react-bootstrap'
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 import './order.css'
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -16,9 +17,9 @@ const Order = () => {
   const [selectedMethod, setSelectedMethod] = useState('VietQR'); // Mặc định chọn VietQR
 
   const paymentMethods = [
-    { id: 'VietQR', name: 'VietQR', logo: 'vietqr.png' },
-    { id: 'vnpay', name: 'VNPAY', logo: 'vnpay.png' },
-    { id: 'ViettelMoney', name: 'Viettel Money', logo: 'viettel1.png' },
+    { id: 'VietQR', name: 'VietQR', logo: '/vietqr.png' },
+    { id: 'vnpay', name: 'VNPAY', logo: '/vnpay.png' },
+    { id: 'ViettelMoney', name: 'Viettel Money', logo: '/viettel1.png' },
   ];
 
   const handleSelect = (method) => {
@@ -45,10 +46,11 @@ const Order = () => {
   
     setIsProcessing(true);
     setError(null);
-  
+    const booking_id = uuidv4();
     try {
       // Chuẩn bị dữ liệu booking
       const bookingData = {
+        booking_id: booking_id,
         user_id: user_id,
         screening_id: screening_id,
         total_price: totalPrice,
@@ -58,42 +60,30 @@ const Order = () => {
   
       // Chuẩn bị dữ liệu booking details từ selectedSeats
       const bookingDetails = selectedSeats.map((seat) => ({
+        booking_id: booking_id,
         seat_id: seat.seat_id, // Giả định seat_name từ FE tương ứng với seat_number ở BE
         price: seat.price,
       }));
+
+      // payment
+      // const payment = {
+      //   amount: totalPrice,
+      //   payment_method: paymentMethod,
+      //   payment_status: "pending",
+      //   created_at: new Date(),
+      // }
   
       // Gửi request tạo booking và details cùng lúc
       const response = await axios.post(`${API_URL}/bookings`, {
         bookings: bookingData,
-        details: bookingDetails,
+        details: bookingDetails
       });
-  
-  
-      // Tạo bản ghi trong bảng Payments
-      const paymentResponse = await axios.post(`${API_URL}/payments`, {
-        booking_id: booking_id,
-        amount: totalPrice,
-        payment_method: paymentMethod,
-        payment_status: "pending",
-        created_at: new Date(),
-      });
+      console.log(response.data)
   
       // Giả lập thanh toán (có thể thay bằng API thanh toán thực tế)
-      const paymentStatus = "success"; // Thay bằng logic thanh toán thực tế nếu có
-      if (paymentStatus === "success") {
-        // Cập nhật trạng thái booking và payment
-        await Promise.all([
-          axios.put(`${API_URL}/bookings/${booking_id}`, { status: "paid" }),
-          axios.put(`${API_URL}/payments/${paymentResponse.data.payment_id}`, {
-            payment_status: "success",
-          }),
-        ]);
   
         alert("Thanh toán thành công!");
-        navigate("/booking-success", { state: { booking_id } });
-      } else {
-        throw new Error("Thanh toán thất bại.");
-      }
+        navigate("/payment", { state: { booking_id, totalPrice } });
     } catch (err) {
       setError("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
       console.error(err);

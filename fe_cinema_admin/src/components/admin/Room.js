@@ -204,7 +204,6 @@ export const Room = () => {
                 <th>Tên phòng</th>
                 <th>Loại phòng</th>
                 <th>Tổng số ghế</th>
-                <th>Ghế đã đặt</th>
                 <th>Status</th>
                 <th></th>
               </tr>
@@ -232,7 +231,6 @@ export const Room = () => {
                   <td>{room.room_name}</td>
                   <td><span className={styleRoomType}>{roomTypeDisplay}</span></td>
                   <td>{room.total_seats}</td>
-                  <td className="text-danger">{0}</td>
                   <td>
                     <span className={styleStatus}>{status}</span>
                   </td>

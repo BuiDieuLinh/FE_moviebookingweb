@@ -60,7 +60,7 @@ body{
 }
 
 .content {
-  /* flex: 1; */
+  flex: 1;
   transition: all 0.3s ease-in-out;
   background-color: #f7f7f7;
   overflow-y: auto; /* Chỉ cho phép cuộn theo chiều dọc */

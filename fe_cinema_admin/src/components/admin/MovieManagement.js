@@ -175,10 +175,9 @@ const MovieManagement = () => {
         </div>
 
         <div className="table-responsive rounded-2">
-          <Table hover>
+          <Table className="table-movie" hover>
             <thead>
               <tr className="p-4">
-                <th></th>
                 <th>Tên phim</th>
                 <th>Thể loại</th>
                 <th>Đạo diễn</th>
@@ -195,8 +194,7 @@ const MovieManagement = () => {
 
                 return (
                   <tr key={movie.movie_id || index}>
-                    <td>{index + 1}</td>
-                    <td>{movie.title}</td>
+                    <td className="movie-title">{movie.title}</td>
                     <td>{movie.genre}</td>
                     <td>{movie.director}</td>
                     <td className="text-center">{movie.duration}</td>
