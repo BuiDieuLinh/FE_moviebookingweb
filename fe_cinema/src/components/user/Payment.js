@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card, Spinner } from 'react-bootstrap';
+import Swal from 'sweetalert2'
 import axios from 'axios';
 import './payment.css'; // File CSS tùy chỉnh
 
@@ -9,17 +10,17 @@ const API_URL = process.env.REACT_APP_API_URL;
 const Payment = () => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { booking_id, totalPrice } = state || {};
+  const { booking_id,  totalPrice, paymentMethod} = state || {};
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [error, setError] = useState(null);
 
   // Kiểm tra dữ liệu đầu vào
   useEffect(() => {
-    if (!booking_id || !totalPrice) {
+    if (!booking_id || !totalPrice || !paymentMethod ) {
       setError('Thiếu thông tin thanh toán. Vui lòng quay lại.');
     }
-  }, [booking_id, totalPrice]);
+  }, [booking_id, totalPrice, paymentMethod]);
 
   // Hàm xử lý thanh toán (giả lập hoặc gọi API thực tế)
   const handlePayment = async () => {
@@ -28,22 +29,23 @@ const Payment = () => {
 
     try {
       // Gọi API thanh toán MoMo (thay bằng API thực tế của bạn)
-      const response = await axios.post(`${API_URL}/payments/payment_momo`, {
+      const response = await axios.post(`${API_URL}/payments`, {
         booking_id,
         amount: totalPrice,
-        payment_method: 'momo',
+        payment_method: paymentMethod,
+        payment_status: 'success'
       });
-
-      if (response.data.payUrl) {
-        // Chuyển hướng đến URL thanh toán của MoMo
-        window.location.href = response.data.payUrl;
-      } else {
-        // Giả lập thanh toán thành công
-        setTimeout(() => {
-          setPaymentSuccess(true);
-          setIsProcessing(false);
-        }, 2000); // 2 giây giả lập
-      }
+    
+      console.log(response.data);
+    
+      // Hiển thị thông báo
+    
+      setPaymentSuccess(true);      
+      setIsProcessing(false);        
+    
+      // Có thể xử lý logic tiếp theo ở đây nếu cần
+      // Ví dụ: chuyển trang, làm mới dữ liệu, vv.
+    
     } catch (err) {
       setError('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
       setIsProcessing(false);
@@ -68,7 +70,7 @@ const Payment = () => {
   }
 
   return (
-    <Container className="payment-container my-5">
+    <div className="payment-container">
       <Row className="justify-content-center">
         <Col md={6}>
           <Card className="bg-dark text-light p-4 rounded-4 shadow">
@@ -81,7 +83,10 @@ const Payment = () => {
                       <strong>Mã đặt vé:</strong> {booking_id}
                     </p>
                     <p>
-                      <strong>Số tiền:</strong> {totalPrice.toLocaleString('vi-VN')} đ
+                      <strong>Phương thức thanh toán: </strong> {paymentMethod}
+                    </p>
+                    <p>
+                      <strong>Số tiền:</strong> {totalPrice} đ
                     </p>
                   </div>
                   <Button
@@ -126,7 +131,7 @@ const Payment = () => {
           </Card>
         </Col>
       </Row>
-    </Container>
+    </div>
   );
 };
 

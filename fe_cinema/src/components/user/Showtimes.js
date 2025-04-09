@@ -70,7 +70,7 @@ export const Showtimes = () => {
     <div className='showtime-container'>
       <div className="d-flex align-items-center gap-2 text-white flex-row justify-content-center">
         <div className="rounded-circle bg-danger bg-gradient" style={{ width: "16px", height: "16px" }}></div>
-        <h4 className="fw-bold m-0">Phim đang chiếu</h4>
+        <h5 className="fw-bold my-4">Phim đang chiếu</h5>
       </div>
 
       {/* Ngày chiếu */}

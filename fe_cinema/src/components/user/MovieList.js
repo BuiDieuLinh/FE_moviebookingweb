@@ -34,7 +34,7 @@ export const MovieList = () => {
         
     }
   return (
-    <div style={{margin: '30px 0px'}}>
+    <div >
         <Container fluid  className='container'>
             <Row className="justify-content-start g-4 d-flex flex-wrap ">
                 {movies.map((movie) => (
@@ -42,13 +42,13 @@ export const MovieList = () => {
                     <Card className="movie-card bg-black">
                         <div className="badge-container">
                         <img 
-                            src={movie.age_restriction === 0 ? "c-p.png" : movie.age_restriction === 13 ? "c-16.png" : "c-18.png"} 
+                            src={movie.age_restriction === 0 ? "c-p.png" : movie.age_restriction === 16 ? "c-16.png" : "c-18.png"} 
                             alt={movie.age_restriction} 
                             className="age_badge" 
                         />
                         </div>
                         <div className="image-container">
-                            <Card.Img variant="top" src={`${API_URL}${movie.poster_url}`} alt={movie.title} />
+                            <Card.Img style={{maxHeight: '270px'}} variant="top" src={`${API_URL}${movie.poster_url}`} alt={movie.title} />
                             <div className="overlay">
                             <Button variant="secondary" 
                                     className="btn-hover" 
@@ -58,9 +58,11 @@ export const MovieList = () => {
                             </div>
                         </div>
                         <Card.Body className='card-body'>
+                            <div className='d-flex justify-content-between my-2'>
+                                 <p>{movie.genre}</p>
+                                <p>{movie.duration} phút</p>
+                            </div>
                             <Card.Title className="movie-title text-white">{movie.title}</Card.Title>
-                            <p><strong>Thể loại:</strong> {movie.genre}</p>
-                            <p><strong>Thời lượng:</strong> {movie.duration} phút</p>
                         </Card.Body>
                     </Card>
                 </Col>

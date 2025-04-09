@@ -5,9 +5,11 @@ import Slideshow from "../components/user/Slideshow"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen">
       <Slideshow />
-      <Section/>
+      <Section title="Phim đang chiếu" />
+      <MovieList/>
+      <Section title="Phim sắp chiếu" />
       <MovieList/>
     </div>
   );

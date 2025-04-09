@@ -18,11 +18,6 @@ export const Header = () => {
     // Lấy user từ localStorage
     const storedUser = localStorage.getItem("user");
 
-    // if (!storedUser) {
-    //   navigate("/auth"); // Nếu chưa đăng nhập, chuyển hướng về trang đăng nhập
-    //   return;
-    // }
-
     setUser(JSON.parse(storedUser)); // Chuyển từ JSON về object
   }, [navigate]);
 
@@ -35,14 +30,14 @@ export const Header = () => {
 
 
   {/* hiệu ứng đổi bg header */}
-  const [navbarBg, setNavbarBg] = useState("black"); // Màu mặc định trong suốt
+  const [navbarBg, setNavbarBg] = useState("bg dark"); // Màu mặc định trong suốt
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 50) {
-        setNavbarBg("rgba(255,255,255,0.1)"); // Đổi màu khi cuộn xuống
+      if (window.scrollY > 0) {
+        setNavbarBg("rgba(255, 255, 255, 0.15)"); // Đổi màu khi cuộn xuống
       } else {
-        setNavbarBg("black"); // Trở về trong suốt khi lên đầu trang
+        setNavbarBg("bg dark"); // Trở về trong suốt khi lên đầu trang
       }
     };
 
@@ -55,12 +50,11 @@ export const Header = () => {
 
   return (
     <div >
-      
-      <Navbar collapseOnSelect className="navbar-blur" expand="lg" bg="dark" variant="dark"  fixed="top" 
-          style={{ backgroundColor: navbarBg, transition: "background-color 0.3s ease-in-out" }} >
+      <Navbar collapseOnSelect className="navbar-blur" expand="lg"  variant="dark"  fixed="top" 
+          style={{ backgroundColor: navbarBg, transition: "background-color 0.3s ease-in-out", backdropFilter: 'blur(50px)' }} >
         <Container>
           <Navbar.Brand as={Link} to="/">
-            <img src="/logo-removebg-preview.png" style={{ width: "100px", height: "50px", objectFit: "cover"}} alt="Logo" />
+            <img src="/logo-removebg-preview.png" style={{ width: "80px", height: "40px", objectFit: "cover"}} alt="Logo" />
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="responsive-navbar-nav" />
           <Navbar.Collapse id="responsive-navbar-nav text-white">
@@ -71,18 +65,6 @@ export const Header = () => {
                 <Nav.Link as={Link} to="/promotions">Ưu đãi</Nav.Link>
             </Nav>
             <Nav className='gap-4'>
-              {/* <NavDropdown
-                title="Chọn rạp"
-                id="collapsible-nav-dropdown"
-                className="custom-dropdown" // Thêm class riêng để style
-                align="end"
-              >
-                <NavDropdown.Item href="#action/3.1">Chế độ tối</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.2">Ngôn ngữ</NavDropdown.Item>
-                <NavDropdown.Item href="#action/3.3">Tài khoản</NavDropdown.Item>
-                <NavDropdown.Divider />
-                <NavDropdown.Item href="#action/3.4">Separated link</NavDropdown.Item>
-              </NavDropdown> */}
               <Nav.Link as={Link} to="/my-ticket">
                 <img src='/ticket_2.png'alt='ticket' width={20}/> Vé của tôi
               </Nav.Link>
@@ -100,7 +82,7 @@ export const Header = () => {
                 <NavDropdown.Item as={Link} to="#action/3.2"> Ngôn ngữ </NavDropdown.Item>
                 <NavDropdown.Item as={Link} to="/account">Tài khoản</NavDropdown.Item>
                 <NavDropdown.Divider />
-                <NavDropdown.Item as={Link} to="#action/3.4" onClick={handleLogout}>
+                <NavDropdown.Item as={Link} to="/auth" onClick={handleLogout}>
                   Đăng xuất 
                 </NavDropdown.Item>
               </NavDropdown>

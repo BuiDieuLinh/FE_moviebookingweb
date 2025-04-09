@@ -69,7 +69,6 @@ const CinemaAuth = () => {
           <Col xs={11} sm={10} md={8} lg={6}>
             <div className="auth-card animate-fade-in">
               <div className="auth-header">
-                <button className="close-btn">&times;</button>
                 <h2 className="auth-title animate-title">
                   {isLogin ? 'Welcome Back!' : 'Welcome New Guest!'}
                 </h2>
@@ -108,7 +107,7 @@ const CinemaAuth = () => {
 
                   {error && <p className="text-danger text-center">{error}</p>}
 
-                  <Button variant="primary" type="submit" className="w-100 auth-button animate-button">
+                  <Button type="submit" variant='danger' className="w-100 auth-button animate-button">
                     {isLogin ? 'Login' : 'Get Started'}
                   </Button>
                 </Form>

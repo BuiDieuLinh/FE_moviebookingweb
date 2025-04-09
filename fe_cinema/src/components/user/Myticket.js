@@ -57,7 +57,7 @@ const MyTickets = () => {
 
   if (loading) {
     return (
-      <Container className="text-center my-5">
+      <Container style={{margin: '70px auto'}}>
         <h4 className="text-light">Đang tải vé...</h4>
       </Container>
     );
@@ -65,12 +65,12 @@ const MyTickets = () => {
 
   if (error) {
     return (
-      <Container className="text-center my-5">
+      <div style={{margin: '100px auto', textAlign: 'center', width: '70%'}}>
         <Alert variant="danger">{error}</Alert>
-        <Button variant="dark" onClick={() => navigate('/login')}>
+        <Button variant="dark" onClick={() => navigate('/auth')}>
           Đăng nhập
         </Button>
-      </Container>
+      </div>
     );
   }
 

@@ -8,38 +8,9 @@ import axios from 'axios';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-function MyVerticallyCenteredModal(props) {
-  return (
-    <Modal
-      {...props}
-      size="md"
-      aria-labelledby="contained-modal-title-vcenter"
-      centered
-    >
-      <Modal.Header closeButton className='bg-dark text-light'>
-        <Modal.Title id="contained-modal-title-vcenter">
-          Chi tiết nội dung
-        </Modal.Title>
-      </Modal.Header>
-      <Modal.Body className='bg-dark text-light rounded-bottom'>
-        <p>
-          Nhà Gia Tiên xoay quanh câu chuyện đa góc nhìn về các thế hệ khác nhau trong một gia đình, 
-          có hai nhân vật chính là Gia Minh (Huỳnh Lập) và Mỹ Tiên (Phương Mỹ Chi). 
-          Trở về căn nhà gia tiên để quay các video “triệu view” trên mạng xã hội, 
-          Mỹ Tiên - một nhà sáng tạo nội dung thuộc thế hệ Z vốn không tin vào chuyện tâm linh, 
-          hoàn toàn mất kết nối với gia đình, bất ngờ nhìn thấy Gia Minh - người anh trai đã mất từ lâu. 
-          Để hồn ma của Gia Minh có thể siêu thoát và không tiếp tục làm phiền mình, 
-          Mỹ Tiên bắt tay cùng Gia Minh lên kế hoạch giữ lấy căn nhà gia tiên đang bị họ hàng tranh chấp, 
-          đòi ông nội chia tài sản. Đứng trước hàng loạt bí mật động trời trong căn nhà gia tiên, 
-          liệu Mỹ Tiên có vượt qua được tất cả để hoàn thành di nguyện của Gia Minh?
-        </p>
-      </Modal.Body>
-    </Modal>
-  );
-}
-
 export const MovieDetail = () => {
   const [modalShow, setModalShow] = React.useState(false);
+  const [showTrailer, setShowTrailer] = useState(false); 
   const { id } = useParams();
   const navigate = useNavigate();
   const countdownRef = useRef(null);
@@ -277,7 +248,16 @@ export const MovieDetail = () => {
       },
     });
   };
-
+  const getEmbedUrl = (url) => {
+    if (!url) return "";
+    const regex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    if (match && match[1]) {
+      return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    return "";
+  };
+  
   if (!movie) return <p style={{ marginTop: '70px' }}>Đang tải...</p>;
 
   return (
@@ -291,29 +271,67 @@ export const MovieDetail = () => {
             </div>
             <div className='info-detail'>
               <div className='title-rep'>
-                <Card.Title className="fs-3 fw-bold text-uppercase">{movie.title}</Card.Title>
+                <Card.Title className="fs-3 fw-bold text-uppercase">
+                  {movie.title}<span className='mx-3'>-</span>
+                  <span >{movie.age_restriction === 0 ? 'P' : `T${movie.age_restriction}`}</span>
+                </Card.Title>
                 <Card.Text className=''>
-                  {movie.genre} <span>Viet Nam</span><span>{movie.duration} phút</span>
+                  {movie.genre} <span className='px-4'> Viet Nam </span> <span>{movie.duration} phút</span>
                 </Card.Text>
               </div>
               <div className="text-md-start mt-3">
                 <Card.Text className='m-0'> Đạo diễn: <span>{movie.director}</span></Card.Text>
-                <Card.Text className='m-0'> Diễn viên: <span>{movie.cast}</span></Card.Text>
-                <Card.Text className=''> Khởi chiếu: <span></span></Card.Text>
+                <Card.Text className='m-0 text-nowrap; '> Diễn viên: <span>{movie.cast}</span></Card.Text>
+                <Card.Text className=''> Khởi chiếu: <span>{new Date(movie.release_date).toISOString().split('T')[0]}</span></Card.Text>
                 <Card.Text className='text-truncate-multiline'>
                   {movie.description}
                 </Card.Text>
-                <Card.Text className='text-danger'>Kiểm duyệt: T18 - Phim được phổ biến đến người xem từ đủ 18 tuổi trở lên (18+)</Card.Text>
-                <div className='d-flex gap-4 align-items-center'>
-                  <a className='text-decoration-underline text-light' onClick={() => setModalShow(true)}>chi tiết nội dung</a>
-                  <Button className='rounded-pill border-2 border-warning px-4 bg-transparent text-warning' onClick={() => setModalShow(true)}>
-                    Trailer
-                  </Button>
-                </div>
-                <MyVerticallyCenteredModal
-                  show={modalShow}
-                  onHide={() => setModalShow(false)}
-                />
+                <Card.Text className='text-danger'>
+                  {movie.age_restriction === 0 ? 'Kiểm duyệt.' : `Kiểm duyệt: T${movie.age_restriction} - Phim được phổ biến đến người xem từ đủ ${movie.age_restriction} tuổi trở lên (${movie.age_restriction}+)`} 
+                </Card.Text>
+                <a className='text-decoration-underline text-light'
+                  onClick={() => {
+                    setShowTrailer(false);
+                    setModalShow(true);
+                  }}>
+                  chi tiết nội dung
+                </a>
+
+                <Button size='sm'
+                  className='ms-4 rounded-pill border-2 border-warning px-4 bg-transparent text-warning'
+                  onClick={() => {
+                    setShowTrailer(true);
+                    setModalShow(true);
+                  }}>
+                  Trailer
+                </Button>
+
+                {/* Show mô tả phim */}
+                <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
+                  <Modal.Header closeButton className='bg-dark text-light'>
+                    <Modal.Title id="contained-modal-title-vcenter">
+                      {showTrailer ? "Trailer phim" : "Chi tiết nội dung"}
+                    </Modal.Title>
+                  </Modal.Header>
+                  <Modal.Body className='bg-dark text-light rounded-bottom'>
+                    {showTrailer ? (
+                      <div className="ratio ratio-16x9">
+                        <iframe
+                          width="100%"
+                          height="315"
+                          src={getEmbedUrl(movie.trailer_url)}
+                          title="Trailer"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        ></iframe>
+                      </div>
+                    ) : (
+                      <p>{movie.description}</p>
+                    )}
+                  </Modal.Body>
+                </Modal>
+
               </div>
             </div>
           </div>

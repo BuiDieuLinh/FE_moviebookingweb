@@ -21,15 +21,8 @@ const Footer = () => {
 
           {/* Cột 2: Cụm rạp */}
           <div className="col-md-4">
-            <h5 className="fw-bold d-inline-block border-bottom border-3 pb-1 border-danger">CỤM RẠP STAR</h5>
-            <ul className="list-unstyled">
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas Xuân Thủy - Hotline 0333 023 183</li>
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas Tây Sơn - Hotline 0976 894 773</li>
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas Vĩnh Yên - Hotline 0977 632 215</li>
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas HCM - Hotline 0969 874 873</li>
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas Lào Cai - Hotline 0358 968 970</li>
-              <li><i class="fa-solid fa-angle-right"></i> Star Cinemas Trần Quang Khải - Hotline 1900 638 362</li>
-            </ul>
+            <h5 className="fw-bold d-inline-block border-bottom border-3 pb-1 border-danger">RẠP STAR</h5>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14905.02472937689!2d106.04970306158066!3d20.942224794537392!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3135a30555555555%3A0x39a8acd006ab8e69!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBTxrAgUGjhuqFtIEvhu7kgVGh14bqtdCBIxrBuZyBZw6puLCBDxqEgc-G7nyAy!5e0!3m2!1svi!2s!4v1744220909456!5m2!1svi!2s" style={{border:"0", margin: '5px 0px'}} width="100%" height="250" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
 
           {/* Cột 3: Kết nối MXH */}
@@ -47,11 +40,11 @@ const Footer = () => {
           <div className="col-md-3 ">
             <h5 className="fw-bold d-inline-block border-bottom border-3 pb-1 border-danger">LIÊN HỆ</h5>
             <p className="mb-1">CÔNG TY CỔ PHẦN STAR MEDIA</p>
-            <p className="mb-1">Hotline: <strong>1900 636807 / 0934632682</strong></p>
+            <p className="mb-1">Hotline: <strong>1900 6368xx / 0934632382</strong></p>
             <p>Email: <a href="mailto:mkt@starcinemas.vn">mkt@starcinemas.vn</a></p>
             <h6 className="fw-bold mt-3">Liên hệ hợp tác kinh doanh:</h6>
-            <p>Hotline: <strong>1800 646 420</strong></p>
-            <p>Email: <a href="mailto:bachtx@betagroup.vn">bachtx@betagroup.vn</a></p>
+            <p>Hotline: <strong>1800 646 410</strong></p>
+            <p>Email: <a href="mailto:bachtx@betagroup.vn">linh@stargroup.vn</a></p>
           </div>
         </div>
       </div>

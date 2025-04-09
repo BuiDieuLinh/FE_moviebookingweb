@@ -253,56 +253,56 @@ export const Account = () => {
               </Table>
 
               <Modal
-            show={showModal}
-            onHide={handleCloseModal}
-            centered
-            dialogClassName="custom-ticket-modal"
-          >
-            <Modal.Header closeButton className="bg-dark text-light border-0">
-              <Modal.Title>Thông tin chi tiết vé</Modal.Title>
-            </Modal.Header>
-            <Modal.Body className="bg-dark text-light">
-              {selectedTicket && (
-                <div className="ticket-details">
-                    <Row>
-                        <Col md='4'>
-                            <Image src={`${API_URL}${selectedTicket.movie_image}`} width={150} height={180} className='rounded'></Image>
-                        </Col>
-                        <Col className='d-flex flex-column'>
-                            <h4 className="text-uppercase mb-3 text-danger fw-bold">
-                                {selectedTicket.movie_title}
-                            </h4>
-                            <p className="text-light">
-                                {formatDateTime(selectedTicket.screening_date, selectedTicket.time)}{' '}
-                                ({selectedTicket.screening_format})
-                            </p>
-                            <p><strong>Phòng chiếu:</strong> {selectedTicket.room_name}</p>
-                            <p><strong>Ghế:</strong>{' '}
-                            {selectedTicket.seats.map((seat) => seat.seat_name).join(', ')}</p>
-                        </Col>
-                    </Row>
-                    <div className="barcode-section text-center">
-                        <p className="text-warning mb-1">Lấy ngay</p>
-                        <Image
-                        src="https://barcode.tec-it.com/barcode.ashx?data=354729141&code=Code128&dpi=96"
-                        alt="Barcode"
-                        fluid
-                        className="barcode-image"
-                        />
-                    </div>
-                </div>
-              )}
-            </Modal.Body>
-            <Modal.Footer className="bg-dark border-0">
-              <Button
-                variant="secondary" size='sm'
-                className="rounded custom-button"
-                onClick={handleCloseModal}
+                show={showModal}
+                onHide={handleCloseModal}
+                centered
+                dialogClassName="custom-ticket-modal"
               >
-                Đóng
-              </Button>
-            </Modal.Footer>
-          </Modal>
+                <Modal.Header closeButton className="bg-dark text-light border-0">
+                  <Modal.Title>Thông tin chi tiết vé</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="bg-dark text-light">
+                  {selectedTicket && (
+                    <div className="ticket-details">
+                        <Row>
+                            <Col md='4'>
+                                <Image src={`${API_URL}${selectedTicket.movie_image}`} width={150} height={180} className='rounded'></Image>
+                            </Col>
+                            <Col className='d-flex flex-column'>
+                                <h4 className="text-uppercase mb-3 text-danger fw-bold">
+                                    {selectedTicket.movie_title}
+                                </h4>
+                                <p className="text-light">
+                                    {formatDateTime(selectedTicket.screening_date, selectedTicket.time)}{' '}
+                                    ({selectedTicket.screening_format})
+                                </p>
+                                <p><strong>Phòng chiếu:</strong> {selectedTicket.room_name}</p>
+                                <p><strong>Ghế:</strong>{' '}
+                                {selectedTicket.seats.map((seat) => seat.seat_name).join(', ')}</p>
+                            </Col>
+                        </Row>
+                        <div className="barcode-section text-center">
+                            <p className="text-warning mb-1">Lấy ngay</p>
+                            <Image
+                            src={`${API_URL}${selectedTicket.qr_code}`}
+                            alt="Barcode"
+                            fluid
+                            className="barcode-image"
+                            />
+                        </div>
+                    </div>
+                  )}
+                </Modal.Body>
+                <Modal.Footer className="bg-dark border-0">
+                  <Button
+                    variant="secondary" size='sm'
+                    className="rounded custom-button"
+                    onClick={handleCloseModal}
+                  >
+                    Đóng
+                  </Button>
+                </Modal.Footer>
+              </Modal>
         </div>;
       case 'Quyền lợi':
         return <div className="content-3">🎁 Quyền lợi của bạn</div>;

@@ -1,21 +1,11 @@
-import Nav from 'react-bootstrap/Nav';
 import "./section.css"
 
-function SectionMovie() {
+function SectionMovie({title}) {
   return (
-    <Nav variant="underline" defaultActiveKey="/now-showing" className="movie-nav">
-      <Nav.Item>
-        <Nav.Link href="/coming-soon">Phim Sắp Chiếu</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="/now-showing">Phim Đang Chiếu</Nav.Link>
-      </Nav.Item>
-      <Nav.Item>
-        <Nav.Link eventKey="disabled" disabled>
-          Suất chiếu đặc biệt
-        </Nav.Link>
-      </Nav.Item>
-    </Nav>
+    <div className="d-flex align-items-center gap-2 text-white flex-row my-4 container">
+      {/* <div className="rounded-circle bg-danger bg-gradient" style={{ width: "12px", height: "12px" }}></div> */}
+      <span className="title">{title}</span>
+    </div>
   );
 }
 

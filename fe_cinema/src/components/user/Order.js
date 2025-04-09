@@ -61,18 +61,10 @@ const Order = () => {
       // Chuẩn bị dữ liệu booking details từ selectedSeats
       const bookingDetails = selectedSeats.map((seat) => ({
         booking_id: booking_id,
-        seat_id: seat.seat_id, // Giả định seat_name từ FE tương ứng với seat_number ở BE
+        seat_id: seat.seat_id, 
         price: seat.price,
       }));
 
-      // payment
-      // const payment = {
-      //   amount: totalPrice,
-      //   payment_method: paymentMethod,
-      //   payment_status: "pending",
-      //   created_at: new Date(),
-      // }
-  
       // Gửi request tạo booking và details cùng lúc
       const response = await axios.post(`${API_URL}/bookings`, {
         bookings: bookingData,
@@ -83,7 +75,7 @@ const Order = () => {
       // Giả lập thanh toán (có thể thay bằng API thanh toán thực tế)
   
         alert("Thanh toán thành công!");
-        navigate("/payment", { state: { booking_id, totalPrice } });
+        navigate("/payment", { state: { booking_id, totalPrice, paymentMethod } });
     } catch (err) {
       setError("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
       console.error(err);
