@@ -23,7 +23,7 @@ export function ToastProvider({ children }) {
       {children}
 
       {/* Hiển thị danh sách Toast */}
-      <ToastContainer position="middle-end" className="p-3" style={{ zIndex: 9999}}>
+      <ToastContainer position="bottom-end" className="p-3" style={{ zIndex: 9999}}>
         {toasts.map((toast) => (
           <Toast key={toast.id} bg="success">
             <Toast.Header>

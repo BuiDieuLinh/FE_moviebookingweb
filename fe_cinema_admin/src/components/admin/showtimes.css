@@ -53,3 +53,15 @@
   border-radius: 5px;
   font-size: 13px;
 }
+/* Giới hạn chiều rộng cột Phim chiếu */
+.movie-title-column {
+  max-width: 200px; /* Điều chỉnh chiều rộng tối đa theo ý muốn */
+  white-space: nowrap; /* Ngăn không cho xuống dòng */
+  overflow: hidden; /* Ẩn phần nội dung vượt quá */
+  text-overflow: ellipsis; /* Hiển thị dấu ... khi nội dung bị cắt */
+}
+
+/* Đảm bảo các cột khác không bị ảnh hưởng */
+.table th, .table td {
+  vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+}
