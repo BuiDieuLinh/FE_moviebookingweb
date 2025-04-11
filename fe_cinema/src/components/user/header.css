@@ -7,6 +7,11 @@ body{
     margin-right: 20px; /* Dịch sang trái 20px */
     background-color: black !important;
   }
+  .dropdown-toggle{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
   .dropdown-menu{
     background-color: black !important;
   }

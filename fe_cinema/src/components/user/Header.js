@@ -71,7 +71,7 @@ export const Header = () => {
               <NavDropdown
                   title={
                     <>
-                      <i className="fa-regular fa-user"></i>{" "}
+                      <i className="fa-regular fa-user "></i>{" "}
                       {user ? user.username : "Guest"}
                     </>
                   }

@@ -1,71 +1,97 @@
 import React, { useState } from 'react';
-import axios from 'axios'; // Import Axios
+import axios from 'axios';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Dùng để chuyển hướng
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
+import Swal from "sweetalert2";
 import "./login.css";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 const CinemaAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const navigate = useNavigate(); // Hook để điều hướng
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState({}); // Sử dụng object thay vì null
+  const navigate = useNavigate();
 
   const handleSwitch = () => {
     setIsLogin(!isLogin);
-    setError(null); // Xóa lỗi khi chuyển tab
+    setErrors({}); // Xóa lỗi khi chuyển tab
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-  
+    setErrors({}); // Reset lỗi trước khi gửi request
+
     try {
-      const response = await axios.post("http://localhost:5000/users/login", {
+      if (!isLogin) {
+        try {
+          const response = await axios.post(`${API_URL}/users`, {
+            email,
+            username,
+            password
+          });
+          console.log(response.data);
+          Swal.fire({
+            title: "Signup Successful!",
+            icon: "success",
+            draggable: true
+          });
+          setIsLogin(true); // Chuyển sang login sau khi đăng ký thành công
+        } catch (err) {
+          console.error("Lỗi khi đăng ký tài khoản: ", err);
+          if (err.response && err.response.status === 400) {
+            const { field, message } = err.response.data;
+            setErrors({ [field]: message }); // Lưu lỗi theo field
+          } else {
+            setErrors({ general: "Đăng ký thất bại! Vui lòng thử lại." });
+          }
+          return; // Dừng lại nếu đăng ký thất bại
+        }
+      }
+
+      const response = await axios.post(`${API_URL}/users/login`, {
         username,
         password,
       });
-  
-      const { token } = response.data; // API chỉ trả về token
-  
-      // ✅ Giải mã token để lấy user_id
+
+      const { token } = response.data;
       const decoded = jwtDecode(token);
-      const user_id = decoded.user_id; // Giả sử token chứa user_id
-  
+      const user_id = decoded.user_id;
+
       localStorage.setItem("token", token);
       localStorage.setItem("user_id", user_id);
-  
-      // ✅ Gọi API lấy thông tin user
+
       fetchUserInfo(user_id, token);
     } catch (error) {
-      setError("Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản.");
+      setErrors({ general: "Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản." });
     }
   };
+
   const fetchUserInfo = async (user_id, token) => {
     try {
-      const response = await axios.get(`http://localhost:5000/users/${user_id}`, {
+      const response = await axios.get(`${API_URL}/users/${user_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-  
-      const userData = response.data[0]; // API trả về mảng
-  
-      localStorage.setItem("user", JSON.stringify(userData)); // Lưu user vào localStorage
-      navigate("/"); // Chuyển hướng về trang chủ
+
+      const userData = response.data[0];
+      localStorage.setItem("user", JSON.stringify(userData));
+      navigate("/");
     } catch (error) {
-      setError("Không thể lấy thông tin người dùng.");
+      setErrors({ general: "Không thể lấy thông tin người dùng!" });
     }
   };
-  
 
   return (
     <div className="cinema-auth-bg">
       <Container className="h-100">
         <Row className="justify-content-center flex-column align-items-center h-100">
           <Col xs={11} sm={10} md={8} lg={6} className='d-inline text-center mb-5'>
-            <img src='logo-removebg-preview.png' width={100} height={50} style={{objectFit: 'cover'}}></img>
+            <img src='logo-removebg-preview.png' width={100} height={50} style={{ objectFit: 'cover' }} alt="logo" />
           </Col>
-          
+
           <Col xs={11} sm={10} md={8} lg={6}>
             <div className="auth-card animate-fade-in">
               <div className="auth-header">
@@ -81,7 +107,17 @@ const CinemaAuth = () => {
                 <Form onSubmit={handleSubmit}>
                   {!isLogin && (
                     <Form.Group className="mb-3 animate-slide-in">
-                      <Form.Control type="text" placeholder="Full Name" className="auth-input" />
+                      <Form.Control
+                        type="email" // Đổi thành type="email" để validate email tốt hơn
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        isInvalid={!!errors.email} // Kiểm tra lỗi email
+                        className="auth-input"
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.email}
+                      </Form.Control.Feedback>
                     </Form.Group>
                   )}
 
@@ -92,7 +128,11 @@ const CinemaAuth = () => {
                       className="auth-input"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
+                      isInvalid={!!errors.username} // Kiểm tra lỗi username
                     />
+                    <Form.Control.Feedback type="invalid">
+                      {errors.username}
+                    </Form.Control.Feedback>
                   </Form.Group>
 
                   <Form.Group className="mb-3">
@@ -105,7 +145,9 @@ const CinemaAuth = () => {
                     />
                   </Form.Group>
 
-                  {error && <p className="text-danger text-center">{error}</p>}
+                  {errors.general && (
+                    <p className="text-danger text-center">{errors.general}</p>
+                  )}
 
                   <Button type="submit" variant='danger' className="w-100 auth-button animate-button">
                     {isLogin ? 'Login' : 'Get Started'}
@@ -121,9 +163,6 @@ const CinemaAuth = () => {
                   </p>
                 </div>
               </div>
-              {/* <div className="cinema-logo">
-                <span>KING</span>
-              </div> */}
             </div>
           </Col>
         </Row>
