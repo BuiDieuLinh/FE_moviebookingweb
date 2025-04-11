@@ -22,10 +22,10 @@
     text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
 }
 .table-movie td:nth-child(2), .table-movie th:nth-child(2) {
-  width: 200px;            /* Đặt độ rộng cột cố định */
-  white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
-  overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
-  text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
+  width: 200px;            
+  white-space: nowrap;     
+  overflow: hidden;        
+  text-overflow: ellipsis; 
 }
 .table-movie td:nth-child(3), .table-movie th:nth-child(3) {
   width: 250px;            /* Đặt độ rộng cột cố định */
@@ -50,7 +50,7 @@
     font-weight: 600 !important;
 }
 
-.nowshowing{
+.nowshow{
   border: 1px solid rgb(0, 112, 0);
   color: rgb(0, 112, 0);
   background-color: rgba(0, 150, 0, 0.2);

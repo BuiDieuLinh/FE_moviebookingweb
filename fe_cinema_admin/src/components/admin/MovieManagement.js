@@ -12,6 +12,7 @@ const MovieManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [selectStatus, setSelectStatus] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     genre: "",
@@ -22,6 +23,7 @@ const MovieManagement = () => {
     poster_url: null, // Chỉ lưu đường dẫn từ server, không lưu trực tiếp file
     created_at: "",
     cast: "",
+    age_restriction: "",
     trailer_url: "",
   });
 
@@ -60,6 +62,7 @@ const MovieManagement = () => {
         poster_url: movie.poster_url || "", // Đường dẫn từ server
         created_at: movie.created_at || "",
         cast: movie.cast || "",
+        age_restriction: movie.age_restriction || "",
         trailer_url: movie.trailer_url || "",
       });
       setImagePreview(movie.poster_url ? `${process.env.REACT_APP_PORT || "http://localhost:5000"}/${movie.poster_url}` : null);
@@ -74,6 +77,7 @@ const MovieManagement = () => {
         poster_url: null,
         created_at: "",
         cast: "",
+        age_restriction: "",
         trailer_url: "",
       });
       setImagePreview(null);
@@ -105,6 +109,7 @@ const MovieManagement = () => {
       formDataToSend.append("release_date", formData.release_date.split("T")[0]);
       formDataToSend.append("description", formData.description);
       formDataToSend.append("cast", formData.cast);
+      formDataToSend.append("age_restriction", formData.age_restriction);
       formDataToSend.append("trailer_url", formData.trailer_url);
 
       if (formData.poster_url instanceof File) {
@@ -113,6 +118,7 @@ const MovieManagement = () => {
         formDataToSend.append("poster_url", formData.poster_url); // Gửi đường dẫn cũ khi chỉnh sửa
       }
 
+      console.log(formDataToSend)
       let response;
       if (selectedMovie) {
         response = await axios.put(`${API_URL}/${selectedMovie.movie_id}`, formDataToSend, {
@@ -147,10 +153,17 @@ const MovieManagement = () => {
       console.error("Lỗi khi xóa phim:", error);
     }
   };
+  // lọc trạng thái
+  const currentMovies = movies.filter((mv) => {
+    const isNowShowing = new Date(mv.release_date) <= new Date();
+    const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
+
+    return selectStatus ? status === selectStatus : true; // Nếu có searchStatus, lọc theo trạng thái
+  })
 
   return (
     <div className="container-moviemng">
-      <div className="container p-0">
+      <div className="p-0">
         <div className="w-full d-flex justify-content-between align-items-center gap-2 p-2 mb-2 rounded-2 border-b-2">
           <div>
             <p className="m-0">
@@ -158,19 +171,36 @@ const MovieManagement = () => {
             </p>
           </div>
           <div className="d-flex align-items-center gap-2">
+            <Form className="d-flex gap-3">
+              <Form.Check 
+                type="radio"
+                id="status-playing"
+                label="Đang chiếu"
+                name="screening-status"
+                value="Đang chiếu"
+                checked={selectStatus === "Đang chiếu"}
+                onChange={(e) => setSelectStatus(e.target.value)}
+              />
+              <Form.Check
+                type="radio"
+                id="status-upcoming"
+                label="Sắp chiếu"
+                name="screening-status"
+                value="Sắp chiếu"
+                checked={selectStatus === "Sắp chiếu"}
+                onChange={(e) => setSelectStatus(e.target.value)}
+              />
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setSelectStatus("")}
+              >
+                <i class="fas fa-undo-alt"></i>
+              </Button>
+            </Form>
             <Button style={{ backgroundColor: "#A9141E", border: "none" }} size="sm" onClick={() => handleShowModal()}>
               <i className="fas fa-plus"></i> Thêm Phim
             </Button>
-            <Dropdown>
-              <Dropdown.Toggle variant="outline-secondary" size="sm" id="dropdown-basic">
-                Loại phim
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
           </div>
         </div>
 
@@ -187,17 +217,17 @@ const MovieManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {movies.map((movie, index) => {
-                const isNowShowing = new Date(movie.release_date) <= new Date();
+              {currentMovies.map((mv, index) => {
+                const isNowShowing = new Date(mv.release_date) <= new Date();
                 const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
-                const btnStatus = isNowShowing ? "nowshowing" : "commingshow";
+                const btnStatus = isNowShowing ? "nowshow" : "commingshow";
 
                 return (
-                  <tr key={movie.movie_id || index}>
-                    <td className="movie-title">{movie.title}</td>
-                    <td>{movie.genre}</td>
-                    <td>{movie.director}</td>
-                    <td className="text-center">{movie.duration}</td>
+                  <tr key={mv.movie_id || index}>
+                    <td className="movie-title">{mv.title}</td>
+                    <td>{mv.genre}</td>
+                    <td>{mv.director}</td>
+                    <td className="text-center">{mv.duration}</td>
                     <td>
                       <span className={btnStatus}>{status}</span>
                     </td>
@@ -206,7 +236,7 @@ const MovieManagement = () => {
                         style={{ border: "1px solid #A9141E", backgroundColor: "#A9141E", color: "white" }}
                         size="sm"
                         className="me-2"
-                        onClick={() => handleShowModal(movie)}
+                        onClick={() => handleShowModal(mv)}
                       >
                         <i className="fas fa-edit"></i>
                       </Button>
@@ -227,7 +257,7 @@ const MovieManagement = () => {
               <Row>
                 <Col md={8}>
                   <Form.Group className="mb-3" controlId="formGridTitle">
-                    <Form.Label>Tiêu đề</Form.Label>
+                    <Form.Label>Tên phim</Form.Label>
                     <Form.Control type="text" name="title" value={formData.title} onChange={handleInputChange} required />
                   </Form.Group>
                   <Row className="mb-3">
@@ -250,16 +280,28 @@ const MovieManagement = () => {
                       <Form.Control type="text" name="cast" value={formData.cast} onChange={handleInputChange} required />
                     </Form.Group>
                   </Row>
-                  <Form.Group className="mb-3" controlId="formGridReleaseDate">
-                    <Form.Label>Ngày phát hành</Form.Label>
-                    <Form.Control
-                      type="date"
-                      name="release_date"
-                      value={formData.release_date ? new Date(formData.release_date).toISOString().split("T")[0] : ""}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </Form.Group>
+                  <Row className="mb-3">
+                    <Form.Group as={Col}  controlId="formGridReleaseDate">
+                      <Form.Label>Ngày phát hành</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="release_date"
+                        value={formData.release_date ? new Date(formData.release_date).toISOString().split("T")[0] : ""}
+                        onChange={handleInputChange}
+                        required
+                      />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formAge_restriction">
+                      <Form.Label>Độ tuổi giới hạn</Form.Label>
+                      <Form.Control 
+                        type="text"  
+                        name="age_restriction" 
+                        value={formData.age_restriction} 
+                        onChange={handleInputChange} 
+                        required/>
+                    </Form.Group>
+                  </Row>
+                  
                   <Form.Group className="mb-3" controlId="formGridDescription">
                     <Form.Label>Mô tả</Form.Label>
                     <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleInputChange} />

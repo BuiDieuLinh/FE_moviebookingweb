@@ -18,6 +18,7 @@ export const Showtime = () => {
     start_time: '',
     end_time: ''
   });
+  const [searchStatus, setSearchStatus] = useState("");
 
   useEffect(() => {
     fetchShowtime();
@@ -93,13 +94,62 @@ export const Showtime = () => {
     });
   };
 
+  // Lọc danh sách lịch chiếu theo trạng thái
+  const filteredShowtime = showtime.filter((st) => {
+    const today = new Date();
+    const startDate = new Date(st.start_time);
+    const endDate = new Date(st.end_time);
+    const status = endDate < today ? "Đã chiếu" : startDate > today ? "Sắp chiếu" : "Đang chiếu";
+
+    return searchStatus ? status === searchStatus : true; // Nếu có searchStatus, lọc theo trạng thái
+  });
+
   return (
     <Accordion.Item eventKey="0" className="mb-2">
       <Accordion.Header>Lịch chiếu</Accordion.Header>
       <Accordion.Body>
-        <Button variant='danger' size='sm' onClick={() => handleShowModal(null)}>
-          <i className="fas fa-plus"></i> Tạo lịch chiếu
-        </Button>
+        <div className='d-flex justify-content-between'>
+          <Button variant='danger' size='sm' onClick={() => handleShowModal(null)}>
+            <i className="fas fa-plus"></i> Tạo lịch chiếu
+          </Button>
+          <Form className="d-flex gap-3">
+              <Form.Check 
+                type="radio"
+                id="status-finished"
+                label="Đã chiếu"
+                name="screening-status"
+                value="Đã chiếu"
+                checked={searchStatus === "Đã chiếu"}
+                onChange={(e) => setSearchStatus(e.target.value)}
+              />
+              <Form.Check 
+                type="radio"
+                id="status-playing"
+                label="Đang chiếu"
+                name="screening-status"
+                value="Đang chiếu"
+                checked={searchStatus === "Đang chiếu"}
+                onChange={(e) => setSearchStatus(e.target.value)}
+              />
+              <Form.Check
+                type="radio"
+                id="status-upcoming"
+                label="Sắp chiếu"
+                name="screening-status"
+                value="Sắp chiếu"
+                checked={searchStatus === "Sắp chiếu"}
+                onChange={(e) => setSearchStatus(e.target.value)}
+              />
+              <Button
+                variant="outline-secondary"
+                size="sm"
+                onClick={() => setSearchStatus("")}
+              >
+                <i class="fas fa-undo-alt"></i>
+              </Button>
+            </Form>
+        </div>
+
         <div className="table-responsive rounded-2">
           <Table hover>
             <thead>
@@ -111,7 +161,7 @@ export const Showtime = () => {
               </tr>
             </thead>
             <tbody>
-              {showtime.map((st) => {
+              {filteredShowtime.map((st) => {
                 const today = new Date();
                 const startDate = new Date(st.start_time);
                 const endDate = new Date(st.end_time);
