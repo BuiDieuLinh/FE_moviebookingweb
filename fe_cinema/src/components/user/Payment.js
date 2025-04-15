@@ -1,138 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Container, Row, Col, Button, Card, Spinner } from 'react-bootstrap';
-import Swal from 'sweetalert2'
-import axios from 'axios';
-import './payment.css'; // File CSS tùy chỉnh
+import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import {
+  Container,
+  Card,
+  CardBody,
+  CardTitle,
+  CardText,
+  Spinner,
+  Button,
+} from "react-bootstrap";
+import axios from "axios";
+// import { CheckCircleFill, XCircleFill } from "react-bootstrap-icons"; // For icons
+import "./payment.css"; // Custom CSS for additional styling
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-const Payment = () => {
-  const navigate = useNavigate();
-  const { state } = useLocation();
-  const { booking_id,  totalPrice, paymentMethod} = state || {};
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentSuccess, setPaymentSuccess] = useState(false);
-  const [error, setError] = useState(null);
+const PaymentPage = () => {
+  const [searchParams] = useSearchParams();
+  const [status, setStatus] = useState("loading"); // loading, success, fail
+  const [orderId, setOrderId] = useState("");
 
-  // Kiểm tra dữ liệu đầu vào
   useEffect(() => {
-    if (!booking_id || !totalPrice || !paymentMethod ) {
-      setError('Thiếu thông tin thanh toán. Vui lòng quay lại.');
-    }
-  }, [booking_id, totalPrice, paymentMethod]);
+    const checkPayment = async () => {
+      const resultCode = searchParams.get("resultCode");
+      const orderIdParam = searchParams.get("orderId");
+      setOrderId(orderIdParam);
 
-  // Hàm xử lý thanh toán (giả lập hoặc gọi API thực tế)
-  const handlePayment = async () => {
-    setIsProcessing(true);
-    setError(null);
+      if (resultCode === "0") {
+        setStatus("success");
 
-    try {
-      // Gọi API thanh toán MoMo (thay bằng API thực tế của bạn)
-      const response = await axios.post(`${API_URL}/payments`, {
-        booking_id,
-        amount: totalPrice,
-        payment_method: paymentMethod,
-        payment_status: 'success'
-      });
-    
-      console.log(response.data);
-    
-      // Hiển thị thông báo
-    
-      setPaymentSuccess(true);      
-      setIsProcessing(false);        
-    
-      // Có thể xử lý logic tiếp theo ở đây nếu cần
-      // Ví dụ: chuyển trang, làm mới dữ liệu, vv.
-    
-    } catch (err) {
-      setError('Có lỗi xảy ra khi thanh toán. Vui lòng thử lại.');
-      setIsProcessing(false);
-      console.error(err);
-    }
-  };
+        try {
+          const response = await axios.patch(`${API_URL}/bookings/${orderIdParam}/qr`);
+          console.log("Đã cập nhật đơn hàng:", response.data);
+        } catch (err) {
+          console.error("Lỗi khi cập nhật trạng thái đơn hàng: ", err);
+        }
+      } else {
+        setStatus("fail");
+      }
+    };
 
-  // Quay lại trang chính sau khi thành công
-  const handleBackToHome = () => {
-    navigate('/');
-  };
-
-  if (error) {
-    return (
-      <Container className="text-center my-5 text-light">
-        <h4>{error}</h4>
-        <Button variant="dark" onClick={() => navigate(-1)}>
-          Quay lại
-        </Button>
-      </Container>
-    );
-  }
+    checkPayment();
+  }, [searchParams]);
 
   return (
-    <div className="payment-container">
-      <Row className="justify-content-center">
-        <Col md={6}>
-          <Card className="bg-dark text-light p-4 rounded-4 shadow">
-            <Card.Body>
-              {!paymentSuccess ? (
-                <>
-                  <h3 className="text-center mb-4">Xác nhận thanh toán</h3>
-                  <div className="mb-3">
-                    <p>
-                      <strong>Mã đặt vé:</strong> {booking_id}
-                    </p>
-                    <p>
-                      <strong>Phương thức thanh toán: </strong> {paymentMethod}
-                    </p>
-                    <p>
-                      <strong>Số tiền:</strong> {totalPrice} đ
-                    </p>
-                  </div>
-                  <Button
-                    variant="danger"
-                    className="w-100 rounded-pill p-2"
-                    onClick={handlePayment}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Spinner
-                          as="span"
-                          animation="border"
-                          size="sm"
-                          className="me-2"
-                        />
-                        Đang xử lý...
-                      </>
-                    ) : (
-                      'Thanh toán ngay'
-                    )}
-                  </Button>
-                </>
-              ) : (
-                <div className="text-center success-container">
-                  <div className="checkmark-circle">
-                    <div className="checkmark"></div>
-                  </div>
-                  <h2 className="text-success mt-3">Thanh toán thành công!</h2>
-                  <p>Cảm ơn bạn đã đặt vé. Mã đặt vé của bạn là:</p>
-                  <h4 className="text-warning">{booking_id}</h4>
-                  <Button
-                    variant="dark"
-                    className="rounded-pill mt-3"
-                    onClick={handleBackToHome}
-                  >
-                    Về trang chủ
-                  </Button>
-                </div>
-              )}
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+    <Container className="d-flex justify-content-center align-items-center min-vh-100 ">
+      <Card className="payment-card shadow-lg">
+        <CardBody className="text-center">
+          {status === "loading" && (
+            <div className="loading-container">
+              <Spinner animation="border" variant="primary" />
+              <CardText className="mt-3 text-muted">
+                Đang xử lý kết quả thanh toán...
+              </CardText>
+            </div>
+          )}
+
+          {status === "success" && (
+            <div className="success-container">
+              {/* <CheckCircleFill size={50} className="text-success mb-3" /> */}
+              <CardTitle as="h4" className="text-success fw-bold">
+                Thanh toán thành công!
+              </CardTitle>
+              <CardText className="text-muted">
+                Cảm ơn bạn đã đặt vé. <br />
+                
+              </CardText>
+              <Button variant="outline-danger" href="/" className="mt-3">
+                Về trang chủ
+              </Button>
+            </div>
+          )}
+
+          {status === "fail" && (
+            <div className="fail-container">
+              {/* <XCircleFill size={50} className="text-danger mb-3" /> */}
+              <CardTitle as="h4" className="text-danger">
+                Thanh toán thất bại
+              </CardTitle>
+              <CardText className="text-muted">
+                Mã đơn hàng: <strong>{orderId}</strong> <br />
+                Vui lòng thử lại hoặc kiểm tra phương thức thanh toán.
+              </CardText>
+              <Button variant="outline-danger" href="/payment" className="mt-3">
+                Thử lại
+              </Button>
+            </div>
+          )}
+        </CardBody>
+      </Card>
+    </Container>
   );
 };
 
-export default Payment;
+export default PaymentPage;

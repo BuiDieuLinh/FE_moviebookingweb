@@ -75,7 +75,16 @@ const Order = () => {
       // Giả lập thanh toán (có thể thay bằng API thanh toán thực tế)
   
         alert("Thanh toán thành công!");
-        navigate("/payment", { state: { booking_id, totalPrice, paymentMethod } });
+
+        console.log(booking_id, totalPrice)
+        const responsePayment = await axios.post(`${API_URL}/payments/payment_momo`, {
+          booking_id: booking_id,
+          amountOr: totalPrice,
+        });
+        console.log(responsePayment.data)
+        const { payUrl } = responsePayment.data;
+        console.log('Redirecting to:', payUrl);
+        window.location.href = payUrl;
     } catch (err) {
       setError("Có lỗi xảy ra trong quá trình thanh toán. Vui lòng thử lại.");
       console.error(err);
