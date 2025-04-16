@@ -8,9 +8,9 @@ export default function HomePage() {
     <div className="min-h-screen">
       <Slideshow />
       <Section title="Phim đang chiếu" />
-      <MovieList/>
+      <MovieList status="now_showing"/>
       <Section title="Phim sắp chiếu" />
-      <MovieList/>
+      <MovieList status="coming_soon"/>
     </div>
   );
 }
