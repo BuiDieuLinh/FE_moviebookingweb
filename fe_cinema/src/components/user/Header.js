@@ -86,9 +86,6 @@ export const Header = () => {
                   Đăng xuất 
                 </NavDropdown.Item>
               </NavDropdown>
-              {/* <Nav.Link eventKey={2} href="#memes">
-                Dank memes
-              </Nav.Link> */}
             </Nav>
           </Navbar.Collapse>
         </Container>

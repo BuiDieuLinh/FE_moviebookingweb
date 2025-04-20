@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useToast } from "./ToastContext";
 import axios from "axios";
-import { Table, Button, Modal, Form, Dropdown, Row, Col } from "react-bootstrap";
+import { Table, Button, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
 import "./moviemanagement.css";
 
-const API_URL = `${process.env.REACT_APP_PORT || "http://localhost:5000"}/movies`; // Đảm bảo có fallback URL
+const API_URL = `${process.env.REACT_APP_PORT}`; 
 
 const MovieManagement = () => {
   const { showToast } = useToast();
@@ -20,12 +20,16 @@ const MovieManagement = () => {
     duration: "",
     release_date: "",
     description: "",
-    poster_url: null, // Chỉ lưu đường dẫn từ server, không lưu trực tiếp file
+    poster_url: null, 
     created_at: "",
     cast: "",
     age_restriction: "",
     trailer_url: "",
+    origin: ""
   });
+   // State cho phân trang
+   const [currentPage, setCurrentPage] = useState(1);
+   const [moviesPerPage] = useState(7); // Số phim mỗi trang
 
   useEffect(() => {
     fetchMovies();
@@ -33,7 +37,7 @@ const MovieManagement = () => {
 
   const fetchMovies = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${API_URL}/movies`);
       setMovies(response.data);
       console.log(response.data);
     } catch (error) {
@@ -64,8 +68,9 @@ const MovieManagement = () => {
         cast: movie.cast || "",
         age_restriction: movie.age_restriction || "",
         trailer_url: movie.trailer_url || "",
+        origin: movie.origin || ""
       });
-      setImagePreview(movie.poster_url ? `${process.env.REACT_APP_PORT || "http://localhost:5000"}/${movie.poster_url}` : null);
+      setImagePreview(movie.poster_url ? `${API_URL}/${movie.poster_url}` : null);
     } else {
       setFormData({
         title: "",
@@ -79,6 +84,7 @@ const MovieManagement = () => {
         cast: "",
         age_restriction: "",
         trailer_url: "",
+        origin: ""
       });
       setImagePreview(null);
     }
@@ -96,7 +102,9 @@ const MovieManagement = () => {
 
   const handleSaveMovie = async () => {
     try {
-      if (!formData.title || !formData.genre || !formData.director || !formData.duration || !formData.release_date) {
+      if (!formData.title || !formData.genre || !formData.director 
+        || !formData.duration || !formData.release_date || !formData.age_restriction
+        || !formData.poster_url) {
         showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin bắt buộc!");
         return;
       }
@@ -110,6 +118,7 @@ const MovieManagement = () => {
       formDataToSend.append("description", formData.description);
       formDataToSend.append("cast", formData.cast);
       formDataToSend.append("age_restriction", formData.age_restriction);
+      formDataToSend.append("origin", formData.origin);
       formDataToSend.append("trailer_url", formData.trailer_url);
 
       if (formData.poster_url instanceof File) {
@@ -121,7 +130,7 @@ const MovieManagement = () => {
       console.log(formDataToSend)
       let response;
       if (selectedMovie) {
-        response = await axios.put(`${API_URL}/${selectedMovie.movie_id}`, formDataToSend, {
+        response = await axios.put(`${API_URL}/movies/${selectedMovie.movie_id}`, formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         if (response.status === 200) {
@@ -153,13 +162,30 @@ const MovieManagement = () => {
       console.error("Lỗi khi xóa phim:", error);
     }
   };
-  // lọc trạng thái
+
+  // Lọc trạng thái
   const currentMovies = movies.filter((mv) => {
     const isNowShowing = new Date(mv.release_date) <= new Date();
     const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
+    return selectStatus ? status === selectStatus : true;
+  });
 
-    return selectStatus ? status === selectStatus : true; // Nếu có searchStatus, lọc theo trạng thái
-  })
+  // Tính toán phân trang
+  const indexOfLastMovie = currentPage * moviesPerPage;
+  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
+  const paginatedMovies = currentMovies.slice(indexOfFirstMovie, indexOfLastMovie);
+  const totalPages = Math.ceil(currentMovies.length / moviesPerPage);
+
+  // Hàm chuyển trang
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Tạo danh sách các số trang
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
 
   return (
     <div className="container-moviemng">
@@ -217,7 +243,7 @@ const MovieManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {currentMovies.map((mv, index) => {
+              {paginatedMovies.map((mv, index) => {
                 const isNowShowing = new Date(mv.release_date) <= new Date();
                 const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
                 const btnStatus = isNowShowing ? "nowshow" : "commingshow";
@@ -248,6 +274,28 @@ const MovieManagement = () => {
           </Table>
         </div>
 
+        {/* Phân trang */}
+        <div className="d-flex justify-content-center">
+          <Pagination>
+            <Pagination.Prev
+              disabled={currentPage === 1}
+              onClick={() => handlePageChange(currentPage - 1)}
+            />
+            {pageNumbers.map((number) => (
+              <Pagination.Item
+                key={number}
+                active={number === currentPage}
+                onClick={() => handlePageChange(number)}
+              >
+                {number}
+              </Pagination.Item>
+            ))}
+            <Pagination.Next
+              disabled={currentPage === totalPages}
+              onClick={() => handlePageChange(currentPage + 1)}
+            />
+          </Pagination>
+        </div>
         <Modal show={showModal} onHide={handleCloseModal} size="xl">
           <Modal.Header closeButton>
             <Modal.Title>{selectedMovie ? "Chỉnh Sửa Phim" : "Thêm Phim"}</Modal.Title>
@@ -257,32 +305,16 @@ const MovieManagement = () => {
               <Row>
                 <Col md={8}>
                   <Form.Group className="mb-3" controlId="formGridTitle">
-                    <Form.Label>Tên phim</Form.Label>
+                    <Form.Label>Tên phim <span style={{ color: "red" }}>*</span></Form.Label>
                     <Form.Control type="text" name="title" value={formData.title} onChange={handleInputChange} required />
                   </Form.Group>
                   <Row className="mb-3">
                     <Form.Group as={Col} controlId="formGridGenre">
-                      <Form.Label>Thể loại</Form.Label>
+                      <Form.Label>Thể loại <span style={{ color: "red" }}>*</span></Form.Label>
                       <Form.Control type="text" name="genre" value={formData.genre} onChange={handleInputChange} required />
                     </Form.Group>
-                    <Form.Group as={Col} controlId="formGridDuration">
-                      <Form.Label>Thời lượng (phút)</Form.Label>
-                      <Form.Control type="number" name="duration" value={formData.duration} onChange={handleInputChange} required />
-                    </Form.Group>
-                  </Row>
-                  <Row className="mb-3">
-                    <Form.Group as={Col} controlId="formGridDirector">
-                      <Form.Label>Đạo diễn</Form.Label>
-                      <Form.Control type="text" name="director" value={formData.director} onChange={handleInputChange} required />
-                    </Form.Group>
-                    <Form.Group as={Col} controlId="formGridCast">
-                      <Form.Label>Cast</Form.Label>
-                      <Form.Control type="text" name="cast" value={formData.cast} onChange={handleInputChange} required />
-                    </Form.Group>
-                  </Row>
-                  <Row className="mb-3">
                     <Form.Group as={Col}  controlId="formGridReleaseDate">
-                      <Form.Label>Ngày phát hành</Form.Label>
+                      <Form.Label>Ngày phát hành <span style={{ color: "red" }}>*</span></Form.Label>
                       <Form.Control
                         type="date"
                         name="release_date"
@@ -291,8 +323,28 @@ const MovieManagement = () => {
                         required
                       />
                     </Form.Group>
+                  </Row>
+                  <Row className="mb-3">
+                    <Form.Group as={Col} controlId="formGridDirector">
+                      <Form.Label>Đạo diễn <span style={{ color: "red" }}>*</span></Form.Label>
+                      <Form.Control type="text" name="director" value={formData.director} onChange={handleInputChange} required />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridCast">
+                      <Form.Label>Cast <span style={{ color: "red" }}>*</span></Form.Label>
+                      <Form.Control type="text" name="cast" value={formData.cast} onChange={handleInputChange} required />
+                    </Form.Group>
+                  </Row>
+                  <Row className="mb-3">
+                    <Form.Group as={Col} controlId="formGridOrigin">
+                      <Form.Label>Xuất xứ: <span style={{ color: "red" }}>*</span></Form.Label>
+                      <Form.Control type="text" name="origin" value={formData.origin} onChange={handleInputChange} required />
+                    </Form.Group>
+                    <Form.Group as={Col} controlId="formGridDuration">
+                      <Form.Label>Thời lượng (phút) <span style={{ color: "red" }}>*</span></Form.Label>
+                      <Form.Control type="number" name="duration" value={formData.duration} onChange={handleInputChange} required />
+                    </Form.Group>
                     <Form.Group as={Col} controlId="formAge_restriction">
-                      <Form.Label>Độ tuổi giới hạn</Form.Label>
+                      <Form.Label>Độ tuổi giới hạn <span style={{ color: "red" }}>*</span></Form.Label>
                       <Form.Control 
                         type="text"  
                         name="age_restriction" 
@@ -312,7 +364,7 @@ const MovieManagement = () => {
                   </Form.Group>
                 </Col>
                 <Col md={4} className="text-center">
-                  <p><strong>Ảnh xem trước:</strong></p>
+                  <p><strong>Ảnh xem trước: <span style={{ color: "red" }}>*</span></strong></p>
                   <div className="mb-3">
                     {imagePreview ? (
                       <img
@@ -328,7 +380,7 @@ const MovieManagement = () => {
                       />
                     ) : formData.poster_url && typeof formData.poster_url === "string" ? (
                       <img
-                        src={`${process.env.REACT_APP_PORT || "http://localhost:5000"}/${formData.poster_url}`}
+                        src={`${API_URL}/${formData.poster_url}`}
                         alt="Poster"
                         style={{
                           width: "100%",

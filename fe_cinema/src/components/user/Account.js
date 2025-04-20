@@ -1,5 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
 import { Button, Form, Row, Col, Table, Modal,FloatingLabel, Container, Image } from 'react-bootstrap';
+import { format, toZonedTime } from 'date-fns-tz';
 import './account.css'
 import axios from 'axios';
 
@@ -243,7 +244,7 @@ export const Account = () => {
                         onClick={() => handleViewDetails(ticket)}
                         className="ticket-row"
                       >
-                        <td>{new Date(ticket.screening_date).toISOString().split('T')[0]}</td>
+                        <td>{format(toZonedTime(new Date(ticket.screening_date),'Asia/Ho_Chi_Minh'),'dd-MM-yyyy')}</td>
                         <td>{ticket.movie_title}</td>
                         <td>{ticket.seats.length}</td>
                         <td>{ticket.total_price.toLocaleString('vi-VN')} đ</td>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Col, Nav, Row, Tab, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -13,7 +14,11 @@ import Order from "./Order";
 
 const Sidebar = () => {
   const [collapsed, setcollapsed] = useState(false);
-  
+  // const admin = localStorage.getItem("user_id");
+  // if (!admin || admin === "") {
+  //   console.log("No user_id, redirecting to /login");
+  //   return <Navigate to="/login" replace />;
+  // }
   return (
     <Container fluid className="vh-100">
       <Tab.Container defaultActiveKey="home">
@@ -55,18 +60,13 @@ const Sidebar = () => {
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="customer">
-                  <i class="fa-regular fa-user"></i> {!collapsed && <span>Customers</span>}
-                </Nav.Link>
-              </Nav.Item>
-              <Nav.Item>
                 <Nav.Link eventKey="order">
                 <i class="fa-solid fa-ticket"></i> {!collapsed && <span>Order</span>}
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
-                <Nav.Link eventKey="reports">
-                  <i className="fas fa-info-circle"></i> {!collapsed && <span>Report</span>}
+                <Nav.Link eventKey="customer">
+                  <i class="fa-regular fa-user"></i> {!collapsed && <span>Customers</span>}
                 </Nav.Link>
               </Nav.Item>
               <Nav.Item>
@@ -102,10 +102,6 @@ const Sidebar = () => {
               </Tab.Pane>
               <Tab.Pane eventKey="order">
                 <Order/>
-              </Tab.Pane>
-              <Tab.Pane eventKey="reports">
-                <h4>Report</h4>
-                <p>Nội dung Thống Kê</p>
               </Tab.Pane>
               <Tab.Pane eventKey="settings">
                 <h4>Settings</h4>

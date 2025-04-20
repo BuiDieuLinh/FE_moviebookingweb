@@ -29,7 +29,7 @@ const generateSeats = (type) => {
   return seats;
 };
 
-const API_URL = process.env.REACT_APP_PORT || "http://localhost:5000";
+const API_URL = process.env.REACT_APP_PORT;
 
 export const Room = () => {
   const { showToast } = useToast();
@@ -327,7 +327,7 @@ export const Room = () => {
 
   return (
     <div className="container-room">
-      <Accordion defaultActiveKey={["0"]} alwaysOpen>
+      <Accordion defaultActiveKey={["1"]} alwaysOpen>
         <Accordion.Item eventKey="0" className="mb-2">
           <Accordion.Header>Thống kê phòng</Accordion.Header>
           <Accordion.Body>

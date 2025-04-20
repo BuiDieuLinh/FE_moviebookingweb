@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from "react";
+import { useToast } from "./ToastContext";
 import axios from "axios";
-import { Table, Button, Modal, Form, Row, Col } from "react-bootstrap";
-// import "./usermanagement.css";
+import { Table, Button, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
 
-const API_URL = "http://localhost:5000/users"; // Đổi URL này thành API backend của bạn
+const API_URL = process.env.REACT_APP_PORT; // Đổi URL này thành API backend của bạn
 
 const UserManagement = () => {
+  const { showToast } = useToast();
   const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
+    fullname: "",
     email: "",
     role: "",
     phone: "",
+    created_at: "",
   });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(8); // Số user hiển thị trên mỗi trang
 
   useEffect(() => {
     fetchUsers();
@@ -22,7 +27,7 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(API_URL);
+      const response = await axios.get(`${API_URL}/users`);
       setUsers(response.data);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách user:", error);
@@ -31,7 +36,7 @@ const UserManagement = () => {
 
   const handleShowModal = (user = null) => {
     setSelectedUser(user);
-    setFormData(user || { username: "",fullname: "", email: "", role: "", phone: "" , created_at: ""});
+    setFormData(user || { username: "", fullname: "", email: "", role: "", phone: "", created_at: "" });
     setShowModal(true);
   };
 
@@ -43,18 +48,19 @@ const UserManagement = () => {
 
   const handleSaveUser = async () => {
     try {
+      console.log("Dữ liệu gửi đi:", formData);
+      const { created_at, ...updateData } = formData; // Loại bỏ created_at
       if (selectedUser) {
-        await axios.put(`${API_URL}/${selectedUser.id}`, formData);
-      } else {
-        await axios.post(API_URL, formData);
-      }
+        await axios.put(`${API_URL}/users/${selectedUser.user_id}`, updateData);
+        showToast('Cập nhật', "Cập nhật người dùng thành công")
+      } 
+      setCurrentPage(1); // Đặt lại về trang đầu tiên
       fetchUsers();
       handleCloseModal();
     } catch (error) {
-      console.error("Lỗi khi lưu user:", error);
+      console.error("Lỗi khi lưu user:", error.response);
     }
   };
-
   const handleDeleteUser = async (id) => {
     try {
       await axios.delete(`${API_URL}/${id}`);
@@ -64,18 +70,26 @@ const UserManagement = () => {
     }
   };
 
+  // Tính toán các user hiển thị trên trang hiện tại
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = users.slice(indexOfFirstUser, indexOfLastUser);
+
+  // Tính tổng số trang
+  const totalPages = Math.ceil(users.length / usersPerPage);
+
+  // Tạo danh sách các số trang
+  const pageNumbers = [];
+  for (let i = 1; i <= totalPages; i++) {
+    pageNumbers.push(i);
+  }
+
+  // Hàm chuyển trang
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   return (
     <div style={{ marginTop: "70px" }}>
-      <div className="container p-0">
-        <div className="d-flex justify-content-between align-items-center p-2 mb-2 bg-white rounded-2">
-          <p className="m-0">
-            Total: <span className="badge bg-danger">{users.length} users</span>
-          </p>
-          <Button variant="danger" size="sm" onClick={() => handleShowModal()}>
-            <i className="fas fa-plus"></i> Thêm User
-          </Button>
-        </div>
-
+      <div className="p-0">
         <div className="table-responsive rounded-2">
           <Table hover>
             <thead>
@@ -86,13 +100,13 @@ const UserManagement = () => {
                 <th>Vai trò</th>
                 <th>Điện thoại</th>
                 <th>Ngày đăng ký</th>
-                <th>Hành động</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
-                <tr key={user.id}>
-                  <td>{index + 1}</td>
+              {currentUsers.map((user, index) => (
+                <tr key={user.user_id}>
+                  <td>{indexOfFirstUser + index + 1}</td>
                   <td>{user.username}</td>
                   <td>{user.email}</td>
                   <td>{user.role}</td>
@@ -102,15 +116,33 @@ const UserManagement = () => {
                     <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(user)}>
                       <i className="fas fa-edit"></i> Xem
                     </Button>
-                    <Button variant="outline-danger" size="sm" className="ms-2" onClick={() => handleDeleteUser(user.id)}>
-                      <i className="fas fa-trash"></i> Xóa
-                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </div>
+
+        {/* Phân trang */}
+        <Pagination className="justify-content-center">
+          <Pagination.Prev
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          />
+          {pageNumbers.map((number) => (
+            <Pagination.Item
+              key={number}
+              active={number === currentPage}
+              onClick={() => paginate(number)}
+            >
+              {number}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          />
+        </Pagination>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
@@ -121,25 +153,55 @@ const UserManagement = () => {
               <Row className="mb-3">
                 <Form.Group as={Col}>
                   <Form.Label>Tên</Form.Label>
-                  <Form.Control type="text" name="username" value={formData.username} onChange={handleInputChange} required />
+                  <Form.Control
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </Form.Group>
                 <Form.Group as={Col}>
                   <Form.Label>Tên đầy đủ (nếu có)</Form.Label>
-                  <Form.Control type="text" name="fullname" value={formData.fullname} onChange={handleInputChange} required />
+                  <Form.Control
+                    type="text"
+                    name="fullname"
+                    value={formData.fullname}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </Form.Group>
               </Row>
               <Form.Group className="mb-3">
                 <Form.Label>Email</Form.Label>
-                <Form.Control type="email" name="email" value={formData.email} onChange={handleInputChange} required />
+                <Form.Control
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
               </Form.Group>
               <Row className="mb-3">
                 <Form.Group as={Col}>
                   <Form.Label>Vai trò</Form.Label>
-                  <Form.Control type="text" name="role" value={formData.role} onChange={handleInputChange} required />
+                  <Form.Control
+                    type="text"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </Form.Group>
                 <Form.Group as={Col}>
                   <Form.Label>Điện thoại</Form.Label>
-                  <Form.Control type="text" name="phone" value={formData.phone} onChange={handleInputChange} required />
+                  <Form.Control
+                    type="text"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </Form.Group>
               </Row>
             </Form>

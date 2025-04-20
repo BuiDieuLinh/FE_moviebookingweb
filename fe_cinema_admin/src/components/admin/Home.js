@@ -1,18 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col, Card, Table, Badge } from "react-bootstrap";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend,
-} from "chart.js";
+import { Line} from "react-chartjs-2";
 import "./home.css"
 import axios from "axios";
 
@@ -80,7 +68,7 @@ const revenueChartData = {
           <Col md={3}>
             <Card border="info"  className="p-3 text-start shadow-sm border-2">
               <span>Doanh thu trong ngày</span>
-              <h5 className="fw-normal">{report.revenue_today}đ</h5>
+              <h5 className="fw-normal">{formatCurrency(report.revenue_today)}</h5>
             </Card>
           </Col>
           <Col md={3}>
@@ -98,7 +86,7 @@ const revenueChartData = {
           <Col md={3}>
             <Card border="danger" className="p-3 text-start shadow-sm border-2">
               <span>Tổng doanh thu</span>
-              <h5 className="fw-normal">{report.total_revenue}đ</h5>
+              <h5 className="fw-normal">{formatCurrency(report.total_revenue)}</h5>
             </Card>
           </Col>
         </Row>
@@ -142,7 +130,7 @@ const revenueChartData = {
                   <thead>
                     <tr>
                       <th>Khách hàng</th>
-                      <th>Số tiền</th>
+                      {/* <th>Số tiền</th> */}
                       <th>Thời gian</th>
                       <th>Tình trạng</th>
                     </tr>
@@ -152,7 +140,7 @@ const revenueChartData = {
                       historybooking.map((hb) => (
                         <tr key={hb.id || hb.created_at}>
                           <td>{hb.username}</td>
-                          <td className="total-price">{formatCurrency(hb.total_price)}</td>
+                          {/* <td className="total-price">{formatCurrency(hb.total_price)}</td> */}
                           <td>{formatDate(hb.created_at)}</td>
                           <td>
                             <Badge pill bg={hb.status === "paid" ? "success" : "danger"}>

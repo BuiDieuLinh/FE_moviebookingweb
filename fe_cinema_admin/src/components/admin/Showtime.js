@@ -1,11 +1,14 @@
-// Showtimes.jsx
 import React, { useEffect, useState } from 'react';
 import { useToast } from "./ToastContext";
 import axios from "axios";
 import { Table, Button, Modal, Form, Accordion } from "react-bootstrap";
+import { format, isBefore, isAfter } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import vi from "date-fns/locale/vi"; // Locale tiếng Việt
 import "./showtimes.css";
 
 const API_URL = process.env.REACT_APP_PORT;
+const TIME_ZONE = "Asia/Ho_Chi_Minh"; // Múi giờ Việt Nam
 
 export const Showtime = () => {
   const { showToast } = useToast();
@@ -49,8 +52,8 @@ export const Showtime = () => {
     setSelectedST(showtime);
     setFormDataShowtime(showtime ? {
       movie_id: showtime.movie_id || '',
-      start_time: showtime.start_time ? new Date(showtime.start_time).toLocaleDateString("sv-SE") : "",
-      end_time: showtime.end_time ? new Date(showtime.end_time).toLocaleDateString("sv-SE") : "",
+      start_time: showtime.start_time ? format(toZonedTime(new Date(showtime.start_time), TIME_ZONE), "yyyy-MM-dd") : "",
+      end_time: showtime.end_time ? format(toZonedTime(new Date(showtime.end_time), TIME_ZONE), "yyyy-MM-dd") : ""
     } : { movie_id: '', start_time: '', end_time: '' });
     setShowModal(true);
   };
@@ -69,8 +72,8 @@ export const Showtime = () => {
       }
       const formattedData = {
         ...formDataShowtime,
-        start_time: new Date(formDataShowtime.start_time).toLocaleDateString("en-CA"),
-        end_time: new Date(formDataShowtime.end_time).toLocaleDateString("en-CA"),
+        start_time: format(new Date(formDataShowtime.start_time), "yyyy-MM-dd"),
+        end_time: format(new Date(formDataShowtime.end_time), "yyyy-MM-dd")
       };
       
       const response = selectedST 
@@ -87,19 +90,15 @@ export const Showtime = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", { 
-      day: "2-digit", 
-      month: "2-digit", 
-      year: "numeric" 
-    });
+    return format(toZonedTime(new Date(dateString), TIME_ZONE), "dd/MM/yyyy", { locale: vi });
   };
 
   // Lọc danh sách lịch chiếu theo trạng thái
   const filteredShowtime = showtime.filter((st) => {
-    const today = new Date();
-    const startDate = new Date(st.start_time);
-    const endDate = new Date(st.end_time);
-    const status = endDate < today ? "Đã chiếu" : startDate > today ? "Sắp chiếu" : "Đang chiếu";
+    const today = toZonedTime(new Date(), TIME_ZONE);
+    const startDate = toZonedTime(new Date(st.start_time), TIME_ZONE);
+    const endDate = toZonedTime(new Date(st.end_time), TIME_ZONE);
+    const status = isBefore(endDate, today) ? "Hoàn thành" : isAfter(startDate, today) ? "Sắp chiếu" : "Đang chiếu";
 
     return searchStatus ? status === searchStatus : true; // Nếu có searchStatus, lọc theo trạng thái
   });
@@ -116,10 +115,10 @@ export const Showtime = () => {
               <Form.Check 
                 type="radio"
                 id="status-finished"
-                label="Đã chiếu"
+                label="Hoàn thành"
                 name="screening-status"
-                value="Đã chiếu"
-                checked={searchStatus === "Đã chiếu"}
+                value="Hoàn thành"
+                checked={searchStatus === "Hoàn thành"}
                 onChange={(e) => setSearchStatus(e.target.value)}
               />
               <Form.Check 
@@ -145,7 +144,7 @@ export const Showtime = () => {
                 size="sm"
                 onClick={() => setSearchStatus("")}
               >
-                <i class="fas fa-undo-alt"></i>
+                <i className="fas fa-undo-alt"></i>
               </Button>
             </Form>
         </div>
@@ -162,11 +161,11 @@ export const Showtime = () => {
             </thead>
             <tbody>
               {filteredShowtime.map((st) => {
-                const today = new Date();
-                const startDate = new Date(st.start_time);
-                const endDate = new Date(st.end_time);
-                let status = endDate < today ? "Hoàn thành" : startDate > today ? "Sắp chiếu" : "Đang chiếu";
-                let statusStyle = endDate < today ? "completed" : startDate > today ? "commingsoon" : "nowshowing";
+                const today = toZonedTime(new Date(), TIME_ZONE);
+                const startDate = toZonedTime(new Date(st.start_time), TIME_ZONE);
+                const endDate = toZonedTime(new Date(st.end_time), TIME_ZONE);
+                let status = isBefore(endDate, today) ? "Hoàn thành" : isAfter(startDate, today) ? "Sắp chiếu" : "Đang chiếu";
+                let statusStyle = isBefore(endDate, today) ? "completed" : isAfter(startDate, today) ? "commingshow" : "nowshowing";
                 const movie = movies.find(m => m.movie_id === st.movie_id) || { title: 'Không xác định' };
 
                 return (

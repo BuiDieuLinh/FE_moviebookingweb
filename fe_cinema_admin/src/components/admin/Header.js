@@ -24,7 +24,7 @@ export const Header = ({ collapsed }) => {
       style={{
         backgroundColor: bgColor,
         transition: "background-color 0.3s ease, width 0.3s ease",
-        width: collapsed ? "calc(100% - 70px)" : "calc(100% - 250px)", // Phụ thuộc vào trạng thái sidebar
+        width: collapsed ? "calc(100% - 90px)" : "calc(100% - 250px)", // Phụ thuộc vào trạng thái sidebar
       }}
     >
       <div className="d-flex justify-content-between align-items-center p-2">

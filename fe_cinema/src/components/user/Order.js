@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {Row, Col, Table, Button, Card, Form} from 'react-bootstrap'
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import Swal from 'sweetalert2';
 import './order.css'
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -11,16 +12,9 @@ const API_URL = process.env.REACT_APP_API_URL;
 const Order = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const [paymentMethod, setPaymentMethod] = useState('momo');
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState('VietQR'); // Mặc định chọn VietQR
-
-  const paymentMethods = [
-    { id: 'VietQR', name: 'VietQR', logo: '/vietqr.png' },
-    { id: 'vnpay', name: 'VNPAY', logo: '/vnpay.png' },
-    { id: 'ViettelMoney', name: 'Viettel Money', logo: '/viettel1.png' },
-  ];
+  const [selectedMethod, setSelectedMethod] = useState('momo'); 
 
   const handleSelect = (method) => {
     setSelectedMethod(method);
@@ -40,7 +34,13 @@ const Order = () => {
 
   const handlePayment = async () => {
     if (!user_id) {
-      setError("Bạn cần đăng nhập để thực hiện thanh toán.");
+      Swal.fire({
+        icon: "warning",
+        title: "Cần phải đăng nhập!",
+        text: "Bạn chưa đăng nhập. Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục!",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#dc3545", // Màu đỏ cho nút OK
+      });
       return;
     }
   
@@ -161,45 +161,61 @@ const Order = () => {
       
       <div className='payment rounded-4 bg-dark p-4'>
         <h5 className='fw-bold mb-4'>Phương thức thanh toán</h5>
-        {paymentMethods.map((method) => (
-        <Card
-          key={method.id}
-          className={`payment-card mb-2 ${selectedMethod === method.id ? 'selected' : ''}`}
-          onClick={() => handleSelect(method.id)}
-        >
-          <Card.Body>
-            <Row className="align-items-center">
-              <Col xs={2}>
-                <Form.Check
-                  type="radio"
-                  name="paymentMethod"
-                  checked={selectedMethod === method.id}
-                  onChange={() => handleSelect(method.id)}
-                />
-              </Col>
-              <Col xs={4}>
-                <img src={method.logo} alt={method.name} className="payment-logo" />
-              </Col>
-              <Col xs={6}>
-                <span className="payment-name">{method.name}</span>
-              </Col>
-            </Row>
-          </Card.Body>
-        </Card>
-      ))}
+        <div className="payment-method-container">
+          <div
+            className={`row align-items-center border border-2 rounded-pill p-2 mb-3 ${
+              selectedMethod === "momo" ? "border-danger" : "border-secondary"
+            }`}
+          >
+            <div className="col-2">
+              <Form.Check
+                type="radio"
+                name="paymentMethod"
+                checked={selectedMethod === "momo"}
+                onChange={() => handleSelect("momo")}
+              />
+            </div>
+            <div className="col-4">
+              <img src="momo.png" alt="MoMo" className="payment-logo" />
+            </div>
+            <div className="col-6">
+              <span className="payment-name">MOMO</span>
+            </div>
+          </div>
+          <div
+            className={`row align-items-center border border-2 rounded-pill p-2 ${
+              selectedMethod === "vnpay" ? "border-danger" : "border-secondary"
+            }`}
+          >
+            <div className="col-2">
+              <Form.Check
+                type="radio"
+                name="paymentMethod"
+                checked={selectedMethod === "vnpay"}
+                onChange={() => handleSelect("vnpay")}
+              />
+            </div>
+            <div className="col-4">
+              <img src="vnpay.png" alt="VNPay" className="payment-logo" />
+            </div>
+            <div className="col-6">
+              <span className="payment-name">VNPAY</span>
+            </div>
+          </div>
+      </div>
 
-      <h5 className='fw-bold my-4'>Chi phí</h5>
-      <div className='d-flex justify-content-between'>
+      <h5 className='fw-bold mt-4 '>Chi phí</h5>
+      <div className='d-flex justify-content-between fs-6'>
         <span>Thanh toán</span>
-        <p>{totalPrice.toLocaleString('vi-VN')} đ</p>
+        <p><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></p>
       </div>
-      <div className='d-flex justify-content-between'>
+      <div className='d-flex justify-content-between fs-6'>
         <span>Phí</span>
-        <p>0 đ</p>
+        <p><strong>0 đ</strong></p>
       </div>
-      <div className='d-flex justify-content-between'>
+      <div className='d-flex justify-content-between fs-6'>
         <span>Tổng cộng</span>
-        <p>{totalPrice.toLocaleString('vi-VN')} đ</p>
+        <p><strong>{totalPrice.toLocaleString('vi-VN')} đ</strong></p>
       </div>
       <div className='d-flex justify-content-end'>
         <Button
@@ -219,8 +235,6 @@ const Order = () => {
         </Button>
       </div>
       </div>
-
-    
     </div>
   );
 };

@@ -33,12 +33,13 @@
   }
   
   .payment-logo {
-    width: 30px;
-    height: 30px;
+    max-width: 40px;
+    height: auto;
   }
   
   .payment-name {
     font-size: 16px;
+    font-weight: 500;
   }
   
   .form-check-input:checked {

@@ -3,10 +3,7 @@ import { Button, Table, Badge, Pagination, Form, Dropdown, Modal, Card, Row, Col
 import axios from 'axios';
 import './order.css';
 
-// Placeholder QR code image
-const defaultQrCode = 'https://via.placeholder.com/150x150.png?text=QR+Code';
-
-const API_URL = process.env.REACT_APP_PORT || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_PORT ;
 
 const Order = () => {
   const [bookings, setBookings] = useState([]);
@@ -14,9 +11,9 @@ const Order = () => {
   const [payments, setPayments] = useState([]);
   const [screenings, setScreenings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 8;
   const [selectedDate, setSelectedDate] = useState('');
-  const [filterStatus, setFilterStatus] = useState('Tất cả');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
@@ -57,21 +54,21 @@ const Order = () => {
       payment_method: payment.payment_method || 'N/A',
       payment_status: payment.payment_status || 'N/A',
       display_status: booking.status === 'pending' ? 'Chờ thanh toán' : booking.status,
-      qr_code: booking.qr_code || defaultQrCode,
+      qr_code: booking.qr_code || "",
     };
   });
 
   // Calculate statistics
   const stats = {
-    paid: enrichedBookings.filter((b) => b.display_status.toLowerCase() === 'đã thanh toán').length,
-    pending: enrichedBookings.filter((b) => b.display_status.toLowerCase() === 'chờ thanh toán').length,
-    canceled: enrichedBookings.filter((b) => b.display_status.toLowerCase() === 'hủy').length,
+    paid: enrichedBookings.filter((b) => b.display_status === 'paid').length,
+    pending: enrichedBookings.filter((b) => b.display_status === 'pending').length,
+    canceled: enrichedBookings.filter((b) => b.display_status === 'canceled').length,
   };
 
   const filteredBookings = enrichedBookings.filter((booking) => {
     const bookingDate = new Date(booking.created_at).toISOString().split('T')[0];
     const byDate = !selectedDate || bookingDate === selectedDate;
-    const byStatus = filterStatus === 'Tất cả' || booking.display_status.toLowerCase() === filterStatus.toLowerCase();
+    const byStatus = filterStatus === 'all' || booking.display_status.toLowerCase() === filterStatus.toLowerCase();
     return byDate && byStatus;
   });
 
@@ -93,11 +90,11 @@ const Order = () => {
 
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
-      case 'đã thanh toán':
+      case 'paid':
         return <Badge bg="success" className="status-badge">Đã thanh toán</Badge>;
-      case 'chờ thanh toán':
+      case 'pending':
         return <Badge bg="warning" text="dark" className="status-badge">Chờ thanh toán</Badge>;
-      case 'hủy':
+      case 'canceled':
         return <Badge bg="danger" className="status-badge">Hủy</Badge>;
       default:
         return <Badge bg="secondary" className="status-badge">{status}</Badge>;
@@ -114,6 +111,13 @@ const Order = () => {
     setSelectedBooking(null);
   };
 
+  const statusOptions = [
+    { value: 'all', label: 'Tất cả' },
+    { value: 'paid', label: 'Đã thanh toán' },
+    { value: 'pending', label: 'Chờ thanh toán' },
+    { value: 'canceled', label: 'Huỷ' },
+  ];
+  
   return (
     <div className="order-wrapper">
       {/* Statistics and Filters */}
@@ -128,8 +132,8 @@ const Order = () => {
             <span>Chờ thanh toán: {stats.pending}</span>
           </div>
           <div className="stat-item stat-canceled">
-            <i className="fas fa-times-circle me-1"></i>
-            <span>Hủy: {stats.canceled}</span>
+            <i class="fas fa-window-close me-1"></i>
+            <span>Đã huỷ: {stats.canceled}</span>
           </div>
         </div>
         <div className="d-flex gap-2">
@@ -146,9 +150,9 @@ const Order = () => {
               {filterStatus}
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              {['Tất cả', 'Đã thanh toán', 'Chờ thanh toán', 'Hủy'].map((status, i) => (
-                <Dropdown.Item eventKey={status} key={i}>
-                  {status}
+              {statusOptions.map((status, i) => (
+                <Dropdown.Item eventKey={status.value} key={i}>
+                  {status.label}
                 </Dropdown.Item>
               ))}
             </Dropdown.Menu>
@@ -181,7 +185,6 @@ const Order = () => {
                   onClick={() => handleShowDetails(booking)}
                   className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`}
                 >
-                  {/* <td className="text-primary font-weight-bold">{booking.booking_id.slice(0, 8)}</td> */}
                   <td>{booking.movie_title}</td>
                   <td>{booking.showtime}</td>
                   <td>{booking.room_name}</td>
@@ -203,19 +206,45 @@ const Order = () => {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="d-flex justify-content-center mt-4">
-          <Pagination>
-            {[...Array(totalPages).keys()].map((number) => (
-              <Pagination.Item
-                key={number + 1}
-                active={number + 1 === currentPage}
-                onClick={() => handlePageChange(number + 1)}
-              >
-                {number + 1}
-              </Pagination.Item>
-            ))}
-            {totalPages > 5 && <Pagination.Ellipsis />}
-            <Pagination.Item>{totalPages}</Pagination.Item>
+        <div className="d-flex justify-content-end mt-2">
+          <Pagination className="mb-0">
+            {/* Nút Previous */}
+            <Pagination.Prev
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+            />
+
+            {/* Hiển thị các số trang */}
+            {[...Array(totalPages).keys()].map((number) => {
+              const page = number + 1;
+              // Hiển thị tối đa 5 số trang, với logic thông minh
+              if (
+                page === 1 || // Luôn hiển thị trang đầu
+                page === totalPages || // Luôn hiển thị trang cuối
+                (page >= currentPage - 2 && page <= currentPage + 2) // Hiển thị các trang gần trang hiện tại
+              ) {
+                return (
+                  <Pagination.Item
+                    key={page}
+                    active={page === currentPage}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </Pagination.Item>
+                );
+              }
+              return null;
+            })}
+
+            {/* Thêm dấu chấm lửng nếu cần */}
+            {totalPages > 5 && currentPage < totalPages - 2 && <Pagination.Ellipsis />}
+            {totalPages > 5 && currentPage > 3 && <Pagination.Ellipsis />}
+
+            {/* Nút Next */}
+            <Pagination.Next
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            />
           </Pagination>
         </div>
       )}
@@ -255,71 +284,60 @@ const Order = () => {
                       </div>
                     </Card.Body>
                   </Card>
-
-                  <Card className="info-card mb-3">
-                    <Card.Body>
-                      <h5 className="section-title">Thông tin thanh toán</h5>
-                      <div className="info-row">
-                        <span className="info-label">Trạng thái:</span>
-                        <span className="info-value">{getStatusBadge(selectedBooking.display_status)}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">Tổng tiền:</span>
-                        <span className="info-value text-success">{formatCurrency(selectedBooking.total_price)}</span>
-                      </div>
-                      <div className="info-row">
-                        <span className="info-label">Phương thức:</span>
-                        <span className="info-value">{selectedBooking.payment_method}</span>
-                      </div>
-                    </Card.Body>
-                  </Card>
                 </Col>
                 <Col md={4} className="text-center">
                   <Card className="qr-card">
                     <Card.Body>
-                      <img src={selectedBooking.qr_code} alt="QR Code" className="qr-code" />
-                      <p className="qr-label">Quét mã QR để kiểm tra</p>
+                      <img src={`${API_URL}${selectedBooking.qr_code}`} alt="QR Code" className="qr-code" />
+                      <p className="qr-label fs-6">Đã quét</p>
                     </Card.Body>
                   </Card>
                 </Col>
               </Row>
+              <Row className='px-2 gap-3'>
+                <Card className="info-card mb-3" as={Col}>
+                  <Card.Body>
+                    <h5 className="section-title">Thông tin thanh toán</h5>
+                    <div className="info-row">
+                      <span className="info-label">Trạng thái:</span>
+                      <span className="info-value">{getStatusBadge(selectedBooking.display_status)}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Tổng tiền:</span>
+                      <span className="info-value text-success">{formatCurrency(selectedBooking.total_price)}</span>
+                    </div>
+                    <div className="info-row">
+                      <span className="info-label">Phương thức:</span>
+                      <span className="info-value">{selectedBooking.payment_method}</span>
+                    </div>
+                  </Card.Body>
+                </Card>
+                <Card className="info-card" as={Col}>
+                  <Card.Body>
+                    <h5 className="section-title">Danh sách ghế</h5>
 
-              <Card className="info-card">
-                <Card.Body>
-                  <h5 className="section-title">Danh sách ghế</h5>
-                    <Table hover >
-                      <thead >
-                        <tr>
-                          <th>Ghế</th>
-                          <th>Giá</th>
-                          <th>Loại Ghế</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {bookingDetails
-                          .filter((detail) => detail.booking_id === selectedBooking.booking_id)
-                          .map((detail) => {
-                            let seatType = '';
-                            if (detail.price === 65000) {
-                              seatType = 'VIP';
-                            } else if (detail.price === 60000) {
-                              seatType = 'Thường';
-                            } else if (detail.price === 150000) {
-                              seatType = 'Đôi';
-                            }
+                    <div className="seat-list-header">
+                      <span>Ghế</span>
+                      <span>Giá ghế</span>
+                      <span>Loại</span>
+                    </div>
 
-                            return (
-                              <tr key={detail.detail_id}>
-                                <td>{detail.seat_id}</td>
-                                <td>{formatCurrency(detail.price)}</td>
-                                <td>{seatType}</td>
-                              </tr>
-                            );
-                          })}
-                      </tbody>
-                    </Table>
-                </Card.Body>
-              </Card>
+                    <div className="seat-list-body">
+                      {bookingDetails
+                        .filter((detail) => detail.booking_id === selectedBooking.booking_id)
+                        .map((detail) => {
+                          return (
+                            <div className="seat-item" key={detail.detail_id}>
+                              <span>{detail.seat_number}</span>
+                              <span>{formatCurrency(detail.price)}</span>
+                              <span>{detail.seat_type}</span>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </Card.Body>
+                </Card>
+              </Row>
             </div>
           )}
         </Modal.Body>

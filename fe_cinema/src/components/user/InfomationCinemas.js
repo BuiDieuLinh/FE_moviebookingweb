@@ -19,9 +19,9 @@ export const InfomationCinemas = () => {
             </div>
             <img src='thumbnail.jpeg' />
 
-            <p>Beta Cinemas Thái Nguyên có vị trí trung tâm, tọa lạc tại Hoàng Gia Plaza. 
+            <p>Star Cinema có vị trí trung tâm, tọa lạc tại Hưng Yên
                 Rạp tự hào là rạp phim tư nhân duy nhất và đầu tiên sở hữu hệ thống 
-                phòng chiếu phim đạt chuẩn Hollywood tại TP. Thái Nguyên.
+                phòng chiếu phim đạt chuẩn Hollywood tại Huyện Khoái Châu.
             </p>
             <p>
                 Rạp được trang bị hệ thống máy chiếu, phòng chiếu hiện đại với 100% nhập khẩu từ nước ngoài,
@@ -29,7 +29,7 @@ export const InfomationCinemas = () => {
                  đảm bảo chất lượng âm thanh sống động nhất cho từng thước phim bom tấn.
             </p>
             <p>
-                Mức giá xem phim tại Beta Cinemas Thái Nguyên rất cạnh tranh: giá vé 2D chỉ từ 40.000 VNĐ và giá vé 3D chỉ từ 60.000 VNĐ. 
+                Mức giá xem phim tại Star Cinema rất cạnh tranh: giá vé 2D chỉ từ 60.000 VNĐ và giá vé 3D chỉ từ 70.000 VNĐ. 
                 Không chỉ có vậy, rạp còn có nhiều chương trình khuyến mại, ưu đãi hàng tuần như 
                 đồng giá vé 40.000 vào các ngày Thứ 3 vui vẻ, Thứ 4 Beta's Day, 
                 đồng giá vé cho Học sinh sinh viên, người cao tuổi, trẻ em.....

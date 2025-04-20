@@ -13,7 +13,7 @@ const CinemaAuth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState({}); 
+  const [errors, setErrors] = useState({}); // Sử dụng object thay vì null
   const navigate = useNavigate();
 
   const handleSwitch = () => {
@@ -37,10 +37,9 @@ const CinemaAuth = () => {
           Swal.fire({
             title: "Signup Successful!",
             icon: "success",
-            showConfirmButton: false,
-            timer: 2000
+            draggable: true
           });
-          setIsLogin(true);
+          setIsLogin(true); // Chuyển sang login sau khi đăng ký thành công
         } catch (err) {
           console.error("Lỗi khi đăng ký tài khoản: ", err);
           if (err.response && err.response.status === 400) {
@@ -57,14 +56,6 @@ const CinemaAuth = () => {
         username,
         password,
       });
-      if(response.status === 200){
-        Swal.fire({
-          icon: "success",
-          title: "Đăng nhập thành công!",
-          showConfirmButton: false,
-          timer: 1500
-        });
-      }
 
       const { token } = response.data;
       const decoded = jwtDecode(token);
@@ -151,7 +142,6 @@ const CinemaAuth = () => {
                       className="auth-input"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="off" 
                     />
                   </Form.Group>
 

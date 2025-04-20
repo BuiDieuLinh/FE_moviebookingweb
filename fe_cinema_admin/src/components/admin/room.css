@@ -58,7 +58,6 @@
   .seat-row {
     display: flex;
     justify-content: center;
-    margin-bottom: 5px;
   }
   .ready{
     border: 1px solid rgb(0, 112, 0);
@@ -203,64 +202,8 @@
     background-color: #f5f5f5;
   }
   
-  /* .showing {
-    background-color: #dc3545;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
+  .required::after {
+    content: " *";
+    color: red;
+    font-weight: bold;
   }
-  
-  .ready {
-    background-color: #28a745;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-  }
-   */
-  /* Các style cũ vẫn giữ nguyên */
-  .seat-row {
-    margin-bottom: 10px;
-  }
-  
-  .seat {
-    margin: 5px;
-    padding: 5px 10px;
-  }
-  
-  /* .seat.regular {
-    background-color: #d1d0d0;
-  }
-  
-  .seat.vip {
-    background-color: #ffcc00;
-  }
-  
-  .seat.couple {
-    background-color: #ff6666;
-  }
-  
-  .seat.selected {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .normal {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-  }
-  
-  .standard {
-    background-color: #ffcc00;
-    color: black;
-    padding: 5px 10px;
-    border-radius: 5px;
-  }
-  
-  .roomvip {
-    background-color: #28a745;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-  } */

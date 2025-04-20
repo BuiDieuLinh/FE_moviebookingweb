@@ -1,11 +1,15 @@
-// Screenings.jsx
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useMemo } from 'react';
 import { useToast } from "./ToastContext";
 import axios from "axios";
 import { Table, Button, Modal, Form, Accordion, Row, Col, Pagination } from "react-bootstrap";
+import { format, isBefore, isAfter, parse } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import vi from "date-fns/locale/vi";
 import "./showtimes.css";
 
 const API_URL = process.env.REACT_APP_PORT;
+const TIME_ZONE = "Asia/Ho_Chi_Minh";
 
 export const Screening = () => {
   const { showToast } = useToast();
@@ -21,41 +25,23 @@ export const Screening = () => {
   const [searchRoom, setSearchRoom] = useState('');
   const [searchDate, setSearchDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    fetchScreenings();
-    fetchShowtime();
-    fetchRooms();
+    fetchData();
   }, []);
 
-  const fetchScreenings = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API_URL}/screenings`);
-      setScreenings(response.data);
+      const responseScreenings = await axios.get(`${API_URL}/screenings`);
+      setScreenings(responseScreenings.data);
+      const responseShowtimes = await axios.get(`${API_URL}/showtimes`);
+      setShowtime(responseShowtimes.data);
+      const responseRooms = await axios.get(`${API_URL}/rooms`);
+      setRooms(responseRooms.data);
     } catch (error) {
-      console.error("Lỗi khi lấy danh sách suất chiếu:", error);
+      console.error("Lỗi khi lấy dữ liệu:", error);
       setScreenings([]);
-    }
-  };
-
-  const fetchShowtime = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/showtimes`);
-      setShowtime(response.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách lịch chiếu:", error);
-      setShowtime([]);
-    }
-  };
-
-  const fetchRooms = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/rooms`);
-      setRooms(response.data);
-    } catch (error) {
-      console.error("Lỗi khi lấy danh sách phòng chiếu:", error);
-      setRooms([]);
     }
   };
 
@@ -64,9 +50,9 @@ export const Screening = () => {
     setFormDataScreen(screening ? {
       showtime_id: screening.showtime_id || '',
       room_id: screening.room_id || '',
-      screening_date: screening.screening_date ? new Date(screening.screening_date).toLocaleDateString("sv-SE") : "",
-      start_time: screening.start_time || '',
-      end_time: screening.end_time || '',
+      screening_date: screening.screening_date ? format(toZonedTime(new Date(screening.screening_date), TIME_ZONE), "yyyy-MM-dd") : "",
+      start_time: screening.start_time ? screening.start_time.slice(0, 5) : '',
+      end_time: screening.end_time ? screening.end_time.slice(0, 5) : '',
       screening_format: screening.screening_format || '',
       screening_translation: screening.screening_translation || ''
     } : {
@@ -98,6 +84,71 @@ export const Screening = () => {
     return timeString.length === 5 ? timeString + ":00" : timeString;
   };
 
+  // Kiểm tra phòng sẵn sàng
+  const availableRooms = useMemo(() => {
+    if (!formDataScreen.screening_date || !formDataScreen.start_time || !formDataScreen.end_time) {
+      return [];
+    }
+
+    if (!isValidDate(formDataScreen.screening_date) || 
+        !isValidTime(formDataScreen.start_time) || 
+        !isValidTime(formDataScreen.end_time)) {
+      return [];
+    }
+
+    const screeningDate = formDataScreen.screening_date;
+
+    const startDateTime = toZonedTime(new Date(`${screeningDate}T${formDataScreen.start_time}:00`), TIME_ZONE);
+    const endDateTime = toZonedTime(new Date(`${screeningDate}T${formDataScreen.end_time}:00`), TIME_ZONE);
+
+    return rooms.filter((room) => {
+      const isBusy = screenings.some((screening) => {
+        if (screening.room_id !== room.room_id) return false;
+        if (screening.screening_date !== screeningDate) return false;
+
+        const screenStart = toZonedTime(new Date(`${screening.screening_date}T${screening.start_time}`), TIME_ZONE);
+        const screenEnd = toZonedTime(new Date(`${screening.screening_date}T${screening.end_time}`), TIME_ZONE);
+
+        // Kiểm tra trùng lặp thời gian
+        return (
+          (isBefore(startDateTime, screenEnd) && isAfter(endDateTime, screenStart)) ||
+          (isBefore(screenStart, endDateTime) && isAfter(screenEnd, startDateTime))
+        );
+      });
+
+      return !isBusy;
+    });
+  }, [rooms, screenings, formDataScreen.screening_date, formDataScreen.start_time, formDataScreen.end_time]);
+
+
+  const avaiRooms = useMemo(() => {
+    if(!formDataScreen.screening_date || !formDataScreen.start_time || !formDataScreen.end_time){
+      return []
+    }
+    if(!isValidDate(formDataScreen.screening_date) || !isValidTime(formDataScreen.start_time) || !isValidTime(formDataScreen.end_time)){
+      showToast('Cảnh báo', 'Dữ liệu nhập vào không đúng định dạng')
+      return[]
+    }
+    const screeningDate = formDataScreen.screening_date;
+
+    const startDateTime = toZonedTime(new Date(`${screeningDate}T${formDataScreen.start_time}:00`),TIME_ZONE)
+    const endDateTime = toZonedTime(new Date(`${screeningDate}T${formDataScreen.end_time}:00`),TIME_ZONE)
+    return (rooms.filter((room) =>{
+      const isBusy = screenings.some((screen) =>{
+        if(screen.room_id !== room.room_id) return false;
+        if(screen.screening_date !== screeningDate) return false;
+
+        const screenStart = toZonedTime(new Date(`${screen.screening_date}T${screen.start_time}:00`), TIME_ZONE)
+        const screenEnd = toZonedTime(new Date(`${screen.screening_date}T${screen.end_time}:00`), TIME_ZONE)
+        return (
+        (isBefore(startDateTime, screenEnd) && isAfter(endDateTime, screenStart)) || 
+        (isBefore(endDateTime, screenStart) && isAfter(startDateTime, screenEnd))
+      )
+      })
+      return !isBusy;
+    }))
+    
+  }, [rooms, screenings, formDataScreen.screening_date, formDataScreen.start_time, formDataScreen.end_time])
   const handleSaveScreening = async () => {
     try {
       if (!Object.values(formDataScreen).every(val => val)) {
@@ -114,7 +165,7 @@ export const Screening = () => {
 
       const formattedData = {
         ...formDataScreen,
-        screening_date: new Date(formDataScreen.screening_date).toLocaleDateString("en-CA"),
+        screening_date: format(new Date(formDataScreen.screening_date), "yyyy-MM-dd"),
         start_time: formatTimeInput(formDataScreen.start_time),
         end_time: formatTimeInput(formDataScreen.end_time),
       };
@@ -124,7 +175,7 @@ export const Screening = () => {
         : await axios.post(`${API_URL}/screenings`, formattedData);
 
       showToast("Suất chiếu", selectedScreen ? "Cập nhật suất chiếu thành công!" : "Thêm suất chiếu thành công!");
-      fetchScreenings();
+      fetchData();
       handleCloseModalScreen();
     } catch (error) {
       console.error("Lỗi khi lưu suất chiếu:", error);
@@ -133,17 +184,13 @@ export const Screening = () => {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", { 
-      day: "2-digit", 
-      month: "2-digit", 
-      year: "numeric" 
-    });
+    return format(toZonedTime(new Date(dateString), TIME_ZONE), "dd/MM/yyyy", { locale: vi });
   };
 
   const filteredScreenings = screenings.filter(screen => {
     const roomMatch = searchRoom ? screen.room_id === searchRoom : true;
-    const dateMatch = searchDate ? 
-      new Date(screen.screening_date).toLocaleDateString("sv-SE") === searchDate : true;
+    const formattedScreenDate = format(toZonedTime(new Date(screen.screening_date), TIME_ZONE), "yyyy-MM-dd");
+    const dateMatch = searchDate ? formattedScreenDate === searchDate : true;
     return roomMatch && dateMatch;
   });
 
@@ -154,46 +201,41 @@ export const Screening = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  const selectedName = rooms.find(room => room.room_id === searchRoom)
+  const selectedName = rooms.find(room => room.room_id === searchRoom);
 
-  const now = new Date();
-
+  const now = toZonedTime(new Date(), TIME_ZONE);
   const upcomingShowtimes = showtime.filter((show) => {
-    const startDate = new Date(show.start_time);
-    const endDate = new Date(show.end_time);
-    return now >= startDate && now <= endDate;
-
+    const startDate = toZonedTime(new Date(show.start_time), TIME_ZONE);
+    const endDate = toZonedTime(new Date(show.end_time), TIME_ZONE);
+    return isAfter(now, startDate) && isBefore(now, endDate);
   });
 
   const getStatusInfo = (screening) => {
-    const now = new Date();
-  
-    const [year, month, day] = screening.screening_date.split("T")[0].split("-");
-    const [startHour, startMinute, startSecond] = screening.start_time.split(":");
-    const [endHour, endMinute, endSecond] = screening.end_time.split(":");
-  
-    const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
-    const end = new Date(year, month - 1, day, endHour, endMinute, endSecond);
-  
-    if (now < start) {
-      return {
-        label: "Sắp chiếu",
-        class: "commingsoon"
-      };
-    } else if (now >= start && now <= end) {
-      return {
-        label: "Đang chiếu",
-        class: "nowshowing"
-      };
-    } else {
+    const screeningDateTime = toZonedTime(new Date(`${screening.screening_date}T${screening.start_time}`), TIME_ZONE);
+    const screeningEndDateTime = toZonedTime(new Date(`${screening.screening_date}T${screening.end_time}`), TIME_ZONE);
+
+    if (isAfter(now, screeningEndDateTime)) {
       return {
         label: "Đã chiếu",
         class: "completed"
       };
+    } else if (isBefore(now, screeningDateTime)) {
+      return {
+        label: "Sắp chiếu",
+        class: "commingsoon"
+      };
+    } else {
+      return {
+        label: "Đang chiếu",
+        class: "nowshowing"
+      };
     }
   };
-  
-  // console.log(selectedName)
+
+  const handleRoomSelect = (roomId) => {
+    setFormDataScreen({ ...formDataScreen, room_id: roomId });
+  };
+
   return (
     <Accordion.Item eventKey="1">
       <Accordion.Header>Suất chiếu</Accordion.Header>
@@ -233,8 +275,12 @@ export const Screening = () => {
         </div>
 
         <div>
-          {!searchDate || !searchDate ? "" : <p className='fw-bold text-center text-success'>Lịch chiếu ngày: <span>{searchDate}</span> - <span> {selectedName?.room_name}</span></p>}
-          
+          {!searchDate && !searchRoom ? "" : (
+            <p className='fw-bold text-center text-success'>
+              Lịch chiếu ngày: <span>{searchDate ? formatDate(searchDate) : "Tất cả"}</span> - 
+              <span> {selectedName?.room_name || "Tất cả phòng"}</span>
+            </p>
+          )}
         </div>
         <div className="table-responsive rounded-2">
           <Table hover>
@@ -252,9 +298,7 @@ export const Screening = () => {
             </thead>
             <tbody>
               {currentScreenings.map((screen) => {
-                const today = new Date();
-                const screeningDate = new Date(screen.screening_date);
-                const statusStyle = screeningDate < today ? "completed" : screeningDate > today ? "commingsoon" : "nowshowing";
+                const statusInfo = getStatusInfo(screen);
                 const formatStyle = screen.screening_format === "2D" ? "style2d" : 
                   screen.screening_format === "3D" ? "style3d" : "styleimax";
 
@@ -266,7 +310,7 @@ export const Screening = () => {
                     <td className='text-center'><span className='translator'>{screen.screening_translation}</span></td>
                     <td><span className='screening'>{`${screen.start_time} - ${screen.end_time}`}</span></td>
                     <td className='text-center'>{formatDate(screen.screening_date)}</td>
-                    <td className='text-center'><span className={getStatusInfo(screen).class}>{getStatusInfo(screen).label}</span></td>
+                    <td className='text-center'><span className={statusInfo.class}>{statusInfo.label}</span></td>
                     <td className="text-end">
                       <Button
                         style={{ border: "1px solid #A9141E", backgroundColor: "#A9141E", color: "white" }}
@@ -284,7 +328,7 @@ export const Screening = () => {
         </div>
 
         {totalPages > 1 && (
-          <Pagination className="justify-content-center mt-3">
+          <Pagination className="justify-content-end mt-3">
             <Pagination.Prev 
               onClick={() => paginate(currentPage - 1)} 
               disabled={currentPage === 1} 
@@ -317,17 +361,8 @@ export const Screening = () => {
                   <option value="">Chọn suất chiếu</option>
                   {upcomingShowtimes.map((show) => (
                     <option key={show.showtime_id} value={show.showtime_id}>
-                      {show.movie_title} - {new Date(show.start_time).toLocaleDateString()} → {new Date(show.end_time).toLocaleDateString()}
+                      {show.movie_title} - {format(toZonedTime(new Date(show.start_time), TIME_ZONE), "dd/MM/yyyy")} → {format(toZonedTime(new Date(show.end_time), TIME_ZONE), "dd/MM/yyyy")}
                     </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-              <Form.Group className="mb-3">
-                <Form.Label>Phòng chiếu</Form.Label>
-                <Form.Select name='room_id' value={formDataScreen.room_id} onChange={handleInputChangeScreen}>
-                  <option value='' disabled>-- chọn phòng --</option>
-                  {rooms.map((room) => (
-                    <option key={room.room_id} value={room.room_id}>{room.room_name}</option>
                   ))}
                 </Form.Select>
               </Form.Group>
@@ -363,6 +398,25 @@ export const Screening = () => {
                   />
                 </Form.Group>
               </Row>
+              <Form.Group className="mb-3">
+                <Form.Label>Phòng chiếu</Form.Label>
+                <div className="d-flex flex-wrap gap-2">
+                  {availableRooms.length > 0 ? (
+                    availableRooms.map((room) => (
+                      <Button
+                        size='sm'
+                        key={room.room_id}
+                        variant={formDataScreen.room_id === room.room_id ? "primary" : "outline-primary"}
+                        onClick={() => handleRoomSelect(room.room_id)}
+                      >
+                        {room.room_name}
+                      </Button>
+                    ))
+                  ) : (
+                    <p className="text-muted">Không có phòng sẵn sàng trong khoảng thời gian này.</p>
+                  )}
+                </div>
+              </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Hình thức chiếu</Form.Label>
                 <Form.Select name="screening_format" value={formDataScreen.screening_format} onChange={handleInputChangeScreen}>

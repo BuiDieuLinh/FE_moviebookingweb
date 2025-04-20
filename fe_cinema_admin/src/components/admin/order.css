@@ -102,10 +102,10 @@
     letter-spacing: 0.5px;
   }
   
-  .order-table tbody tr {
+  /* .order-table tbody tr {
     transition: all 0.3s ease;
   }
-  
+   */
   .order-table .even-row {
     background-color: #f8fafc;
   }
@@ -191,11 +191,8 @@
     margin-bottom: 15px;
   }
   
-  .booking-details .info-card:hover {
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
-  }
-  
   .section-title {
+    text-align: left;
     font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 15px;
@@ -223,6 +220,7 @@
   }
   
   .info-label {
+    text-align: left;
     font-weight: 600;
     color: #1e3a8a;
     flex: 0 0 150px;
@@ -244,18 +242,12 @@
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     background: linear-gradient(145deg, #ffffff, #f0f4f8);
-    padding: 15px;
-    transition: all 0.3s ease;
-  }
-  
-  .qr-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+    padding: 10px;
   }
   
   .qr-code {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 8px;
     border: 2px solid #e2e8f0;
     padding: 5px;
@@ -281,6 +273,35 @@
   
   .close-btn:hover {
     background-color: #475569;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  .seat-list-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    color: #555;
+    background-color: #f8f9fa;
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  
+  .seat-list-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .seat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background-color: #fdfdfd;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    font-size: 15px;
+    color: #333;
+  }
+  
+  .seat-item:hover {
+    background-color: #f1f3f5;
   }

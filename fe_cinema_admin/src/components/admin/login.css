@@ -1,0 +1,186 @@
+.cinema-auth-bg {
+  min-height: 100vh;
+  position: relative; /* Để ::before nằm trong phạm vi */
+  overflow: hidden;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.cinema-auth-bg::before {
+  content: ''; /* Bắt buộc cho pseudo-element */
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/public/thumbnail.jpeg');
+  filter: blur(2px); /* Áp dụng blur cho hình ảnh, điều chỉnh giá trị theo ý muốn */
+  opacity: 0.5; /* Độ trong suốt của hình ảnh */
+  z-index: -1; /* Đặt hình ảnh phía sau nội dung */
+}
+
+.auth-card {
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  position: relative;
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+  z-index: 99;
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-header {
+  text-align: center;
+  position: relative;
+  padding: 20px 0;
+}
+
+.auth-title {
+  color: #fff;
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.animate-title {
+  animation: fadeIn 0.5s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-subtitle {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.auth-input {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  color: #333;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.auth-input:focus {
+  border-color: #ff6b6b;
+  box-shadow: 0 0 10px rgba(255, 107, 107, 0.2);
+  outline: none;
+}
+
+.auth-button {
+  background-color: rgb(190, 0, 0);
+  border: none;
+  padding: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  color: #fff;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.auth-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.animate-button:active {
+  transform: scale(0.15);
+}
+
+.animate-slide-in {
+  animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-switch-text {
+  color: #666;
+  font-size: 14px;
+}
+
+.switch-text {
+  color: #ff6b6b;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.switch-text:hover {
+  color: #ff8e53;
+}
+
+.switch-btn {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 24px;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: color 0.3s;
+  z-index: 10;
+}
+
+.switch-btn:hover {
+  color: #ff8e53;
+}
+
+.left-btn {
+  left: -40px;
+}
+
+.right-btn {
+  right: -40px;
+}
+
+.cinema-logo {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  color: #2c2c2c;
+  font-weight: 700;
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  .auth-card {
+    margin: 0 10px;
+  }
+  .switch-btn {
+    display: none;
+  }
+  .auth-switch-text {
+    text-align: center;
+  }
+}

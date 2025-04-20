@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Card from 'react-bootstrap/Card';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
+import Swal from 'sweetalert2';
 import "./moviedetail.css";
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -16,11 +17,11 @@ export const MovieDetail = () => {
   const countdownRef = useRef(null);
   const [movie, setMovie] = useState(null);
   const [dates, setDates] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
   const [screenings, setScreenings] = useState([]);
   const [showtimes, setShowtimes] = useState([]);
-  const [allScreenings, setAllScreenings] = useState([]);
   const [seatData, setSeatData] = useState([]);
+  const [allScreenings, setAllScreenings] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedScreening, setSelectedScreening] = useState(null);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -29,8 +30,6 @@ export const MovieDetail = () => {
 
   useEffect(() => {
     fetchMovie();
-    fetchShowtime();
-    fetchScreenings();
   }, []);
 
   const fetchMovie = async () => {
@@ -41,18 +40,12 @@ export const MovieDetail = () => {
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết phim: ", err);
     }
-  };
-
-  const fetchShowtime = async () => {
     try {
       const response = await axios.get(`${API_URL}/showtimes`);
       setShowtimes(response.data);
     } catch (err) {
       console.error("Lỗi khi lấy suất chiếu: ", err);
     }
-  };
-
-  const fetchScreenings = async () => {
     try {
       const response = await axios.get(`${API_URL}/screenings`);
       setAllScreenings(response.data);
@@ -71,197 +64,240 @@ export const MovieDetail = () => {
     }
   };
 
-  const getDatesBetween = (startDate, endDate) => {
-    const dates = [];
-    let currentDate = new Date(startDate);
-    const end = new Date(endDate);
+// Tạo danh sách ngày giữa hai ngày
+const getDatesBetween = (startDate, endDate) => {
+  const dates = [];
+  let currentDate = new Date(startDate);
+  const end = new Date(endDate);
 
-    while (currentDate <= end) {
-      dates.push(currentDate.toISOString().split("T")[0]);
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
+  currentDate.setHours(0, 0, 0, 0);
+  end.setHours(0, 0, 0, 0);
 
-    return dates;
-  };
+  while (currentDate <= end) {
+    dates.push(currentDate.toLocaleDateString("sv-SE"));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
 
-  useEffect(() => {
-    if (!id || !showtimes) return;
+  return dates;
+};
 
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
+// Định dạng thời gian từ HH:MM:SS thành HH:MM
+const formatTime = (timeString) => {
+  const [hours, minutes] = timeString.split(":");
+  return `${hours}:${minutes}`;
+};
 
-    const upcomingShowtimes = showtimes
-      .filter(st => st.movie_id === id)
-      .filter(st => {
-        const endDate = new Date(st.end_time);
-        return now <= endDate;
-      });
+// Tạo URL nhúng YouTube từ URL video
+const getEmbedUrl = (url) => {
+  if (!url) return "";
+  const regex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(regex);
+  if (match && match[1]) {
+    return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return "";
+};
 
-    let allDates = [];
-    upcomingShowtimes.forEach(st => {
-      const startDate = new Date(st.start_time);
-      const effectiveStartDate = startDate < now ? now : startDate;
-      const datesBetween = getDatesBetween(effectiveStartDate, st.end_time);
-      allDates = [...allDates, ...datesBetween];
-    });
+// Nhóm 3: Logic nghiệp vụ (Business Logic)
+// Khởi động bộ đếm ngược 10 phút
+const startCountdown = () => {
+  if (countdownRef.current) {
+    clearInterval(countdownRef.current);
+  }
 
-    const uniqueDates = [...new Set(allDates)];
+  setCountdown(600);
+  setCountdownDisplay("10:00");
 
-    const formattedDates = uniqueDates.map(date => {
-      const d = new Date(date);
-      return {
-        date: d.getDate(),
-        day: `Th.${d.getMonth() + 1}`,
-        weekDay: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"][d.getDay()],
-        fullDate: date
-      };
-    });
-
-    formattedDates.sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate));
-
-    setDates(formattedDates);
-    if (formattedDates.length > 0) {
-      setSelectedDate(formattedDates[0].fullDate);
-    }
-  }, [id, showtimes]);
-
-  useEffect(() => {
-    if (!selectedDate || !allScreenings || !showtimes) return;
-
-    const now = new Date();
-    const today = now.toISOString().split("T")[0];
-    console.log(today)
-    const movieShowtimeIds = showtimes
-      .filter(st => st.movie_id === id)
-      .map(st => st.showtime_id);
-
-    const filteredScreenings = allScreenings
-      .filter(sc => movieShowtimeIds.includes(sc.showtime_id))
-      .filter(sc => {
-        const screeningDate = new Date(sc.screening_date).toISOString().split("T")[0];
-        if (screeningDate !== selectedDate) return false;
-
-        if (screeningDate === today) {
-          const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-          const [hours, minutes] = sc.start_time.split(":");
-          const screeningTime = parseInt(hours) * 3600 + parseInt(minutes) * 60;
-          return screeningTime >= currentTime;
-        }
-        return true;
-      });
-
-    setScreenings(filteredScreenings);
-  }, [selectedDate, allScreenings, showtimes, id]);
-
-  const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(":");
-    return `${hours}:${minutes}`;
-  };
-
-  const startCountdown = () => {
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-    }
-
-    setCountdown(600);
-    setCountdownDisplay("10:00");
-
-    countdownRef.current = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 0) {
-          clearInterval(countdownRef.current);
-          window.location.reload();
-          return 0;
-        }
-
-        const minutes = Math.floor(prev / 60);
-        const seconds = prev % 60;
-        setCountdownDisplay(
-          `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
-        );
-        return prev - 1;
-      });
-    }, 1000);
-  };
-
-  const handleSelectScreening = (screening) => {
-    setSelectedScreening(screening);
-    setSelectedSeats([]);
-    setTotalPrice(0);
-    fetchSeatsByRoom(screening.room_id, screening.screening_id);
-    startCountdown();
-  };
-
-  const toggleSeat = (seatId) => {
-    setSelectedSeats((prevSelected) => {
-      let newSelected;
-      if (prevSelected.includes(seatId)) {
-        newSelected = prevSelected.filter((id) => id !== seatId);
-      } else {
-        newSelected = [...prevSelected, seatId];
+  countdownRef.current = setInterval(() => {
+    setCountdown((prev) => {
+      if (prev <= 0) {
+        clearInterval(countdownRef.current);
+        window.location.reload();
+        return 0;
       }
 
-      let total = 0;
-      newSelected.forEach((selectedSeatId) => {
-        const seat = seatData.find((s) => s.seat_id === selectedSeatId);
-        if (seat) {
-          if (seat.seat_type === "regular") {
-            total += 60000;
-          } else if (seat.seat_type === "vip") {
-            total += 65000;
-          } else if (seat.seat_type === "couple") {
-            total += 150000;
-          }
+      const minutes = Math.floor(prev / 60);
+      const seconds = prev % 60;
+      setCountdownDisplay(
+        `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`
+      );
+      return prev - 1;
+    });
+  }, 1000);
+};
+
+// Chọn suất chiếu
+const handleSelectScreening = (screening) => {
+  setSelectedScreening(screening);
+  setSelectedSeats([]);
+  setTotalPrice(0);
+  fetchSeatsByRoom(screening.room_id, screening.screening_id);
+  startCountdown();
+};
+
+// Chọn/bỏ chọn ghế và tính tổng tiền
+const toggleSeat = (seatId) => {
+  setSelectedSeats((prevSelected) => {
+    let newSelected;
+    if (prevSelected.includes(seatId)) {
+      newSelected = prevSelected.filter((id) => id !== seatId);
+    } else {
+      newSelected = [...prevSelected, seatId];
+    }
+
+    let total = 0;
+    newSelected.forEach((selectedSeatId) => {
+      const seat = seatData.find((s) => s.seat_id === selectedSeatId);
+      if (seat) {
+        if (seat.seat_type === "regular") {
+          total += 60000;
+        } else if (seat.seat_type === "vip") {
+          total += 65000;
+        } else if (seat.seat_type === "couple") {
+          total += 150000;
         }
-      });
-      setTotalPrice(total);
-      return newSelected;
+      }
     });
-  };
+    setTotalPrice(total);
+    return newSelected;
+  });
+};
 
-  const handlePayment = () => {
-    if (countdownRef.current) {
-      clearInterval(countdownRef.current);
-    }
-
-    navigate('/checkout', {
-      state: {
-        screening_id: selectedScreening.screening_id,
-        selectedSeats: selectedSeats.map((seatId) => {
-          const seat = seatData.find((s) => s.seat_id === seatId);
-          let price;
-          if (seat.seat_type === "regular") price = 60000;
-          else if (seat.seat_type === "vip") price = 65000;
-          else if (seat.seat_type === "couple") price = 150000;
-          return {
-            seat_id: seat.seat_id,
-            seat_name: seat.seat_number,
-            price: price,
-          };
-        }),
-        totalPrice: totalPrice,
-        title: selectedScreening.movie_title,
-        screening_date: new Date(selectedScreening.screening_date).toLocaleDateString(),
-        time: `${formatTime(selectedScreening.start_time)} - ${formatTime(selectedScreening.end_time)}`,
-        screening_format: selectedScreening.screening_format,
-        room_name: selectedScreening.room_name,
-      },
+// Xử lý thanh toán và chuyển hướng
+const handlePayment = () => {
+  const user_id = localStorage.getItem('user_id');
+  if (!user_id) {
+    Swal.fire({
+      icon: "warning",
+      title: "Cần phải đăng nhập!",
+      text: "Bạn chưa đăng nhập. Vui lòng đăng nhập hoặc đăng ký tài khoản để tiếp tục!",
+      confirmButtonText: "OK",
+      confirmButtonColor: "#dc3545",
     });
-  };
-  const getEmbedUrl = (url) => {
-    if (!url) return "";
-    const regex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-    const match = url.match(regex);
-    if (match && match[1]) {
-      return `https://www.youtube.com/embed/${match[1]}`;
-    }
-    return "";
-  };
+    return;
+  }
+  if (countdownRef.current) {
+    clearInterval(countdownRef.current);
+  }
+
+  navigate('/checkout', {
+    state: {
+      screening_id: selectedScreening.screening_id,
+      selectedSeats: selectedSeats.map((seatId) => {
+        const seat = seatData.find((s) => s.seat_id === seatId);
+        let price;
+        if (seat.seat_type === "regular") price = 60000;
+        else if (seat.seat_type === "vip") price = 65000;
+        else if (seat.seat_type === "couple") price = 150000;
+        return {
+          seat_id: seat.seat_id,
+          seat_name: seat.seat_number,
+          price: price,
+        };
+      }),
+      totalPrice: totalPrice,
+      title: selectedScreening.movie_title,
+      screening_date: new Date(selectedScreening.screening_date).toLocaleDateString(),
+      time: `${formatTime(selectedScreening.start_time)} - ${formatTime(selectedScreening.end_time)}`,
+      screening_format: selectedScreening.screening_format,
+      room_name: selectedScreening.room_name,
+    },
+  });
+};
+
+// Nhóm 4: Xử lý giao diện (UI Helpers)
+// Nhóm ghế theo hàng
+const groupedSeats = seatData.reduce((acc, seat) => {
+  const row = seat.seat_row;
+  if (!acc[row]) {
+    acc[row] = [];
+  }
+  acc[row].push(seat);
+  return acc;
+}, {});
+const rows = Object.keys(groupedSeats).sort();
+
+// Nhóm 5: Side Effects (useEffect)
+// Lấy dữ liệu ban đầu khi component mount
+useEffect(() => {
+  fetchMovie();
+}, []);
+
+// Tạo danh sách ngày khả dụng
+useEffect(() => {
+  if (!id || !showtimes) return;
+
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+
+  const upcomingShowtimes = showtimes
+    .filter(st => st.movie_id === id)
+    .filter(st => {
+      const endDate = new Date(st.end_time);
+      return now <= endDate;
+    });
+
+  let allDates = [];
+  upcomingShowtimes.forEach(st => {
+    const startDate = new Date(st.start_time);
+    const effectiveStartDate = startDate < now ? now : startDate;
+    const datesBetween = getDatesBetween(effectiveStartDate, st.end_time);
+    allDates = [...allDates, ...datesBetween];
+  });
+
+  const uniqueDates = [...new Set(allDates)];
+
+  const formattedDates = uniqueDates.map(date => {
+    const d = new Date(date);
+    return {
+      date: d.getDate(),
+      day: `Th.${d.getMonth() + 1}`,
+      weekDay: ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"][d.getDay()],
+      fullDate: date
+    };
+  });
+
+  formattedDates.sort((a, b) => new Date(a.fullDate) - new Date(b.fullDate));
+
+  setDates(formattedDates);
+  if (formattedDates.length > 0) {
+    setSelectedDate(formattedDates[0].fullDate);
+  }
+}, [id, showtimes]);
+
+// Lọc lịch chiếu theo ngày được chọn
+useEffect(() => {
+  if (!selectedDate || !allScreenings || !showtimes) return;
+
+  const now = new Date();
+  const today = now.toISOString().split("T")[0];
+  const movieShowtimeIds = showtimes
+    .filter(st => st.movie_id === id)
+    .map(st => st.showtime_id);
+
+  const filteredScreenings = allScreenings
+    .filter(sc => movieShowtimeIds.includes(sc.showtime_id))
+    .filter(sc => {
+      const screeningDate = new Date(sc.screening_date).toISOString().split("T")[0];
+      if (screeningDate !== selectedDate) return false;
+
+      if (screeningDate === today) {
+        const currentTime = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        const [hours, minutes] = sc.start_time.split(":");
+        const screeningTime = parseInt(hours) * 3600 + parseInt(minutes) * 60;
+        return screeningTime >= currentTime;
+      }
+      return true;
+    });
+
+  setScreenings(filteredScreenings);
+}, [selectedDate, allScreenings, showtimes, id]);
   
   if (!movie) return <p style={{ marginTop: '70px' }}>Đang tải...</p>;
 
   return (
     <div className='container-details'>
+      {/** Chi tiết phim */}
       <Card className="bg-dark text-light rounded-0 position-relative min-h-auto">
         <Card.Img src={`${API_URL}${movie.poster_url}`} className='rounded-0 object-fit-cover' alt="Poster" style={{ opacity: '0.2', height: '400px' }} />
         <Card.ImgOverlay className='d-flex flex-column w-75 m-auto p-3'>
@@ -276,7 +312,7 @@ export const MovieDetail = () => {
                   <span >{movie.age_restriction === 0 ? 'P' : `T${movie.age_restriction}`}</span>
                 </Card.Title>
                 <Card.Text className=''>
-                  {movie.genre} <span className='px-4'> Viet Nam </span> <span>{movie.duration} phút</span>
+                  {movie.genre} <span className='px-4'> {movie.origin} </span> <span>{movie.duration} phút</span>
                 </Card.Text>
               </div>
               <div className="text-md-start mt-3">
@@ -338,6 +374,7 @@ export const MovieDetail = () => {
         </Card.ImgOverlay>
       </Card>
 
+      {/** ngày chiếu */}
       <div className='container-date text-light bg-dark'>
         <div className="date-list">
           {dates.map((item) => (
@@ -360,6 +397,7 @@ export const MovieDetail = () => {
         </div>
       </div>
 
+      {/** Suất chiếu */}
       <div className='container-showtime'>
         <p className='text-center text-warning'>Lưu ý: Khán giả dưới 13 tuổi chỉ chọn suất chiếu kết thúc trước 22h và Khán giả dưới 16 tuổi chỉ chọn suất chiếu kết thúc trước 23h.</p>
         <div className='showtime'>
@@ -379,6 +417,7 @@ export const MovieDetail = () => {
         </div>
       </div>
 
+      {/** chọn ghế */}
       {selectedScreening && (
         <div className='w-75 m-auto text-light my-4'>
           <div className='d-flex justify-content-between'>
@@ -397,15 +436,22 @@ export const MovieDetail = () => {
           </div>
 
           {seatData.length > 0 ? (
-            Array.from(new Set(seatData.map((seat) => seat.seat_number[0]))).map((row) => (
+            rows.map((row) => (
               <div key={row} className="seat-row">
-                {seatData
-                  .filter((seat) => seat.seat_number.startsWith(row))
+                {/* <span className="row-label">{row}</span> */}
+                {groupedSeats[row]
+                  .sort((a, b) => a.seat_num - b.seat_num)
                   .map((seat) => (
                     <Button
                       key={seat.seat_id}
-                      className={`seat ${seat.seat_type} ${seat.seat_status === "booked" ? "booked" : ""} ${selectedSeats.includes(seat.seat_id) ? "selected" : ""}`}
-                      style={seat.seat_status === "booked" ? { backgroundImage: 'url(/vietnam.png)', zIndex: '100' } : {}}
+                      className={`seat ${seat.seat_type} ${
+                        seat.seat_status === "booked" ? "booked" : ""
+                      } ${selectedSeats.includes(seat.seat_id) ? "selected" : ""}`}
+                      style={
+                        seat.seat_status === "booked"
+                          ? { backgroundImage: 'url(/vietnam.png)', zIndex: '100' }
+                          : {}
+                      }
                       disabled={seat.seat_status === "booked"}
                       onClick={() => toggleSeat(seat.seat_id)}
                     >
@@ -469,7 +515,7 @@ export const MovieDetail = () => {
                 onClick={handlePayment}
                 disabled={selectedSeats.length === 0}
               >
-                Thanh toán
+                Đặt vé
               </Button>
             </div>
           </div>

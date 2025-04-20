@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {useNavigate} from 'react-router-dom'
+import { format, toZonedTime } from 'date-fns-tz';
 import './showtimes.css';
 import axios from 'axios';
 
@@ -7,7 +8,9 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const Showtimes = () => {
   const today = new Date();
-  const todayFormatted = today.toISOString().split("T")[0]; // YYYY-MM-DD
+  console.log(today)
+  const todayFormatted = format(toZonedTime(today, 'Asia/Ho_Chi_Minh'), 'yyyy-MM-dd') ; 
+  console.log(todayFormatted)
   const [selectedDate, setSelectedDate] = useState(todayFormatted);
   const [showtimes, setShowtime] = useState([]);
   const navigate = useNavigate(); 
@@ -16,14 +19,10 @@ export const Showtimes = () => {
   const dates = Array.from({ length: 5 }, (_, i) => {
     const date = new Date();
     date.setDate(today.getDate() + i);
-    
+    const zonedDate = toZonedTime(date, 'Asia/Ho_Chi_Minh');
     return {
-      fullDate: date.toISOString().split("T")[0], // YYYY-MM-DD
-      displayButton: date.toLocaleDateString("vi-VN", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }).replace(/\//g, "-"), // Định dạng dd-mm-yyyy
+      fullDate: format(zonedDate, 'yyyy-MM-dd'),
+      displayButton: format(zonedDate, 'dd-MM-yyyy'),
     };
   });
 
@@ -42,29 +41,27 @@ export const Showtimes = () => {
   };
 
   const filteredShowtimes = showtimes.filter(st => {
-    // Chuyển release_date về dạng YYYY-MM-DD
-    const formattedReleaseDate = new Date(st.screening_date).toISOString().split("T")[0];
+    const zonedDate = toZonedTime(st.screening_date, 'Asia/Ho_Chi_Minh');
+    const formattedReleaseDate = format(zonedDate, 'yyyy-MM-dd');
     console.log(formattedReleaseDate, selectedDate)
     return formattedReleaseDate === selectedDate;
   });
   
 
-  // 👉 **Nhóm phim theo `title` để tránh hiển thị nhiều lần**
-  const groupedShowtimes = filteredShowtimes.reduce((acc, curr) => {
-    const existingMovie = acc.find(movie => movie.title === curr.title);
-
-    if (existingMovie) {
-      // Nếu phim đã có, thêm `start_time` vào danh sách
-      existingMovie.showtimes.push(curr.start_time);
-    } else {
-      // Nếu chưa có, tạo mới
+  //Nhóm phim theo `title` để tránh hiển thị nhiều lần**
+  const groupMovieByShowtime = filteredShowtimes.reduce((acc, curr) => {
+    const isExists = acc.find(movie => movie.title === curr.title)
+    if(isExists){
+      isExists.screenings.push(curr.start_time);
+    }else{
       acc.push({
         ...curr,
-        showtimes: [curr.start_time] // Tạo mảng chứa suất chiếu
-      });
+        screenings: [curr.start_time]
+      })
+      
     }
     return acc;
-  }, []);
+  }, [])
 
   return (
     <div className='showtime-container'>
@@ -94,8 +91,8 @@ export const Showtimes = () => {
 
       {/* Danh sách phim */}
       <div className='container-listmovie'>
-        {groupedShowtimes.length >0 ? (
-            groupedShowtimes.map(st => (
+        {groupMovieByShowtime.length >0 ? (
+            groupMovieByShowtime.map(st => (
             <div key={st.title} className='detail-movie' onClick={() => navigate(`/movie/${st.movie_id}`)}>
               <div className='movie-img'>
                 <img src={`${API_URL}${st.poster_url}`} alt='Image movie' width='100%' height='100%'/>
@@ -106,13 +103,13 @@ export const Showtimes = () => {
                   <p>{st.duration} phút</p>
                 </div>
                 <p className='fs-5 fw-bold text-white text-uppercase'>{st.title} - T{st.age_restriction}</p>
-                <p className='text-white'>Xuất xứ: <span>Viet Nam</span></p>
+                <p className='text-white'>Xuất xứ: <span>{st.origin}</span></p>
                 <p className='text-white'>Khởi chiếu: <span>{new Date(st.release_date).toISOString().split("T")[0].split("-").reverse().join("/")}</span></p>
                 <p className='text-danger'>T{st.age_restriction} - Phim được phổ biến đến người xem từ đủ {st.age_restriction} tuổi trở lên</p>
                 <div>
                   <p className='fw-bold text-light'>Lịch chiếu</p>
                   <div className='container-hour'>
-                    {st.showtimes.map((time, index) => (
+                    {st.screenings.map((time, index) => (
                       <button key={index}>{time}</button>
                     ))}
                   </div>

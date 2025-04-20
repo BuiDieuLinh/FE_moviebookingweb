@@ -17,31 +17,42 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 const PaymentPage = () => {
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState("loading"); // loading, success, fail
+  const [status, setStatus] = useState("loading"); 
   const [orderId, setOrderId] = useState("");
 
   useEffect(() => {
-    const checkPayment = async () => {
-      const resultCode = searchParams.get("resultCode");
-      const orderIdParam = searchParams.get("orderId");
-      setOrderId(orderIdParam);
-
-      if (resultCode === "0") {
-        setStatus("success");
-
-        try {
-          const response = await axios.patch(`${API_URL}/bookings/${orderIdParam}/qr`);
-          console.log("Đã cập nhật đơn hàng:", response.data);
-        } catch (err) {
-          console.error("Lỗi khi cập nhật trạng thái đơn hàng: ", err);
-        }
-      } else {
-        setStatus("fail");
-      }
-    };
-
     checkPayment();
-  }, [searchParams]);
+  }, []);
+  const checkPayment = async () => {
+    const resultCode = searchParams.get("resultCode");
+    const orderIdParam = searchParams.get("orderId");
+    const amount = searchParams.get("amount")
+    setOrderId(orderIdParam);
+
+    if (resultCode === "0") {
+      setStatus("success");
+      try{
+        const res = await axios.post(`${API_URL}/payments`, {
+          booking_id: orderIdParam,
+          amount: amount,
+          payment_method: 'momo',
+          payment_status: 'success'
+        })
+        console.log("có phải thanh toán lần 2: ", res.data)
+      }catch(err){
+        console.error("Lỗi khi tạo thanh toán vào csdl: ", err)
+      }
+      try {
+        const response = await axios.patch(`${API_URL}/bookings/${orderIdParam}/qr`);
+        console.log("Đã cập nhật đơn hàng:", response.data);
+      } catch (err) {
+        console.error("Lỗi khi cập nhật trạng thái đơn hàng: ", err);
+      }
+    } else {
+      setStatus("fail");
+      const cancel = await axios.delete(`${API_URL}/bookings/${orderIdParam}`)
+    }
+  };
 
   return (
     <Container className="d-flex justify-content-center align-items-center min-vh-100 ">
@@ -66,8 +77,8 @@ const PaymentPage = () => {
                 Cảm ơn bạn đã đặt vé. <br />
                 
               </CardText>
-              <Button variant="outline-danger" href="/" className="mt-3">
-                Về trang chủ
+              <Button variant="outline-danger" href="/my-ticket" className="mt-3">
+                Vé của tôi
               </Button>
             </div>
           )}

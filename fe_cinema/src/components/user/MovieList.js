@@ -8,7 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL;
 
 export const MovieList = ({status}) => {
     const [movies, setMoive] = useState([]);
-    const navigate = useNavigate(); // Hook để điều hướng
+    const navigate = useNavigate(); 
 
     useEffect(() =>{
         fetchMovies();
