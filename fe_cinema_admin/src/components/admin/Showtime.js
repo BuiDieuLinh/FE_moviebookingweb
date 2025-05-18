@@ -6,12 +6,14 @@ import { format, isBefore, isAfter } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import vi from "date-fns/locale/vi"; // Locale tiếng Việt
 import "./showtimes.css";
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_PORT;
 const TIME_ZONE = "Asia/Ho_Chi_Minh"; // Múi giờ Việt Nam
 
 export const Showtime = () => {
   const { showToast } = useToast();
+  const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
   const [showtime, setShowtime] = useState([]);
   const [selectedST, setSelectedST] = useState(null);
@@ -100,7 +102,7 @@ export const Showtime = () => {
     const endDate = toZonedTime(new Date(st.end_time), TIME_ZONE);
     const status = isBefore(endDate, today) ? "Hoàn thành" : isAfter(startDate, today) ? "Sắp chiếu" : "Đang chiếu";
 
-    return searchStatus ? status === searchStatus : true; // Nếu có searchStatus, lọc theo trạng thái
+    return searchStatus ? status === searchStatus : true; 
   });
 
   return (
@@ -170,7 +172,7 @@ export const Showtime = () => {
 
                 return (
                   <tr key={st.showtime_id}>
-                    <td>{movie.title}</td>
+                    <td onClick={() =>  navigate(`/showtimes/${st.showtime_id}`)}>{movie.title}</td>
                     <td>{formatDate(st.start_time)} - {formatDate(st.end_time)}</td>
                     <td><span className={statusStyle}>{status}</span></td>
                     <td className="text-end">
