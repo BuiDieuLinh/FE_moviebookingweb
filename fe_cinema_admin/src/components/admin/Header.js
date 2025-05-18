@@ -8,9 +8,9 @@ export const Header = ({ collapsed }) => {
     const handleScroll = () => {
       const scrollTop = window.scrollY;
       if (scrollTop > 50) {
-        setBgColor("rgba(0, 0, 0, 0.1)"); // Màu tối hơn khi cuộn xuống
+        setBgColor("rgba(0, 0, 0, 0.1)");
       } else {
-        setBgColor("bg-transparent"); // Màu nhạt khi ở đầu trang
+        setBgColor("bg-transparent"); 
       }
     };
 

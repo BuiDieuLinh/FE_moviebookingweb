@@ -63,7 +63,7 @@ const MovieManagement = () => {
         duration: movie.duration || "",
         release_date: movie.release_date || "",
         description: movie.description || "",
-        poster_url: movie.poster_url || "", // Đường dẫn từ server
+        poster_url: movie.poster_url || "", 
         created_at: movie.created_at || "",
         cast: movie.cast || "",
         age_restriction: movie.age_restriction || "",

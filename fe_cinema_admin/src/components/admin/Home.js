@@ -128,7 +128,8 @@ const revenueChartData = {
               <div className="history-table-container">
                 <Table hover className="history-table">
                   <thead>
-                    <tr>
+                    <tr >
+                      <th></th>
                       <th>Khách hàng</th>
                       {/* <th>Số tiền</th> */}
                       <th>Thời gian</th>
@@ -137,8 +138,9 @@ const revenueChartData = {
                   </thead>
                   <tbody>
                     {historybooking && historybooking.length > 0 ? (
-                      historybooking.map((hb) => (
+                      historybooking.map((hb, index) => (
                         <tr key={hb.id || hb.created_at}>
+                          <td>{index +1}</td>
                           <td>{hb.username}</td>
                           {/* <td className="total-price">{formatCurrency(hb.total_price)}</td> */}
                           <td>{formatDate(hb.created_at)}</td>

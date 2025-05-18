@@ -98,7 +98,6 @@ const getEmbedUrl = (url) => {
   return "";
 };
 
-// Nhóm 3: Logic nghiệp vụ (Business Logic)
 // Khởi động bộ đếm ngược 10 phút
 const startCountdown = () => {
   if (countdownRef.current) {
@@ -205,7 +204,6 @@ const handlePayment = () => {
   });
 };
 
-// Nhóm 4: Xử lý giao diện (UI Helpers)
 // Nhóm ghế theo hàng
 const groupedSeats = seatData.reduce((acc, seat) => {
   const row = seat.seat_row;
@@ -217,7 +215,6 @@ const groupedSeats = seatData.reduce((acc, seat) => {
 }, {});
 const rows = Object.keys(groupedSeats).sort();
 
-// Nhóm 5: Side Effects (useEffect)
 // Lấy dữ liệu ban đầu khi component mount
 useEffect(() => {
   fetchMovie();
