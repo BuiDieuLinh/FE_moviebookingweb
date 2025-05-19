@@ -1,0 +1,15 @@
+.container-detail {
+  max-width: 1200px;
+  margin-top: 60px;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 20px;
+}
+
+/* Hiệu ứng hover cho tiêu đề phim */
+.d-flex.justify-content-between.py-2 p:first-child:hover {
+  color: #007bff;
+  cursor: pointer;
+}
+
+
