@@ -1,5 +1,5 @@
-body{
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 .sidebar-header {
   width: 100%;
@@ -45,7 +45,7 @@ body{
   height: 100vh;
 }
 
-.sidebar.collapsed{
+.sidebar.collapsed {
   width: 70px;
   /* flex: 1; */
   overflow: hidden;
@@ -69,7 +69,7 @@ body{
 }
 
 /* Khi Sidebar thu nhỏ thì content mở rộng */
-.content.expanded ~ .content .header{
+.content.expanded ~ .content .header {
   width: calc(100% - 70px);
   flex: 1;
 }

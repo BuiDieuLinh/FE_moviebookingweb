@@ -1,7 +1,14 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useToast } from "./ToastContext";
 import axios from "axios";
-import { Button, Form, Modal, Dropdown, Table, Accordion } from "react-bootstrap";
+import {
+  Button,
+  Form,
+  Modal,
+  Dropdown,
+  Table,
+  Accordion,
+} from "react-bootstrap";
 import { Bar } from "react-chartjs-2";
 import Chart from "chart.js/auto";
 import "./room.css";
@@ -77,7 +84,9 @@ export const Room = () => {
       const responseRooms = await axios.get(`${API_URL}/rooms`);
       const responseScreenings = await axios.get(`${API_URL}/screenings`);
       const responseBookings = await axios.get(`${API_URL}/bookings`);
-      const responseBookingDetails = await axios.get(`${API_URL}/bookingdetails`);
+      const responseBookingDetails = await axios.get(
+        `${API_URL}/bookingdetails`,
+      );
       setRooms(responseRooms.data || []); // Đảm bảo rooms là mảng rỗng nếu không có dữ liệu
       setScreenings(responseScreenings.data || []);
       setBookings(responseBookings.data || []);
@@ -105,7 +114,8 @@ export const Room = () => {
 
     const filteredScreenings = screenings.filter((s) => {
       const screeningDate = new Date(s.screening_date);
-      const isInTimeRange = screeningDate >= startDate && screeningDate <= endDate;
+      const isInTimeRange =
+        screeningDate >= startDate && screeningDate <= endDate;
       const isInRoom = filter.roomId ? s.room_id === filter.roomId : true;
       return isInTimeRange && isInRoom;
     });
@@ -113,14 +123,19 @@ export const Room = () => {
     const screeningsCount = filteredScreenings.length;
 
     const filteredBookings = bookings.filter(
-      (b) => filteredScreenings.some((s) => s.screening_id === b.screening_id) && b.status === "paid"
+      (b) =>
+        filteredScreenings.some((s) => s.screening_id === b.screening_id) &&
+        b.status === "paid",
     );
 
     const seatsBooked = bookingDetails.filter((bd) =>
-      filteredBookings.some((b) => b.booking_id === bd.booking_id)
+      filteredBookings.some((b) => b.booking_id === bd.booking_id),
     ).length;
 
-    const revenue = filteredBookings.reduce((sum, b) => sum + parseFloat(b.total_price), 0);
+    const revenue = filteredBookings.reduce(
+      (sum, b) => sum + parseFloat(b.total_price),
+      0,
+    );
 
     const movieStats = filteredScreenings.reduce((acc, s) => {
       acc[s.movie_title] = (acc[s.movie_title] || 0) + 1;
@@ -128,7 +143,7 @@ export const Room = () => {
     }, {});
     const mostPopularMovie = Object.keys(movieStats).reduce(
       (a, b) => (movieStats[a] > movieStats[b] ? a : b),
-      "Chưa có dữ liệu"
+      "Chưa có dữ liệu",
     );
 
     return {
@@ -137,7 +152,14 @@ export const Room = () => {
       revenue,
       mostPopularMovie,
     };
-  }, [screenings, bookings, bookingDetails, filter.date, filter.period, filter.roomId]);
+  }, [
+    screenings,
+    bookings,
+    bookingDetails,
+    filter.date,
+    filter.period,
+    filter.roomId,
+  ]);
 
   // Cập nhật biểu đồ
   useEffect(() => {
@@ -173,7 +195,8 @@ export const Room = () => {
           const screeningDate = new Date(s.screening_date);
           if (
             screeningDate >= startDate &&
-            screeningDate < new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) &&
+            screeningDate <
+              new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000) &&
             (!filter.roomId || s.room_id === filter.roomId)
           ) {
             const dayIndex = screeningDate.getDay();
@@ -183,7 +206,11 @@ export const Room = () => {
       } else if (filter.period === "month") {
         const startDate = new Date(filter.date);
         startDate.setDate(1);
-        const endDate = new Date(startDate.getFullYear(), startDate.getMonth() + 1, 0);
+        const endDate = new Date(
+          startDate.getFullYear(),
+          startDate.getMonth() + 1,
+          0,
+        );
         const weeks = Math.ceil(endDate.getDate() / 7);
         labels = Array.from({ length: weeks }, (_, i) => `Tuần ${i + 1}`);
         data = Array(weeks).fill(0);
@@ -234,9 +261,16 @@ export const Room = () => {
         showToast("Warning", "Vui lòng nhập đầy đủ thông tin phòng!");
         return;
       }
-      const roomId = selectedRoom ? selectedRoom.room_id : `R${Math.floor(1000 + Math.random() * 9000)}`;
+      const roomId = selectedRoom
+        ? selectedRoom.room_id
+        : `R${Math.floor(1000 + Math.random() * 9000)}`;
       const total_seats = { 1: 100, 2: 90, 3: 80 }[formData.room_type];
-      const dataToSave = { room_id: roomId, room_name: formData.room_name, room_type: formData.room_type, total_seats };
+      const dataToSave = {
+        room_id: roomId,
+        room_name: formData.room_name,
+        room_type: formData.room_type,
+        total_seats,
+      };
 
       if (selectedRoom) {
         await axios.put(`${API_URL}/rooms/${selectedRoom.room_id}`, dataToSave);
@@ -264,13 +298,20 @@ export const Room = () => {
 
   const toggleSeat = (seatId) => {
     setSelectedSeats((prevSelected) =>
-      prevSelected.includes(seatId) ? prevSelected.filter((id) => id !== seatId) : [...prevSelected, seatId]
+      prevSelected.includes(seatId)
+        ? prevSelected.filter((id) => id !== seatId)
+        : [...prevSelected, seatId],
     );
   };
 
   const handleShowModal = (room = null) => {
     setSelectedRoom(room);
-    const data = room || { room_name: "", room_type: 1, total_seats: "", room_status: "" };
+    const data = room || {
+      room_name: "",
+      room_type: 1,
+      total_seats: "",
+      room_status: "",
+    };
     setFormData(data);
     setRoomType(data.room_type || 1);
     setShowModal(true);
@@ -338,14 +379,18 @@ export const Room = () => {
                   <Form.Control
                     type="date"
                     value={filter.date}
-                    onChange={(e) => setFilter({ ...filter, date: e.target.value })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, date: e.target.value })
+                    }
                   />
                 </Form.Group>
                 <Form.Group className="w-25">
                   <Form.Label>Khoảng thời gian</Form.Label>
                   <Form.Select
                     value={filter.period}
-                    onChange={(e) => setFilter({ ...filter, period: e.target.value })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, period: e.target.value })
+                    }
                   >
                     <option value="day">Ngày</option>
                     <option value="week">Tuần</option>
@@ -356,7 +401,9 @@ export const Room = () => {
                   <Form.Label>Phòng</Form.Label>
                   <Form.Select
                     value={filter.roomId}
-                    onChange={(e) => setFilter({ ...filter, roomId: e.target.value })}
+                    onChange={(e) =>
+                      setFilter({ ...filter, roomId: e.target.value })
+                    }
                   >
                     <option value="">Tất cả phòng</option>
                     {rooms.length > 0 ? (
@@ -394,15 +441,26 @@ export const Room = () => {
               <div className="charts mb-4">
                 <div className="chart bar-chart-container">
                   <h5>
-                    Suất chiếu theo {filter.period === "day" ? "giờ" : filter.period === "week" ? "ngày" : "tuần"}
-                    {filter.roomId ? ` - ${rooms.find((r) => r.room_id === filter.roomId)?.room_name || ""}` : ""}
+                    Suất chiếu theo{" "}
+                    {filter.period === "day"
+                      ? "giờ"
+                      : filter.period === "week"
+                        ? "ngày"
+                        : "tuần"}
+                    {filter.roomId
+                      ? ` - ${rooms.find((r) => r.room_id === filter.roomId)?.room_name || ""}`
+                      : ""}
                   </h5>
                   <Bar data={barChartData} options={barChartOptions} />
                 </div>
                 <div className="details">
                   <h5>Thông tin chi tiết</h5>
                   <p>
-                    Phòng: {filter.roomId ? rooms.find((r) => r.room_id === filter.roomId)?.room_name || "Tất cả" : "Tất cả"}
+                    Phòng:{" "}
+                    {filter.roomId
+                      ? rooms.find((r) => r.room_id === filter.roomId)
+                          ?.room_name || "Tất cả"
+                      : "Tất cả"}
                     <br />
                     Tổng số suất chiếu: {calculateStats.screeningsCount}
                     <br />
@@ -411,11 +469,14 @@ export const Room = () => {
                     {filter.period === "day"
                       ? `Ngày: ${new Date(filter.date).toLocaleDateString("vi-VN")}`
                       : filter.period === "week"
-                      ? `Tuần từ: ${new Date(filter.date)
-                          .toLocaleDateString("vi-VN")} đến ${new Date(
-                          new Date(filter.date).setDate(new Date(filter.date).getDate() + 6)
-                        ).toLocaleDateString("vi-VN")}`
-                      : `Tháng: ${new Date(filter.date).toLocaleString("vi-VN", { month: "long", year: "numeric" })}`}
+                        ? `Tuần từ: ${new Date(filter.date).toLocaleDateString(
+                            "vi-VN",
+                          )} đến ${new Date(
+                            new Date(filter.date).setDate(
+                              new Date(filter.date).getDate() + 6,
+                            ),
+                          ).toLocaleDateString("vi-VN")}`
+                        : `Tháng: ${new Date(filter.date).toLocaleString("vi-VN", { month: "long", year: "numeric" })}`}
                   </p>
                 </div>
               </div>
@@ -429,16 +490,26 @@ export const Room = () => {
             <div className="p-0">
               <div className="d-flex justify-content-between align-items-center gap-2 p-2 mb-2 rounded-2">
                 <p className="m-0">
-                  Total: <span className="rounded-1 p-1" style={{ backgroundColor: "rgba(168, 0, 0, 0.3)" }}>
+                  Total:{" "}
+                  <span
+                    className="rounded-1 p-1"
+                    style={{ backgroundColor: "rgba(168, 0, 0, 0.3)" }}
+                  >
                     {rooms.length} rooms
                   </span>
                 </p>
                 <div className="d-flex align-items-center gap-2">
-                  <Button style={{ backgroundColor: "#A9141E", border: "none" }} size="sm" onClick={() => handleShowModal()}>
+                  <Button
+                    style={{ backgroundColor: "#A9141E", border: "none" }}
+                    size="sm"
+                    onClick={() => handleShowModal()}
+                  >
                     <i className="fas fa-plus"></i> Tạo phòng
                   </Button>
                   <Dropdown>
-                    <Dropdown.Toggle variant="outline-secondary" size="sm">Loại phòng</Dropdown.Toggle>
+                    <Dropdown.Toggle variant="outline-secondary" size="sm">
+                      Loại phòng
+                    </Dropdown.Toggle>
                     <Dropdown.Menu>
                       <Dropdown.Item href="#">Action</Dropdown.Item>
                       <Dropdown.Item href="#">Another action</Dropdown.Item>
@@ -461,7 +532,8 @@ export const Room = () => {
                   </thead>
                   <tbody>
                     {updatedRooms.map((room) => {
-                      const styleStatus = room.room_status === 1 ? "showing" : "ready";
+                      const styleStatus =
+                        room.room_status === 1 ? "showing" : "ready";
                       const type = room.room_type;
                       let roomTypeDisplay = "";
                       let styleRoomType = "";
@@ -478,12 +550,24 @@ export const Room = () => {
                       return (
                         <tr key={room.room_id}>
                           <td>{room.room_name}</td>
-                          <td><span className={styleRoomType}>{roomTypeDisplay}</span></td>
+                          <td>
+                            <span className={styleRoomType}>
+                              {roomTypeDisplay}
+                            </span>
+                          </td>
                           <td>{room.total_seats}</td>
-                          <td><span className={styleStatus}>{room.status_label}</span></td>
+                          <td>
+                            <span className={styleStatus}>
+                              {room.status_label}
+                            </span>
+                          </td>
                           <td>
                             <Button
-                              style={{ border: "1px solid #A9141E", backgroundColor: "transparent", color: "#A9141E" }}
+                              style={{
+                                border: "1px solid #A9141E",
+                                backgroundColor: "transparent",
+                                color: "#A9141E",
+                              }}
                               size="sm"
                               className="me-2"
                               onClick={() => handleShowModal(room)}
@@ -500,7 +584,9 @@ export const Room = () => {
 
               <Modal show={showModal} onHide={handleCloseModal} size="xl">
                 <Modal.Header closeButton>
-                  <Modal.Title>{selectedRoom ? "Chỉnh Sửa Phòng" : "Tạo phòng"}</Modal.Title>
+                  <Modal.Title>
+                    {selectedRoom ? "Chỉnh Sửa Phòng" : "Tạo phòng"}
+                  </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <div className="w-75 m-auto">
@@ -518,7 +604,12 @@ export const Room = () => {
 
                     <Form.Group className="mb-2" controlId="formRoomType">
                       <Form.Label>Loại phòng</Form.Label>
-                      <Form.Select size="sm" name="room_type" value={formData.room_type} onChange={handleInputChange}>
+                      <Form.Select
+                        size="sm"
+                        name="room_type"
+                        value={formData.room_type}
+                        onChange={handleInputChange}
+                      >
                         <option value="1">Normal (100 ghế)</option>
                         <option value="2">Standard (90 ghế)</option>
                         <option value="3">Vip (80 ghế)</option>
@@ -552,32 +643,70 @@ export const Room = () => {
                     </Form.Group>
                     <div>
                       <h5>Danh sách ghế</h5>
-                      {Array.from(new Set(seatData.map((seat) => seat.id[0]))).map((row) => (
+                      {Array.from(
+                        new Set(seatData.map((seat) => seat.id[0])),
+                      ).map((row) => (
                         <div key={row} className="seat-row">
-                          {seatData.filter((seat) => seat.id.startsWith(row)).map((seat) => (
-                            <Button
-                              key={seat.id}
-                              className={`seat ${seat.type} ${selectedSeats.includes(seat.id) ? "selected" : ""}`}
-                              onClick={() => toggleSeat(seat.id)}
-                            >
-                              {seat.id}
-                            </Button>
-                          ))}
+                          {seatData
+                            .filter((seat) => seat.id.startsWith(row))
+                            .map((seat) => (
+                              <Button
+                                key={seat.id}
+                                className={`seat ${seat.type} ${selectedSeats.includes(seat.id) ? "selected" : ""}`}
+                                onClick={() => toggleSeat(seat.id)}
+                              >
+                                {seat.id}
+                              </Button>
+                            ))}
                         </div>
                       ))}
                       <div className="text-center mt-3">
                         <strong>Ghế đã chọn:</strong>{" "}
-                        {selectedSeats.length > 0 ? selectedSeats.join(", ") : "Chưa chọn"}
+                        {selectedSeats.length > 0
+                          ? selectedSeats.join(", ")
+                          : "Chưa chọn"}
                       </div>
                       <div className="d-flex justify-content-between">
                         <div className="d-flex gap-2">
-                          <Button variant="secondary" size="sm">Đã đặt</Button>
-                          <Button variant="info" className="text-light" size="sm">Đang chọn</Button>
+                          <Button variant="secondary" size="sm">
+                            Đã đặt
+                          </Button>
+                          <Button
+                            variant="info"
+                            className="text-light"
+                            size="sm"
+                          >
+                            Đang chọn
+                          </Button>
                         </div>
                         <div className="d-flex gap-2">
-                          <Button style={{ backgroundColor: "#d1d0d0", border: "none" }} size="sm">Ghế thường</Button>
-                          <Button style={{ backgroundColor: "#ffcc00", border: "none" }} size="sm">Ghế Vip</Button>
-                          <Button style={{ backgroundColor: "#ff6666", border: "none" }} size="sm">Ghế đôi</Button>
+                          <Button
+                            style={{
+                              backgroundColor: "#d1d0d0",
+                              border: "none",
+                            }}
+                            size="sm"
+                          >
+                            Ghế thường
+                          </Button>
+                          <Button
+                            style={{
+                              backgroundColor: "#ffcc00",
+                              border: "none",
+                            }}
+                            size="sm"
+                          >
+                            Ghế Vip
+                          </Button>
+                          <Button
+                            style={{
+                              backgroundColor: "#ff6666",
+                              border: "none",
+                            }}
+                            size="sm"
+                          >
+                            Ghế đôi
+                          </Button>
                         </div>
                       </div>
                       <hr />
@@ -585,8 +714,12 @@ export const Room = () => {
                   </div>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={handleCloseModal}>Đóng</Button>
-                  <Button variant="success" onClick={handleSaveRoom}>Lưu</Button>
+                  <Button variant="secondary" onClick={handleCloseModal}>
+                    Đóng
+                  </Button>
+                  <Button variant="success" onClick={handleSaveRoom}>
+                    Lưu
+                  </Button>
                 </Modal.Footer>
               </Modal>
             </div>

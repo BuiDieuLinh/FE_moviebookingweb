@@ -9,7 +9,7 @@ import MovieManagement from "./components/admin/MovieManagement";
 import Room from "./components/admin/Room";
 import Showtimes from "./components/admin/Showtimes";
 import Order from "./components/admin/Order";
-// import UserManagements from "./components/admin/UserManagement";
+import Users from "./components/admin/UserManegement";
 
 function App() {
   return (
@@ -27,9 +27,12 @@ function App() {
                     <Route path="/movie" element={<MovieManagement />} />
                     <Route path="/room" element={<Room />} />
                     <Route path="/showtimes" element={<Showtimes />} />
-                    <Route path="/showtimes/:showtime_id" element={<ShowtimeDetail />} />
+                    <Route
+                      path="/showtimes/:showtime_id"
+                      element={<ShowtimeDetail />}
+                    />
                     <Route path="/order" element={<Order />} />
-                    {/* <Route path="/customer" element={<UserManagements />} /> */}
+                    <Route path="/customer" element={<Users />} />
                   </Routes>
                 </Sidebar>
               }

@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useToast } from "./ToastContext";
 import axios from "axios";
-import { Table, Button, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Row,
+  Col,
+  Pagination,
+} from "react-bootstrap";
 import "./moviemanagement.css";
 
-const API_URL = `${process.env.REACT_APP_PORT}`; 
+const API_URL = `${process.env.REACT_APP_PORT}`;
 
 const MovieManagement = () => {
   const { showToast } = useToast();
@@ -20,16 +28,16 @@ const MovieManagement = () => {
     duration: "",
     release_date: "",
     description: "",
-    poster_url: null, 
+    poster_url: null,
     created_at: "",
     cast: "",
     age_restriction: "",
     trailer_url: "",
-    origin: ""
+    origin: "",
   });
-   // State cho phân trang
-   const [currentPage, setCurrentPage] = useState(1);
-   const [moviesPerPage] = useState(7); // Số phim mỗi trang
+  // State cho phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [moviesPerPage] = useState(7); // Số phim mỗi trang
 
   useEffect(() => {
     fetchMovies();
@@ -63,14 +71,16 @@ const MovieManagement = () => {
         duration: movie.duration || "",
         release_date: movie.release_date || "",
         description: movie.description || "",
-        poster_url: movie.poster_url || "", 
+        poster_url: movie.poster_url || "",
         created_at: movie.created_at || "",
         cast: movie.cast || "",
         age_restriction: movie.age_restriction || "",
         trailer_url: movie.trailer_url || "",
-        origin: movie.origin || ""
+        origin: movie.origin || "",
       });
-      setImagePreview(movie.poster_url ? `${API_URL}/${movie.poster_url}` : null);
+      setImagePreview(
+        movie.poster_url ? `${API_URL}/${movie.poster_url}` : null,
+      );
     } else {
       setFormData({
         title: "",
@@ -84,7 +94,7 @@ const MovieManagement = () => {
         cast: "",
         age_restriction: "",
         trailer_url: "",
-        origin: ""
+        origin: "",
       });
       setImagePreview(null);
     }
@@ -102,9 +112,15 @@ const MovieManagement = () => {
 
   const handleSaveMovie = async () => {
     try {
-      if (!formData.title || !formData.genre || !formData.director 
-        || !formData.duration || !formData.release_date || !formData.age_restriction
-        || !formData.poster_url) {
+      if (
+        !formData.title ||
+        !formData.genre ||
+        !formData.director ||
+        !formData.duration ||
+        !formData.release_date ||
+        !formData.age_restriction ||
+        !formData.poster_url
+      ) {
         showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin bắt buộc!");
         return;
       }
@@ -114,7 +130,10 @@ const MovieManagement = () => {
       formDataToSend.append("genre", formData.genre);
       formDataToSend.append("director", formData.director);
       formDataToSend.append("duration", formData.duration);
-      formDataToSend.append("release_date", formData.release_date.split("T")[0]);
+      formDataToSend.append(
+        "release_date",
+        formData.release_date.split("T")[0],
+      );
       formDataToSend.append("description", formData.description);
       formDataToSend.append("cast", formData.cast);
       formDataToSend.append("age_restriction", formData.age_restriction);
@@ -127,17 +146,24 @@ const MovieManagement = () => {
         formDataToSend.append("poster_url", formData.poster_url); // Gửi đường dẫn cũ khi chỉnh sửa
       }
 
-      console.log(formDataToSend)
+      console.log(formDataToSend);
       let response;
       if (selectedMovie) {
-        response = await axios.put(`${API_URL}/movies/${selectedMovie.movie_id}`, formDataToSend, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        response = await axios.put(
+          `${API_URL}/movies/${selectedMovie.movie_id}`,
+          formDataToSend,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          },
+        );
         if (response.status === 200) {
           showToast("Phim", "Cập nhật phim thành công!");
         }
       } else {
-        formDataToSend.append("created_at", new Date().toISOString().slice(0, 19).replace("T", " "));
+        formDataToSend.append(
+          "created_at",
+          new Date().toISOString().slice(0, 19).replace("T", " "),
+        );
         response = await axios.post(API_URL, formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -173,7 +199,10 @@ const MovieManagement = () => {
   // Tính toán phân trang
   const indexOfLastMovie = currentPage * moviesPerPage;
   const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-  const paginatedMovies = currentMovies.slice(indexOfFirstMovie, indexOfLastMovie);
+  const paginatedMovies = currentMovies.slice(
+    indexOfFirstMovie,
+    indexOfLastMovie,
+  );
   const totalPages = Math.ceil(currentMovies.length / moviesPerPage);
 
   // Hàm chuyển trang
@@ -193,12 +222,18 @@ const MovieManagement = () => {
         <div className="w-full d-flex justify-content-between align-items-center gap-2 p-2 mb-2 rounded-2 border-b-2">
           <div>
             <p className="m-0">
-              Total: <span className="rounded-1 p-1" style={{ backgroundColor: "rgba(168, 0, 0, 0.5)" }}>{movies.length} movies</span>
+              Total:{" "}
+              <span
+                className="rounded-1 p-1"
+                style={{ backgroundColor: "rgba(168, 0, 0, 0.5)" }}
+              >
+                {movies.length} movies
+              </span>
             </p>
           </div>
           <div className="d-flex align-items-center gap-2">
             <Form className="d-flex gap-3">
-              <Form.Check 
+              <Form.Check
                 type="radio"
                 id="status-playing"
                 label="Đang chiếu"
@@ -224,7 +259,11 @@ const MovieManagement = () => {
                 <i class="fas fa-undo-alt"></i>
               </Button>
             </Form>
-            <Button style={{ backgroundColor: "#A9141E", border: "none" }} size="sm" onClick={() => handleShowModal()}>
+            <Button
+              style={{ backgroundColor: "#A9141E", border: "none" }}
+              size="sm"
+              onClick={() => handleShowModal()}
+            >
               <i className="fas fa-plus"></i> Thêm Phim
             </Button>
           </div>
@@ -259,7 +298,11 @@ const MovieManagement = () => {
                     </td>
                     <td className="text-end">
                       <Button
-                        style={{ border: "1px solid #A9141E", backgroundColor: "#A9141E", color: "white" }}
+                        style={{
+                          border: "1px solid #A9141E",
+                          backgroundColor: "#A9141E",
+                          color: "white",
+                        }}
                         size="sm"
                         className="me-2"
                         onClick={() => handleShowModal(mv)}
@@ -298,27 +341,53 @@ const MovieManagement = () => {
         </div>
         <Modal show={showModal} onHide={handleCloseModal} size="xl">
           <Modal.Header closeButton>
-            <Modal.Title>{selectedMovie ? "Chỉnh Sửa Phim" : "Thêm Phim"}</Modal.Title>
+            <Modal.Title>
+              {selectedMovie ? "Chỉnh Sửa Phim" : "Thêm Phim"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form className="p-2">
               <Row>
                 <Col md={8}>
                   <Form.Group className="mb-3" controlId="formGridTitle">
-                    <Form.Label>Tên phim <span style={{ color: "red" }}>*</span></Form.Label>
-                    <Form.Control type="text" name="title" value={formData.title} onChange={handleInputChange} required />
+                    <Form.Label>
+                      Tên phim <span style={{ color: "red" }}>*</span>
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      required
+                    />
                   </Form.Group>
                   <Row className="mb-3">
                     <Form.Group as={Col} controlId="formGridGenre">
-                      <Form.Label>Thể loại <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control type="text" name="genre" value={formData.genre} onChange={handleInputChange} required />
+                      <Form.Label>
+                        Thể loại <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="genre"
+                        value={formData.genre}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
-                    <Form.Group as={Col}  controlId="formGridReleaseDate">
-                      <Form.Label>Ngày phát hành <span style={{ color: "red" }}>*</span></Form.Label>
+                    <Form.Group as={Col} controlId="formGridReleaseDate">
+                      <Form.Label>
+                        Ngày phát hành <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
                       <Form.Control
                         type="date"
                         name="release_date"
-                        value={formData.release_date ? new Date(formData.release_date).toISOString().split("T")[0] : ""}
+                        value={
+                          formData.release_date
+                            ? new Date(formData.release_date)
+                                .toISOString()
+                                .split("T")[0]
+                            : ""
+                        }
                         onChange={handleInputChange}
                         required
                       />
@@ -326,45 +395,96 @@ const MovieManagement = () => {
                   </Row>
                   <Row className="mb-3">
                     <Form.Group as={Col} controlId="formGridDirector">
-                      <Form.Label>Đạo diễn <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control type="text" name="director" value={formData.director} onChange={handleInputChange} required />
+                      <Form.Label>
+                        Đạo diễn <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="director"
+                        value={formData.director}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
                     <Form.Group as={Col} controlId="formGridCast">
-                      <Form.Label>Cast <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control type="text" name="cast" value={formData.cast} onChange={handleInputChange} required />
+                      <Form.Label>
+                        Cast <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="cast"
+                        value={formData.cast}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
                   </Row>
                   <Row className="mb-3">
                     <Form.Group as={Col} controlId="formGridOrigin">
-                      <Form.Label>Xuất xứ: <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control type="text" name="origin" value={formData.origin} onChange={handleInputChange} required />
+                      <Form.Label>
+                        Xuất xứ: <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="origin"
+                        value={formData.origin}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
                     <Form.Group as={Col} controlId="formGridDuration">
-                      <Form.Label>Thời lượng (phút) <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control type="number" name="duration" value={formData.duration} onChange={handleInputChange} required />
+                      <Form.Label>
+                        Thời lượng (phút){" "}
+                        <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="number"
+                        name="duration"
+                        value={formData.duration}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
                     <Form.Group as={Col} controlId="formAge_restriction">
-                      <Form.Label>Độ tuổi giới hạn <span style={{ color: "red" }}>*</span></Form.Label>
-                      <Form.Control 
-                        type="text"  
-                        name="age_restriction" 
-                        value={formData.age_restriction} 
-                        onChange={handleInputChange} 
-                        required/>
+                      <Form.Label>
+                        Độ tuổi giới hạn <span style={{ color: "red" }}>*</span>
+                      </Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="age_restriction"
+                        value={formData.age_restriction}
+                        onChange={handleInputChange}
+                        required
+                      />
                     </Form.Group>
                   </Row>
-                  
+
                   <Form.Group className="mb-3" controlId="formGridDescription">
                     <Form.Label>Mô tả</Form.Label>
-                    <Form.Control as="textarea" rows={3} name="description" value={formData.description} onChange={handleInputChange} />
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      name="description"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                    />
                   </Form.Group>
                   <Form.Group className="mb-3" controlId="formGridTrailerUrl">
                     <Form.Label>Trailer URL</Form.Label>
-                    <Form.Control type="text" name="trailer_url" value={formData.trailer_url} onChange={handleInputChange} />
+                    <Form.Control
+                      type="text"
+                      name="trailer_url"
+                      value={formData.trailer_url}
+                      onChange={handleInputChange}
+                    />
                   </Form.Group>
                 </Col>
                 <Col md={4} className="text-center">
-                  <p><strong>Ảnh xem trước: <span style={{ color: "red" }}>*</span></strong></p>
+                  <p>
+                    <strong>
+                      Ảnh xem trước: <span style={{ color: "red" }}>*</span>
+                    </strong>
+                  </p>
                   <div className="mb-3">
                     {imagePreview ? (
                       <img
@@ -378,7 +498,8 @@ const MovieManagement = () => {
                           boxShadow: "2px 2px 10px rgba(0, 0, 0, 0.2)",
                         }}
                       />
-                    ) : formData.poster_url && typeof formData.poster_url === "string" ? (
+                    ) : formData.poster_url &&
+                      typeof formData.poster_url === "string" ? (
                       <img
                         src={`${API_URL}/${formData.poster_url}`}
                         alt="Poster"
@@ -416,8 +537,12 @@ const MovieManagement = () => {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>Đóng</Button>
-            <Button variant="success" onClick={handleSaveMovie}>Lưu</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Đóng
+            </Button>
+            <Button variant="success" onClick={handleSaveMovie}>
+              Lưu
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>

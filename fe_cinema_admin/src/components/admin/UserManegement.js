@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useToast } from "./ToastContext";
 import axios from "axios";
-import { Table, Button, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Row,
+  Col,
+  Pagination,
+} from "react-bootstrap";
 
 const API_URL = process.env.REACT_APP_PORT; // Đổi URL này thành API backend của bạn
 
@@ -36,7 +44,16 @@ const UserManagement = () => {
 
   const handleShowModal = (user = null) => {
     setSelectedUser(user);
-    setFormData(user || { username: "", fullname: "", email: "", role: "", phone: "", created_at: "" });
+    setFormData(
+      user || {
+        username: "",
+        fullname: "",
+        email: "",
+        role: "",
+        phone: "",
+        created_at: "",
+      },
+    );
     setShowModal(true);
   };
 
@@ -52,8 +69,8 @@ const UserManagement = () => {
       const { created_at, ...updateData } = formData; // Loại bỏ created_at
       if (selectedUser) {
         await axios.put(`${API_URL}/users/${selectedUser.user_id}`, updateData);
-        showToast('Cập nhật', "Cập nhật người dùng thành công")
-      } 
+        showToast("Cập nhật", "Cập nhật người dùng thành công");
+      }
       setCurrentPage(1); // Đặt lại về trang đầu tiên
       fetchUsers();
       handleCloseModal();
@@ -111,9 +128,15 @@ const UserManagement = () => {
                   <td>{user.email}</td>
                   <td>{user.role}</td>
                   <td>{user.phone}</td>
-                  <td>{new Date(user.created_at).toISOString().split("T")[0]}</td>
                   <td>
-                    <Button variant="outline-primary" size="sm" onClick={() => handleShowModal(user)}>
+                    {new Date(user.created_at).toISOString().split("T")[0]}
+                  </td>
+                  <td>
+                    <Button
+                      variant="outline-primary"
+                      size="sm"
+                      onClick={() => handleShowModal(user)}
+                    >
                       <i className="fas fa-edit"></i> Xem
                     </Button>
                   </td>
@@ -139,14 +162,18 @@ const UserManagement = () => {
             </Pagination.Item>
           ))}
           <Pagination.Next
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
             disabled={currentPage === totalPages}
           />
         </Pagination>
 
         <Modal show={showModal} onHide={handleCloseModal}>
           <Modal.Header closeButton>
-            <Modal.Title>{selectedUser ? "Chỉnh Sửa User" : "Thêm User"}</Modal.Title>
+            <Modal.Title>
+              {selectedUser ? "Chỉnh Sửa User" : "Thêm User"}
+            </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <Form>
@@ -207,8 +234,12 @@ const UserManagement = () => {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={handleCloseModal}>Đóng</Button>
-            <Button variant="success" onClick={handleSaveUser}>Lưu</Button>
+            <Button variant="secondary" onClick={handleCloseModal}>
+              Đóng
+            </Button>
+            <Button variant="success" onClick={handleSaveUser}>
+              Lưu
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>

@@ -34,7 +34,7 @@ export const Showtime = () => {
   useEffect(() => {
     fetchShowtime(pagination.currentPage, pagination.limit, searchStatus);
     fetchMovies();
-  }, [searchStatus]); // Thêm searchStatus vào dependency array
+  }, [searchStatus]);
 
   const fetchShowtime = async (page = 1, limit = 10, status = '') => {
     try {

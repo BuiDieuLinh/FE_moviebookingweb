@@ -57,7 +57,8 @@ const Sidebar = ({ children }) => {
                 `nav-link ${isActive ? "active" : ""}`
               }
             >
-              <i className="fa-solid fa-grip"></i> {!collapsed && <span>Room</span>}
+              <i className="fa-solid fa-grip"></i>{" "}
+              {!collapsed && <span>Room</span>}
             </NavLink>
             <NavLink
               to="/showtimes"
@@ -72,7 +73,8 @@ const Sidebar = ({ children }) => {
               to="/order"
               className={({ isActive }) =>
                 `nav-link ${isActive ? "active" : ""}`
-              }>
+              }
+            >
               <i className="fa-solid fa-ticket"></i>{" "}
               {!collapsed && <span>Order</span>}
             </NavLink>

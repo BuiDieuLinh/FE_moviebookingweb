@@ -10,7 +10,7 @@ export const Header = ({ collapsed }) => {
       if (scrollTop > 50) {
         setBgColor("rgba(0, 0, 0, 0.1)");
       } else {
-        setBgColor("bg-transparent"); 
+        setBgColor("bg-transparent");
       }
     };
 

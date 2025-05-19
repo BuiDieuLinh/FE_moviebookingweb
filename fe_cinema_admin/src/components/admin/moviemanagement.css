@@ -1,4 +1,4 @@
-.container-moviemng{
+.container-moviemng {
   margin-top: 70px;
   background-color: white;
   border-radius: 30px;
@@ -6,64 +6,66 @@
 }
 /* Loại bỏ border-bottom của tất cả các <td> */
 .table tbody tr td {
-    border-bottom: none !important;
-    padding: 10px ;
-    font-size: 15px;
-  }
-  .table-movie {
-    table-layout: fixed; /* Cố định độ rộng của cột */
-    width: 100%;         /* Đảm bảo bảng chiếm hết chiều rộng */
+  border-bottom: none !important;
+  padding: 10px;
+  font-size: 15px;
+}
+.table-movie {
+  table-layout: fixed; /* Cố định độ rộng của cột */
+  width: 100%; /* Đảm bảo bảng chiếm hết chiều rộng */
 }
 
-.table-movie td:nth-child(1), .table-movie th:nth-child(1) {
-    width: 300px;            /* Đặt độ rộng cột cố định */
-    white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
-    overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
-    text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
-}
-.table-movie td:nth-child(2), .table-movie th:nth-child(2) {
-  width: 200px;            
-  white-space: nowrap;     
-  overflow: hidden;        
-  text-overflow: ellipsis; 
-}
-.table-movie td:nth-child(3), .table-movie th:nth-child(3) {
-  width: 250px;            /* Đặt độ rộng cột cố định */
-  white-space: nowrap;     /* Giới hạn văn bản trong một dòng */
-  overflow: hidden;        /* Ẩn phần văn bản vượt quá giới hạn */
+.table-movie td:nth-child(1),
+.table-movie th:nth-child(1) {
+  width: 300px; /* Đặt độ rộng cột cố định */
+  white-space: nowrap; /* Giới hạn văn bản trong một dòng */
+  overflow: hidden; /* Ẩn phần văn bản vượt quá giới hạn */
   text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
 }
-.table-movie td:last-child, .table-movie th:last-child{
-  width: 70px; 
+.table-movie td:nth-child(2),
+.table-movie th:nth-child(2) {
+  width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.table-movie td:nth-child(3),
+.table-movie th:nth-child(3) {
+  width: 250px; /* Đặt độ rộng cột cố định */
+  white-space: nowrap; /* Giới hạn văn bản trong một dòng */
+  overflow: hidden; /* Ẩn phần văn bản vượt quá giới hạn */
+  text-overflow: ellipsis; /* Thêm dấu "..." khi văn bản bị cắt */
+}
+.table-movie td:last-child,
+.table-movie th:last-child {
+  width: 70px;
 }
 
-  
-  .table thead tr th{
-    padding: 15px ;
-  }
-
-  .accordion-item{
-    border-radius: 30px !important;
-    overflow: hidden;
-  }
-  .accordion-header button{
-    font-weight: 600 !important;
+.table thead tr th {
+  padding: 15px;
 }
 
-.nowshow{
+.accordion-item {
+  border-radius: 30px !important;
+  overflow: hidden;
+}
+.accordion-header button {
+  font-weight: 600 !important;
+}
+
+.nowshow {
   border: 1px solid rgb(0, 112, 0);
   color: rgb(0, 112, 0);
   background-color: rgba(0, 150, 0, 0.2);
-  padding:3px 5px;
+  padding: 3px 5px;
   border-radius: 5px;
   font-size: 13px;
 }
-.commingshow{
+.commingshow {
   border: 1px solid rgb(205, 219, 0);
   color: rgb(205, 219, 0);
   background-color: rgba(200, 150, 0, 0.2);
-  padding:3px 5px;
+  padding: 3px 5px;
   border-radius: 5px;
   font-size: 13px;
 }
-

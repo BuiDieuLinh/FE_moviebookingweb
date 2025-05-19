@@ -1,9 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Table, Badge, Pagination, Form, Dropdown, Modal, Card, Row, Col } from 'react-bootstrap';
-import axios from 'axios';
-import './order.css';
+import React, { useEffect, useState } from "react";
+import {
+  Button,
+  Table,
+  Badge,
+  Pagination,
+  Form,
+  Dropdown,
+  Modal,
+  Card,
+  Row,
+  Col,
+} from "react-bootstrap";
+import axios from "axios";
+import "./order.css";
 
-const API_URL = process.env.REACT_APP_PORT ;
+const API_URL = process.env.REACT_APP_PORT;
 
 const Order = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,8 +23,8 @@ const Order = () => {
   const [screenings, setScreenings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const [selectedDate, setSelectedDate] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
+  const [selectedDate, setSelectedDate] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
   const [showModal, setShowModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
 
@@ -44,37 +55,52 @@ const Order = () => {
   };
 
   const enrichedBookings = bookings.map((booking) => {
-    const screening = screenings.find((s) => s.screening_id === booking.screening_id) || {};
-    const payment = payments.find((p) => p.booking_id === booking.booking_id) || {};
+    const screening =
+      screenings.find((s) => s.screening_id === booking.screening_id) || {};
+    const payment =
+      payments.find((p) => p.booking_id === booking.booking_id) || {};
     return {
       ...booking,
-      movie_title: screening.movie_title || 'N/A',
-      showtime: screening.start_time && screening.end_time ? `${screening.start_time} - ${screening.end_time}` : 'N/A',
-      room_name: screening.room_name || 'N/A',
-      payment_method: payment.payment_method || 'N/A',
-      payment_status: payment.payment_status || 'N/A',
-      display_status: booking.status === 'pending' ? 'Chờ thanh toán' : booking.status,
+      movie_title: screening.movie_title || "N/A",
+      showtime:
+        screening.start_time && screening.end_time
+          ? `${screening.start_time} - ${screening.end_time}`
+          : "N/A",
+      room_name: screening.room_name || "N/A",
+      payment_method: payment.payment_method || "N/A",
+      payment_status: payment.payment_status || "N/A",
+      display_status:
+        booking.status === "pending" ? "Chờ thanh toán" : booking.status,
       qr_code: booking.qr_code || "",
     };
   });
 
   // Calculate statistics
   const stats = {
-    paid: enrichedBookings.filter((b) => b.display_status === 'paid').length,
-    pending: enrichedBookings.filter((b) => b.display_status === 'pending').length,
-    canceled: enrichedBookings.filter((b) => b.display_status === 'canceled').length,
+    paid: enrichedBookings.filter((b) => b.display_status === "paid").length,
+    pending: enrichedBookings.filter((b) => b.display_status === "pending")
+      .length,
+    canceled: enrichedBookings.filter((b) => b.display_status === "canceled")
+      .length,
   };
 
   const filteredBookings = enrichedBookings.filter((booking) => {
-    const bookingDate = new Date(booking.created_at).toISOString().split('T')[0];
+    const bookingDate = new Date(booking.created_at)
+      .toISOString()
+      .split("T")[0];
     const byDate = !selectedDate || bookingDate === selectedDate;
-    const byStatus = filterStatus === 'all' || booking.display_status.toLowerCase() === filterStatus.toLowerCase();
+    const byStatus =
+      filterStatus === "all" ||
+      booking.display_status.toLowerCase() === filterStatus.toLowerCase();
     return byDate && byStatus;
   });
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredBookings.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filteredBookings.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
   const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
 
   const handlePageChange = (pageNumber) => {
@@ -82,22 +108,38 @@ const Order = () => {
   };
 
   const formatCurrency = (value) => {
-    return Number(value).toLocaleString('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
+    return Number(value).toLocaleString("vi-VN", {
+      style: "currency",
+      currency: "VND",
     });
   };
 
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
-      case 'paid':
-        return <Badge bg="success" className="status-badge">Đã thanh toán</Badge>;
-      case 'pending':
-        return <Badge bg="warning" text="dark" className="status-badge">Chờ thanh toán</Badge>;
-      case 'canceled':
-        return <Badge bg="danger" className="status-badge">Hủy</Badge>;
+      case "paid":
+        return (
+          <Badge bg="success" className="status-badge">
+            Đã thanh toán
+          </Badge>
+        );
+      case "pending":
+        return (
+          <Badge bg="warning" text="dark" className="status-badge">
+            Chờ thanh toán
+          </Badge>
+        );
+      case "canceled":
+        return (
+          <Badge bg="danger" className="status-badge">
+            Hủy
+          </Badge>
+        );
       default:
-        return <Badge bg="secondary" className="status-badge">{status}</Badge>;
+        return (
+          <Badge bg="secondary" className="status-badge">
+            {status}
+          </Badge>
+        );
     }
   };
 
@@ -112,12 +154,12 @@ const Order = () => {
   };
 
   const statusOptions = [
-    { value: 'all', label: 'Tất cả' },
-    { value: 'paid', label: 'Đã thanh toán' },
-    { value: 'pending', label: 'Chờ thanh toán' },
-    { value: 'canceled', label: 'Huỷ' },
+    { value: "all", label: "Tất cả" },
+    { value: "paid", label: "Đã thanh toán" },
+    { value: "pending", label: "Chờ thanh toán" },
+    { value: "canceled", label: "Huỷ" },
   ];
-  
+
   return (
     <div className="order-wrapper">
       {/* Statistics and Filters */}
@@ -146,7 +188,11 @@ const Order = () => {
             placeholder="dd/mm/yyyy"
           />
           <Dropdown onSelect={(e) => setFilterStatus(e)}>
-            <Dropdown.Toggle size="sm" variant="outline-secondary" className="filter-dropdown">
+            <Dropdown.Toggle
+              size="sm"
+              variant="outline-secondary"
+              className="filter-dropdown"
+            >
               {filterStatus}
             </Dropdown.Toggle>
             <Dropdown.Menu>
@@ -157,7 +203,12 @@ const Order = () => {
               ))}
             </Dropdown.Menu>
           </Dropdown>
-          <Button variant="info" size="sm" onClick={fetchData} className="refresh-btn">
+          <Button
+            variant="info"
+            size="sm"
+            onClick={fetchData}
+            className="refresh-btn"
+          >
             <i className="fas fa-sync-alt"></i>
           </Button>
         </div>
@@ -183,14 +234,18 @@ const Order = () => {
                 <tr
                   key={booking.booking_id}
                   onClick={() => handleShowDetails(booking)}
-                  className={`table-row ${index % 2 === 0 ? 'even-row' : 'odd-row'}`}
+                  className={`table-row ${index % 2 === 0 ? "even-row" : "odd-row"}`}
                 >
                   <td>{booking.movie_title}</td>
                   <td>{booking.showtime}</td>
                   <td>{booking.room_name}</td>
                   <td>{getStatusBadge(booking.display_status)}</td>
-                  <td className="text-success">{formatCurrency(booking.total_price)}</td>
-                  <td>{new Date(booking.created_at).toLocaleDateString('vi-VN')}</td>
+                  <td className="text-success">
+                    {formatCurrency(booking.total_price)}
+                  </td>
+                  <td>
+                    {new Date(booking.created_at).toLocaleDateString("vi-VN")}
+                  </td>
                 </tr>
               ))
             ) : (
@@ -237,7 +292,9 @@ const Order = () => {
             })}
 
             {/* Thêm dấu chấm lửng nếu cần */}
-            {totalPages > 5 && currentPage < totalPages - 2 && <Pagination.Ellipsis />}
+            {totalPages > 5 && currentPage < totalPages - 2 && (
+              <Pagination.Ellipsis />
+            )}
             {totalPages > 5 && currentPage > 3 && <Pagination.Ellipsis />}
 
             {/* Nút Next */}
@@ -264,23 +321,35 @@ const Order = () => {
                       <h5 className="section-title">Thông tin đơn hàng</h5>
                       <div className="info-row">
                         <span className="info-label">Mã đơn hàng:</span>
-                        <span className="info-value">{selectedBooking.booking_id}</span>
+                        <span className="info-value">
+                          {selectedBooking.booking_id}
+                        </span>
                       </div>
                       <div className="info-row">
                         <span className="info-label">Tên phim:</span>
-                        <span className="info-value text-uppercase">{selectedBooking.movie_title}</span>
+                        <span className="info-value text-uppercase">
+                          {selectedBooking.movie_title}
+                        </span>
                       </div>
                       <div className="info-row">
                         <span className="info-label">Suất chiếu:</span>
-                        <span className="info-value">{selectedBooking.showtime}</span>
+                        <span className="info-value">
+                          {selectedBooking.showtime}
+                        </span>
                       </div>
                       <div className="info-row">
                         <span className="info-label">Phòng chiếu:</span>
-                        <span className="info-value">{selectedBooking.room_name}</span>
+                        <span className="info-value">
+                          {selectedBooking.room_name}
+                        </span>
                       </div>
                       <div className="info-row">
                         <span className="info-label">Ngày đặt:</span>
-                        <span className="info-value">{new Date(selectedBooking.created_at).toLocaleString('vi-VN')}</span>
+                        <span className="info-value">
+                          {new Date(selectedBooking.created_at).toLocaleString(
+                            "vi-VN",
+                          )}
+                        </span>
                       </div>
                     </Card.Body>
                   </Card>
@@ -288,27 +357,37 @@ const Order = () => {
                 <Col md={4} className="text-center">
                   <Card className="qr-card">
                     <Card.Body>
-                      <img src={`${API_URL}${selectedBooking.qr_code}`} alt="QR Code" className="qr-code" />
+                      <img
+                        src={`${API_URL}${selectedBooking.qr_code}`}
+                        alt="QR Code"
+                        className="qr-code"
+                      />
                       <p className="qr-label fs-6">Đã quét</p>
                     </Card.Body>
                   </Card>
                 </Col>
               </Row>
-              <Row className='px-2 gap-3'>
+              <Row className="px-2 gap-3">
                 <Card className="info-card mb-3" as={Col}>
                   <Card.Body>
                     <h5 className="section-title">Thông tin thanh toán</h5>
                     <div className="info-row">
                       <span className="info-label">Trạng thái:</span>
-                      <span className="info-value">{getStatusBadge(selectedBooking.display_status)}</span>
+                      <span className="info-value">
+                        {getStatusBadge(selectedBooking.display_status)}
+                      </span>
                     </div>
                     <div className="info-row">
                       <span className="info-label">Tổng tiền:</span>
-                      <span className="info-value text-success">{formatCurrency(selectedBooking.total_price)}</span>
+                      <span className="info-value text-success">
+                        {formatCurrency(selectedBooking.total_price)}
+                      </span>
                     </div>
                     <div className="info-row">
                       <span className="info-label">Phương thức:</span>
-                      <span className="info-value">{selectedBooking.payment_method}</span>
+                      <span className="info-value">
+                        {selectedBooking.payment_method}
+                      </span>
                     </div>
                   </Card.Body>
                 </Card>
@@ -324,7 +403,10 @@ const Order = () => {
 
                     <div className="seat-list-body">
                       {bookingDetails
-                        .filter((detail) => detail.booking_id === selectedBooking.booking_id)
+                        .filter(
+                          (detail) =>
+                            detail.booking_id === selectedBooking.booking_id,
+                        )
                         .map((detail) => {
                           return (
                             <div className="seat-item" key={detail.detail_id}>
@@ -342,7 +424,11 @@ const Order = () => {
           )}
         </Modal.Body>
         <Modal.Footer className="modal-footer-custom">
-          <Button variant="secondary" onClick={handleCloseModal} className="close-btn">
+          <Button
+            variant="secondary"
+            onClick={handleCloseModal}
+            className="close-btn"
+          >
             Đóng
           </Button>
         </Modal.Footer>
