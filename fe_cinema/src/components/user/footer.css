@@ -1,13 +1,13 @@
 footer a {
-    text-decoration: none;
-    color: #f8f9fa;
+  text-decoration: none;
+  color: #f8f9fa;
 }
 footer a:hover {
-    color: #A9141E; /* Đổi thành màu chủ đạo */
+  color: #a9141e; 
 }
-footer{
-    font-size: 14px;
+footer {
+  font-size: 14px;
 }
-footer h5{
-    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif
+footer h5 {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }

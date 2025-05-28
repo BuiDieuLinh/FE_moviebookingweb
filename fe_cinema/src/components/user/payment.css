@@ -12,7 +12,7 @@
 }
 
 .payment-card:hover {
-  transform: translateY(-5px); /* Subtle hover effect */
+  transform: translateY(-5px); 
 }
 
 .loading-container,

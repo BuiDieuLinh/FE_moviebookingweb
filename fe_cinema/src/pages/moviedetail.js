@@ -4,6 +4,5 @@ export default function MovieDetailPage() {
     <div>
       <MovieDetail></MovieDetail>
     </div>
-    
   );
 }

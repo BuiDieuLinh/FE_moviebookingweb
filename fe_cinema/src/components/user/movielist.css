@@ -1,10 +1,10 @@
-.container{
+.container {
   width: 70%;
   padding: 0px;
 }
 .movie-card {
   width: auto; /* Không cố định 100% */
-  max-width: 250px; /* Giới hạn chiều rộng */
+  max-width: 250px; 
   flex-grow: 1; /* Để thẻ mở rộng linh hoạt trong cột */
   overflow: hidden;
   position: relative;
@@ -12,7 +12,6 @@
   background-color: transparent;
   border-radius: 20px;
 }
-
 
 .image-container {
   position: relative;
@@ -23,7 +22,7 @@
   width: 100%;
   border-radius: 20px;
 }
-.image-container:hover{
+.image-container:hover {
   transform: scale(1.05);
 }
 .overlay {
@@ -60,21 +59,20 @@
   gap: 5px;
 }
 
-
 .age_badge {
   z-index: 10;
 }
 
-.card-body{
+.card-body {
   padding: 10px 0px;
 }
-.movie-title{
-  font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.movie-title {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   text-transform: uppercase;
   font-weight: bold;
   font-size: 14px;
 }
-.card-body p{
+.card-body p {
   margin: 0;
   color: #aaa;
   font-size: 13px;

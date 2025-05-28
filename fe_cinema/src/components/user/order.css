@@ -1,48 +1,46 @@
-.container-order{
-    width: 90%;
-    margin: 100px auto;
-    color: white;
-    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    font-size: 18px;
-    display: grid;
-    grid-template-columns: 0.7fr 0.3fr;
-    grid-template-areas: 
-    "info-detail payment";
-    column-gap: 20px;
+.container-order {
+  width: 90%;
+  margin: 100px auto;
+  color: white;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  font-size: 18px;
+  display: grid;
+  grid-template-columns: 0.7fr 0.3fr;
+  grid-template-areas: "info-detail payment";
+  column-gap: 20px;
 }
 
-.info-detail{
-    grid-area: info-detail;
+.info-detail {
+  grid-area: info-detail;
 }
-.payment{
-    grid-area: payment;
+.payment {
+  grid-area: payment;
 }
 
-  
-  .payment-card {
-    background-color: #1a1a1a;
-    border: 1px solid #333;
-    border-radius: 8px;
-    cursor: pointer;
-    color: #fff;
-    padding: 10px;
-  }
-  
-  .payment-card.selected {
-    border: 2px solid #dc3545;
-  }
-  
-  .payment-logo {
-    max-width: 40px;
-    height: auto;
-  }
-  
-  .payment-name {
-    font-size: 16px;
-    font-weight: 500;
-  }
-  
-  .form-check-input:checked {
-    background-color: #dc3545;
-    border-color: #dc3545;
-  }
+.payment-card {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  padding: 10px;
+}
+
+.payment-card.selected {
+  border: 2px solid #dc3545;
+}
+
+.payment-logo {
+  max-width: 40px;
+  height: auto;
+}
+
+.payment-name {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.form-check-input:checked {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}

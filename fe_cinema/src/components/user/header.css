@@ -1,45 +1,45 @@
-body{
-    font-family: "Oswald", sans-serif;
+body {
+  font-family: "Oswald", sans-serif;
 }
 .custom-dropdown {
-    border: 2px solid #ccc; /* Viền */
-    border-radius: 10px; /* Bo góc */
-    margin-right: 20px; /* Dịch sang trái 20px */
-    background-color: black !important;
-  }
-  .dropdown-toggle{
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .dropdown-menu{
-    background-color: black !important;
-  }
-  .dropdown-item{
-    color: #fff;
-  }
-  .dropdown-item:hover{
-    background-color: transparent;
-    color: rgb(190, 0, 0);
-  }
-  
-  .navbar-blur {
-    background-color: black; /* Màu mặc định */
-    transition: background-color 0.3s ease-in-out;
-  }
-  
-  .navbar-blur.scrolled {
-    background-color: rgba(255, 255, 255, 0.3); /* Màu khi cuộn xuống */
-    backdrop-filter: blur(50px); 
-  }
-  
-  .nav-link{
-    color: #fff !important;
-    font-size: 14px;
-  }
-  .nav-link:hover{
-    color: rgb(190, 0, 0) !important;
-  }
-  .nav-link.active {
-    color: rgb(190, 0, 0) !important; 
-  }
+  border: 2px solid #ccc; 
+  border-radius: 10px; 
+  margin-right: 20px; 
+  background-color: black !important;
+}
+.dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dropdown-menu {
+  background-color: black !important;
+}
+.dropdown-item {
+  color: #fff;
+}
+.dropdown-item:hover {
+  background-color: transparent;
+  color: rgb(190, 0, 0);
+}
+
+.navbar-blur {
+  background-color: black; 
+  transition: background-color 0.3s ease-in-out;
+}
+
+.navbar-blur.scrolled {
+  background-color: rgba(255, 255, 255, 0.3); 
+  backdrop-filter: blur(50px);
+}
+
+.nav-link {
+  color: #fff !important;
+  font-size: 14px;
+}
+.nav-link:hover {
+  color: rgb(190, 0, 0) !important;
+}
+.nav-link.active {
+  color: rgb(190, 0, 0) !important;
+}

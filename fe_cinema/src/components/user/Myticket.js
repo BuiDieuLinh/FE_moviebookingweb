@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Table, Alert, Modal, Image, Button, Badge } from 'react-bootstrap';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import './mytickets.css';
-import Row from 'react-bootstrap/esm/Row';
-import Col from 'react-bootstrap/esm/Col';
-import Swal from 'sweetalert2';
-import { format, toZonedTime } from 'date-fns-tz';
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Table,
+  Alert,
+  Modal,
+  Image,
+  Button,
+  Badge,
+} from "react-bootstrap";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import "./mytickets.css";
+import Row from "react-bootstrap/esm/Row";
+import Col from "react-bootstrap/esm/Col";
+import Swal from "sweetalert2";
+import { format, toZonedTime } from "date-fns-tz";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -18,11 +26,11 @@ const MyTickets = () => {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const user_id = localStorage.getItem('user_id');
+  const user_id = localStorage.getItem("user_id");
 
   useEffect(() => {
     if (!user_id) {
-      setError('Bạn cần đăng nhập để xem vé của mình.');
+      setError("Bạn cần đăng nhập để xem vé của mình.");
       setLoading(false);
       return;
     }
@@ -34,7 +42,7 @@ const MyTickets = () => {
         console.log(response.data);
         setLoading(false);
       } catch (err) {
-        setError('Không thể tải danh sách vé. Vui lòng thử lại sau.');
+        setError("Không thể tải danh sách vé. Vui lòng thử lại sau.");
         setLoading(false);
         console.error(err);
       }
@@ -44,7 +52,7 @@ const MyTickets = () => {
   }, [user_id]);
 
   const formatDateTime = (date, time) => {
-    return `${time} - ${new Date(date).toLocaleDateString('vi-VN')}`;
+    return `${time} - ${new Date(date).toLocaleDateString("vi-VN")}`;
   };
 
   // Hàm kiểm tra trạng thái vé
@@ -53,11 +61,18 @@ const MyTickets = () => {
       return { label: "Không xác định", isExpired: true };
     }
 
-    const newdate= new Date(ticket.screening_date).toLocaleDateString('vi-VN')
+    const newdate = new Date(ticket.screening_date).toLocaleDateString("vi-VN");
     const today = new Date();
-    const [  day,month,year] = newdate.split("/");
+    const [day, month, year] = newdate.split("/");
     const [startHour, startMinute, startSecond] = ticket.time.split(":");
-    const screeningDateTime = new Date(year, month - 1, day, startHour, startMinute, startSecond);
+    const screeningDateTime = new Date(
+      year,
+      month - 1,
+      day,
+      startHour,
+      startMinute,
+      startSecond,
+    );
 
     if (ticket.status === "canceled") {
       return { label: "Đã hủy", isExpired: true };
@@ -80,7 +95,7 @@ const MyTickets = () => {
 
   const handleCancelBooking = async () => {
     if (!selectedTicket) {
-      alert('Bạn chưa chọn vé. Yêu cầu chọn vé muốn hủy!');
+      alert("Bạn chưa chọn vé. Yêu cầu chọn vé muốn hủy!");
       return;
     }
     console.log(selectedTicket);
@@ -92,26 +107,40 @@ const MyTickets = () => {
       confirmButtonColor: "#28a745",
       cancelButtonColor: "#d33",
       confirmButtonText: "Có, hủy vé",
-      cancelButtonText: "Không, giữ lại"
+      cancelButtonText: "Không, giữ lại",
     }).then(async (result) => {
       if (result.isConfirmed) {
         const today = new Date();
-        const [year, month, day] = selectedTicket.screening_date.split("T")[0].split("-");
-        const [startHour, startMinute, startSecond] = selectedTicket.time.split(":");
-        const start = new Date(year, month - 1, day, startHour, startMinute, startSecond);
+        const [year, month, day] = selectedTicket.screening_date
+          .split("T")[0]
+          .split("-");
+        const [startHour, startMinute, startSecond] =
+          selectedTicket.time.split(":");
+        const start = new Date(
+          year,
+          month - 1,
+          day,
+          startHour,
+          startMinute,
+          startSecond,
+        );
 
         if (today < start) {
           try {
-            const response = await axios.patch(`${API_URL}/bookings/updateStatus/${selectedTicket.booking_id}`);
+            const response = await axios.patch(
+              `${API_URL}/bookings/updateStatus/${selectedTicket.booking_id}`,
+            );
             if (response.status === 200) {
               Swal.fire({
                 title: "Deleted!",
                 text: "Hủy vé thành công.",
-                icon: "success"
+                icon: "success",
               });
               // Cập nhật danh sách vé
-              const updatedTickets = tickets.map(t =>
-                t.booking_id === selectedTicket.booking_id ? { ...t, status: "canceled" } : t
+              const updatedTickets = tickets.map((t) =>
+                t.booking_id === selectedTicket.booking_id
+                  ? { ...t, status: "canceled" }
+                  : t,
               );
               setTickets(updatedTickets);
               setSelectedTicket({ ...selectedTicket, status: "canceled" });
@@ -131,7 +160,7 @@ const MyTickets = () => {
 
   if (loading) {
     return (
-      <Container style={{ margin: '70px auto' }}>
+      <Container style={{ margin: "70px auto" }}>
         <h4 className="text-light">Đang tải vé...</h4>
       </Container>
     );
@@ -139,9 +168,9 @@ const MyTickets = () => {
 
   if (error) {
     return (
-      <div style={{ margin: '100px auto', textAlign: 'center', width: '70%' }}>
+      <div style={{ margin: "100px auto", textAlign: "center", width: "70%" }}>
         <Alert variant="danger">{error}</Alert>
-        <Button variant="dark" onClick={() => navigate('/auth')}>
+        <Button variant="dark" onClick={() => navigate("/auth")}>
           Đăng nhập
         </Button>
       </div>
@@ -157,14 +186,14 @@ const MyTickets = () => {
           <Button
             variant="primary"
             className="ms-3 rounded-pill custom-button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate("/")}
           >
             Đặt vé
           </Button>
         </Alert>
       ) : (
         <>
-          <Table hover variant="dark" className='custom-ticket-table rounded-4'>
+          <Table hover variant="dark" className="custom-ticket-table rounded-4">
             <thead>
               <tr>
                 <th>Ngày giao dịch</th>
@@ -180,10 +209,18 @@ const MyTickets = () => {
                   onClick={() => handleViewDetails(ticket)}
                   className="ticket-row"
                 >
-                  <td>{format(toZonedTime(new Date(ticket.screening_date),'Asia/Ho_Chi_Minh'),'dd-MM-yyyy')}</td>
+                  <td>
+                    {format(
+                      toZonedTime(
+                        new Date(ticket.screening_date),
+                        "Asia/Ho_Chi_Minh",
+                      ),
+                      "dd-MM-yyyy",
+                    )}
+                  </td>
                   <td>{ticket.movie_title}</td>
                   <td>{ticket.seats.length}</td>
-                  <td>{ticket.total_price.toLocaleString('vi-VN')} đ</td>
+                  <td>{ticket.total_price.toLocaleString("vi-VN")} đ</td>
                 </tr>
               ))}
             </tbody>
@@ -202,23 +239,37 @@ const MyTickets = () => {
               {selectedTicket && (
                 <div className="ticket-details">
                   <Row>
-                    <Col md='4'>
-                      <Image src={`${API_URL}${selectedTicket.movie_image}`} width={150} height={180} className='rounded' />
+                    <Col md="4">
+                      <Image
+                        src={`${API_URL}${selectedTicket.movie_image}`}
+                        width={150}
+                        height={180}
+                        className="rounded"
+                      />
                     </Col>
-                    <Col className='d-flex flex-column'>
+                    <Col className="d-flex flex-column">
                       <h4 className="text-uppercase mb-3 text-danger fw-bold">
                         {selectedTicket.movie_title}
                       </h4>
                       <p className="text-light">
-                        {formatDateTime(selectedTicket.screening_date, selectedTicket.time)}{' '}
+                        {formatDateTime(
+                          selectedTicket.screening_date,
+                          selectedTicket.time,
+                        )}{" "}
                         ({selectedTicket.screening_format})
                       </p>
-                      <p><strong>Phòng chiếu:</strong> {selectedTicket.room_name}</p>
-                      <p><strong>Ghế:</strong>{' '}
-                        {selectedTicket.seats.map((seat) => seat.seat_name).join(', ')}</p>
-                      <p className='d-flex gap-2 m-0 align-items-center'>
-                        <strong>Trạng thái:</strong> 
-                        <Badge pill bg="warning" text='dark' className='px-3'>
+                      <p>
+                        <strong>Phòng chiếu:</strong> {selectedTicket.room_name}
+                      </p>
+                      <p>
+                        <strong>Ghế:</strong>{" "}
+                        {selectedTicket.seats
+                          .map((seat) => seat.seat_name)
+                          .join(", ")}
+                      </p>
+                      <p className="d-flex gap-2 m-0 align-items-center">
+                        <strong>Trạng thái:</strong>
+                        <Badge pill bg="warning" text="dark" className="px-3">
                           {getTicketStatus(selectedTicket).label}
                         </Badge>
                       </p>
@@ -239,18 +290,14 @@ const MyTickets = () => {
             <Modal.Footer className="bg-dark border-0">
               {selectedTicket && !getTicketStatus(selectedTicket).isExpired && (
                 <Button
-                  variant='outline-danger'
-                  size='sm'
+                  variant="outline-danger"
+                  size="sm"
                   onClick={handleCancelBooking}
                 >
                   Hủy vé
                 </Button>
               )}
-              <Button
-                variant="success"
-                size='sm'
-                onClick={handleCloseModal}
-              >
+              <Button variant="success" size="sm" onClick={handleCloseModal}>
                 Đóng
               </Button>
             </Modal.Footer>

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import axios from "axios";
+import { Container, Row, Col, Form, Button } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Swal from "sweetalert2";
 import "./login.css";
@@ -13,17 +13,17 @@ const CinemaAuth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState({}); 
+  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
   const handleSwitch = () => {
     setIsLogin(!isLogin);
-    setErrors({}); // Xóa lỗi khi chuyển tab
+    setErrors({});
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({}); // Reset lỗi trước khi gửi request
+    setErrors({}); 
 
     try {
       if (!isLogin) {
@@ -31,14 +31,14 @@ const CinemaAuth = () => {
           const response = await axios.post(`${API_URL}/users`, {
             email,
             username,
-            password
+            password,
           });
           console.log(response.data);
           Swal.fire({
             title: "Signup Successful!",
             icon: "success",
             showConfirmButton: false,
-            timer: 2000
+            timer: 2000,
           });
           setIsLogin(true);
         } catch (err) {
@@ -49,7 +49,7 @@ const CinemaAuth = () => {
           } else {
             setErrors({ general: "Đăng ký thất bại! Vui lòng thử lại." });
           }
-          return; // Dừng lại nếu đăng ký thất bại
+          return;
         }
       }
 
@@ -57,12 +57,12 @@ const CinemaAuth = () => {
         username,
         password,
       });
-      if(response.status === 200){
+      if (response.status === 200) {
         Swal.fire({
           icon: "success",
           title: "Đăng nhập thành công!",
           showConfirmButton: false,
-          timer: 1500
+          timer: 1500,
         });
       }
 
@@ -75,7 +75,9 @@ const CinemaAuth = () => {
 
       fetchUserInfo(user_id, token);
     } catch (error) {
-      setErrors({ general: "Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản." });
+      setErrors({
+        general: "Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản.",
+      });
     }
   };
 
@@ -97,18 +99,30 @@ const CinemaAuth = () => {
     <div className="cinema-auth-bg">
       <Container className="h-100">
         <Row className="justify-content-center flex-column align-items-center h-100">
-          <Col xs={11} sm={10} md={8} lg={6} className='d-inline text-center mb-5'>
-            <img src='logo-removebg-preview.png' width={100} height={50} style={{ objectFit: 'cover' }} alt="logo" />
+          <Col
+            xs={11}
+            sm={10}
+            md={8}
+            lg={6}
+            className="d-inline text-center mb-5"
+          >
+            <img
+              src="logo-removebg-preview.png"
+              width={100}
+              height={50}
+              style={{ objectFit: "cover" }}
+              alt="logo"
+            />
           </Col>
 
           <Col xs={11} sm={10} md={8} lg={6}>
             <div className="auth-card animate-fade-in">
               <div className="auth-header">
                 <h2 className="auth-title animate-title">
-                  {isLogin ? 'Welcome Back!' : 'Welcome New Guest!'}
+                  {isLogin ? "Welcome Back!" : "Welcome New Guest!"}
                 </h2>
                 <p className="auth-subtitle">
-                  {isLogin ? 'Sign in to continue' : 'Register now, it’s free!'}
+                  {isLogin ? "Sign in to continue" : "Register now, it’s free!"}
                 </p>
               </div>
 
@@ -151,7 +165,7 @@ const CinemaAuth = () => {
                       className="auth-input"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      autoComplete="off" 
+                      autoComplete="off"
                     />
                   </Form.Group>
 
@@ -159,16 +173,25 @@ const CinemaAuth = () => {
                     <p className="text-danger text-center">{errors.general}</p>
                   )}
 
-                  <Button type="submit" variant='danger' className="w-100 auth-button animate-button">
-                    {isLogin ? 'Login' : 'Get Started'}
+                  <Button
+                    type="submit"
+                    variant="danger"
+                    className="w-100 auth-button animate-button"
+                  >
+                    {isLogin ? "Login" : "Get Started"}
                   </Button>
                 </Form>
 
                 <div className="text-center mt-3">
                   <p className="auth-switch-text">
-                    {isLogin ? "Don't have an account? " : 'Already have an account? '}
-                    <span className="switch-text animate-switch" onClick={handleSwitch}>
-                      {isLogin ? 'Register' : 'Login'}
+                    {isLogin
+                      ? "Don't have an account? "
+                      : "Already have an account? "}
+                    <span
+                      className="switch-text animate-switch"
+                      onClick={handleSwitch}
+                    >
+                      {isLogin ? "Register" : "Login"}
                     </span>
                   </p>
                 </div>

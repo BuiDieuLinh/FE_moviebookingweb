@@ -1,203 +1,199 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
-.container-details{
-    width: 100%;
-    background-color: black !important;
-    margin-top: 66px;
-    /* font-family: Arial, Helvetica, sans-serif */
-    font-family : 'Roboto', sans-serif;
-    font-size: 14px;
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+.container-details {
+  width: 100%;
+  background-color: black !important;
+  margin-top: 66px;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
 }
 .bg-opacity-gradient {
-    -webkit-mask-image: linear-gradient( rgba(0, 0, 0, 1) 70%, rgba(0, 0, 0, 0.1) 100%);
-    mask-image: linear-gradient( rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.3));
+  -webkit-mask-image: linear-gradient(
+    rgba(0, 0, 0, 1) 70%,
+    rgba(0, 0, 0, 0.1) 100%
+  );
+  mask-image: linear-gradient(rgba(0, 0, 0, 1), rgba(0, 0, 0, 0.3));
 }
 .text-truncate-multiline {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 3; /* Giới hạn 3-4 dòng */
-    overflow: hidden; /* Ẩn phần bị tràn */
-    text-overflow: ellipsis;
-    max-height: 6em; /* Điều chỉnh chiều cao phù hợp */
-    line-height: 1.5em; /* Đảm bảo căn chỉnh dòng */
-    text-align: justify;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* Giới hạn 3-4 dòng */
+  overflow: hidden; /* Ẩn phần bị tràn */
+  text-overflow: ellipsis;
+  max-height: 6em; /* Điều chỉnh chiều cao phù hợp */
+  line-height: 1.5em; /* Đảm bảo căn chỉnh dòng */
+  text-align: justify;
 }
 
-  .container-overlay{
+.container-overlay {
+  width: 90%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 0.4fr 0.6fr;
+  grid-template-areas: "card-logo info-detail";
+}
+
+.card-logo {
+  grid-area: card-logo;
+  height: 350px;
+}
+.info-detail {
+  grid-area: info-detail;
+}
+.card-logo img {
+  max-width: 90%;
+  height: 90%;
+}
+
+@media screen and (max-width: 1256px) {
+  .title-rep {
+    color: red;
+  }
+  .container-overlay {
     width: 90%;
-    margin: 0 auto;
     display: grid;
     grid-template-columns: 0.4fr 0.6fr;
-    grid-template-areas: "card-logo info-detail";
-  }
-  
-  .card-logo{
-    grid-area: card-logo;
-    height: 350px;
-
-  }
-  .info-detail{
-    grid-area: info-detail;
-  }
-  .card-logo img {
-    max-width: 90%;
-    height: 90%;
-  }
-  
-  @media screen and (max-width: 1256px) {
-    .title-rep{
-        color: red;
-    }
-    .container-overlay{
-      width: 90%;
-      display: grid;
-      grid-template-columns: 0.4fr 0.6fr;
-      grid-template-areas: 
+    grid-template-areas:
       "card-logo title"
-      "info-detail info-detail"
-    }
-    .title-movie{
-      display: flex;
-      flex-direction: column;
-      justify-content: start;
-      align-items: flex-start;
-    }
-}
-  .container-date {
-    overflow-x: auto; /* Cho phép cuộn ngang */
-    white-space: nowrap;
-    display: flex;
-    background-color: black;
-    margin-top: 10px;
+      "info-detail info-detail";
   }
-  
-  .date-list {
-    display: flex;
-    justify-content: center;
-    width: 80%;
-    margin: 0 auto;
-  }
-  .date{
+  .title-movie {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 5px;
-    padding: 10px 15px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    min-width: 80px;
+    justify-content: start;
+    align-items: flex-start;
   }
-  .date.selected {
-    background-color: rgb(168, 0, 0); /* Màu đỏ khi được chọn */
-  }
-  .date p{
-    margin: 0;
-  }
-  .container-showtime{
-    padding: 20px;
-    background-color: rgb(22, 22, 22);
-  }
-  .showtime {
-    width: 70%;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* Mỗi hàng 5 button */
-    gap: 20px;
+}
+.container-date {
+  overflow-x: auto; 
+  white-space: nowrap;
+  display: flex;
+  background-color: black;
+  margin-top: 10px;
+}
+
+.date-list {
+  display: flex;
+  justify-content: center;
+  width: 80%;
+  margin: 0 auto;
+}
+.date {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  padding: 10px 15px;
+  font-family: "Franklin Gothic Medium", "Arial Narrow", Arial, sans-serif;
+  min-width: 80px;
+}
+.date.selected {
+  background-color: rgb(168, 0, 0); 
+}
+.date p {
+  margin: 0;
+}
+.container-showtime {
+  padding: 20px;
+  background-color: rgb(22, 22, 22);
+}
+.showtime {
+  width: 70%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); 
+  gap: 20px;
 }
 
 .showtime button {
-    background-color: transparent;
-    color: #ccc;
-    font-weight: bold;
-    border: 1px solid #ccc;
-    border-radius: 25px;
-    padding: 8px 50px;
-    text-align: center;
-    width: 100%; /* Button mở rộng theo ô lưới */
+  background-color: transparent;
+  color: #ccc;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  border-radius: 25px;
+  padding: 8px 50px;
+  text-align: center;
+  width: 100%; 
 }
 
-  .showtime button:hover{
-    background-color: rgb(30, 41, 59);
-    border: 1px solid rgb(30, 41, 59);
-  }
+.showtime button:hover {
+  background-color: rgb(30, 41, 59);
+  border: 1px solid rgb(30, 41, 59);
+}
 
-  .seat {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 35px;
-    height: 35px;
-    margin: 3px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.3s ease-in-out;
-    border: none;
-    font-size: 15px;
-    background-size: cover; /* Đảm bảo hình ảnh fit trong button */
-    background-repeat: no-repeat; /* Không lặp lại hình ảnh */
-    background-position: center; /* Căn giữa hình ảnh */
-  }
-  
-  .seat.regular {
-    background-color: rgb(36, 36, 36); /* Màu ghế thường */
-  }
-  
-  .seat.vip {
-    background-color: rgb(255, 132, 19); /* Màu ghế VIP */
-  }
-  
-  .seat.couple {
-    background-color: rgb(255, 55, 65); /* Màu ghế đôi */
-    width: 76px; /* Ghế đôi rộng hơn */
-  }
-  
-  .seat.selected {
-    background-color: rgb(13, 202, 240) !important;
-    color: white;
-  }
-  
-  .seat:hover {
-    transform: scale(1.1);
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
-  }
-  
-  /* Sắp xếp ghế theo hàng */
-  .seat-row {
-    display: flex;
-    justify-content: center;
-  }
+.seat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+  margin: 3px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+  font-size: 15px;
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+}
 
-  .seat1 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    margin: 3px;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-    transition: all 0.3s ease-in-out;
-    border: none;
-    background-size: cover; /* Đảm bảo hình ảnh fit trong button */
-    background-repeat: no-repeat; /* Không lặp lại hình ảnh */
-    background-position: center; /* Căn giữa hình ảnh */
-  }
-  /* .bg-booked{
-    background-image: url('/vietnam.png'); 
-    background-size: cover;
-    background-position: center; 
-    */
-    /* Style cho trạng thái booked */
+.seat.regular {
+  background-color: rgb(36, 36, 36); 
+}
+
+.seat.vip {
+  background-color: rgb(255, 132, 19); 
+}
+
+.seat.couple {
+  background-color: rgb(255, 55, 65); 
+  width: 76px; 
+}
+
+.seat.selected {
+  background-color: rgb(13, 202, 240) !important;
+  color: white;
+}
+
+.seat:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Sắp xếp ghế theo hàng */
+.seat-row {
+  display: flex;
+  justify-content: center;
+}
+
+.seat1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  margin: 3px;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+  background-size: cover; 
+  background-repeat: no-repeat; 
+  background-position: center; 
+}
+
+/* Style cho trạng thái booked */
 .seat.booked {
-  /* background-image: url('/vietnam.png'); */
-  color: transparent; /* Ẩn số ghế bằng cách làm chữ trong suốt */
+  color: transparent; 
   cursor: not-allowed;
 }
 /* Ghi đè style của trạng thái disabled để không làm mờ */
 .seat:disabled {
-  opacity: 1 !important; /* Giữ nguyên độ sáng, không làm mờ */
+  opacity: 1 !important; 
   cursor: not-allowed;
 }

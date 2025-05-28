@@ -1,60 +1,60 @@
 .content-account {
-    background-color: transparent; /* Màu nền tối giống hình */
-    padding: 20px;
-    border-radius: 8px;
-    width: 80%;
-    margin: 0 auto;
-  }
-  
-  .custom-input {
-    background-color: black!important; /* Màu nền của input */
-    border: 1px solid #4a5b5d !important; /* Viền xám nhạt */
-    color: #ffffff !important; /* Màu chữ trắng */
-    border-radius: 8px !important; /* Bo góc */
-    padding: 10px !important; /* Khoảng cách bên trong */
-  }
-  
-  /* Style cho placeholder */
-  .custom-input::placeholder {
-    color: #a0a0a0 !important; /* Màu xám nhạt cho placeholder */
-    opacity: 1; /* Đảm bảo màu placeholder hiển thị rõ */
-  }
-  
-  /* Style cho input disabled */
-  .custom-input-disabled {
-    background-color: #202020 !important; /* Màu nền giống input bình thường */
-    color: #a0a0a0 !important; /* Màu chữ xám nhạt */
-    opacity: 1 !important; /* Đảm bảo không bị mờ quá */
-  }
-  
-  /* Style cho label */
-  .form-label {
-    color: #ffffff !important; /* Màu trắng cho label */
-    margin-bottom: 5px; /* Khoảng cách giữa label và input */
-    font-size: 14px;
-  }
-  .form-control{
-    font-size: 14px;
-  }
+  background-color: transparent; /* Màu nền tối giống hình */
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  margin: 0 auto;
+}
 
-  .content-historyticket{
-    border: 1px solid #4a5b5d;
-    border-radius: 10px;
-    padding: 10px;
-    background-color: transparent;
-  }
-  .custom-table {
-    background-color: transparent !important;
-  }
-  
-  .custom-table thead th,
-  .custom-table tbody tr,
-  .custom-table tbody td {
-    background-color: transparent !important;
-    color: #f0f0f0 !important;
-    border-color: #4a5b5d !important;
-  }
-  
-  .custom-table tbody tr:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-  }
+.custom-input {
+  background-color: black !important; /* Màu nền của input */
+  border: 1px solid #4a5b5d !important; /* Viền xám nhạt */
+  color: #ffffff !important; /* Màu chữ trắng */
+  border-radius: 8px !important; /* Bo góc */
+  padding: 10px !important; /* Khoảng cách bên trong */
+}
+
+/* Style cho placeholder */
+.custom-input::placeholder {
+  color: #a0a0a0 !important; /* Màu xám nhạt cho placeholder */
+  opacity: 1; /* Đảm bảo màu placeholder hiển thị rõ */
+}
+
+/* Style cho input disabled */
+.custom-input-disabled {
+  background-color: #202020 !important; /* Màu nền giống input bình thường */
+  color: #a0a0a0 !important; /* Màu chữ xám nhạt */
+  opacity: 1 !important; /* Đảm bảo không bị mờ quá */
+}
+
+/* Style cho label */
+.form-label {
+  color: #ffffff !important; /* Màu trắng cho label */
+  margin-bottom: 5px; /* Khoảng cách giữa label và input */
+  font-size: 14px;
+}
+.form-control {
+  font-size: 14px;
+}
+
+.content-historyticket {
+  border: 1px solid #4a5b5d;
+  border-radius: 10px;
+  padding: 10px;
+  background-color: transparent;
+}
+.custom-table {
+  background-color: transparent !important;
+}
+
+.custom-table thead th,
+.custom-table tbody tr,
+.custom-table tbody td {
+  background-color: transparent !important;
+  color: #f0f0f0 !important;
+  border-color: #4a5b5d !important;
+}
+
+.custom-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}

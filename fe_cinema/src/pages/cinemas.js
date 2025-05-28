@@ -1,11 +1,11 @@
-import React from 'react'
-import InfomationCinemas from '../components/user/InfomationCinemas';
+import React from "react";
+import InfomationCinemas from "../components/user/InfomationCinemas";
 
 export const cinemas = () => {
   return (
     <div>
-      <InfomationCinemas/>
+      <InfomationCinemas />
     </div>
-  )
-}
+  );
+};
 export default cinemas;

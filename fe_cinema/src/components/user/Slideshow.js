@@ -1,21 +1,21 @@
 import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
-// import "swiper/css";
-// import "swiper/css/pagination";
-// import "swiper/css/navigation"; // Thêm CSS cho navigation nếu cần
 import { Pagination, Autoplay, Navigation } from "swiper/modules";
 import "./style.css";
 const images = [
   "/quynhaptrang_poster.jpg",
   "/nhagiatien_poster.jpg",
-  "/nutu_poster.jpg"
+  "/nutu_poster.jpg",
 ];
 
 export const Slideshow = () => {
   return (
     <div>
-      <div className="slideshow-wrapper"  style={{ backgroundImage: "url('/bg_c_bricks.png')" }}>
+      <div
+        className="slideshow-wrapper"
+        style={{ backgroundImage: "url('/bg_c_bricks.png')" }}
+      >
         <Swiper
           modules={[Pagination, Autoplay, Navigation]}
           spaceBetween={20}
@@ -27,7 +27,11 @@ export const Slideshow = () => {
         >
           {images.map((src, index) => (
             <SwiperSlide key={index} className="swiper-slide-custom">
-              <img src={src} alt={`Slide ${index + 1}`} className="slide-image" />
+              <img
+                src={src}
+                alt={`Slide ${index + 1}`}
+                className="slide-image"
+              />
             </SwiperSlide>
           ))}
         </Swiper>

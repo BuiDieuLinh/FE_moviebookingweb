@@ -1,117 +1,116 @@
 /* Container chính */
 .highlight-container {
-    width: 80%;
-    margin: auto;
-  }
-  
-  /* Tiêu đề */
-  .highlight-title {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px 0;
-  }
-  
-  .highlight-title .line {
-    flex-grow: 1;
-    height: 2px;
-    background-color: black;
-  }
-  
-  .highlight-title h2 {
-    margin: 0 20px;
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-  
-  /* Lưới phim */
-  .movie-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  /* Card phim */
-  .movie-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  .movie-card:hover {
-    transform: scale(1.05);
-  }
-  
-  /* Ảnh phim */
-  .movie-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-    transition: transform 0.3s ease;
-  }
-  
-  .movie-card:hover .movie-image {
-    transform: scale(1.1);
-  }
-  
-  /* Hiệu ứng hover */
-  .overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0, 0, 0, 0.7);
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-  }
-  
-  .movie-card:hover .overlay {
-    opacity: 1;
-  }
-  
-  /* Nút đặt vé và chi tiết */
-  .btn {
-    padding: 10px 15px;
-    margin: 5px;
-    background: transparent;
-    border: 2px solid white;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .btn:hover {
-    background: white;
-    color: black;
-  }
-  
-  /* Thông tin phim */
-  .movie-info {
-    text-align: center;
-    margin-top: 10px;
-  }
-  
-  .movie-name {
-    font-size: 18px;
-    font-weight: bold;
-  }
-  
-  .movie-genre {
-    font-size: 14px;
-    color: gray;
-  }
-  
-  .movie-rating {
-    font-size: 14px;
-    color: orange;
-  }
-  
+  width: 80%;
+  margin: auto;
+}
+
+/* Tiêu đề */
+.highlight-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.highlight-title .line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: black;
+}
+
+.highlight-title h2 {
+  margin: 0 20px;
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Lưới phim */
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Card phim */
+.movie-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.movie-card:hover {
+  transform: scale(1.05);
+}
+
+/* Ảnh phim */
+.movie-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover .movie-image {
+  transform: scale(1.1);
+}
+
+/* Hiệu ứng hover */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.movie-card:hover .overlay {
+  opacity: 1;
+}
+
+/* Nút đặt vé và chi tiết */
+.btn {
+  padding: 10px 15px;
+  margin: 5px;
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn:hover {
+  background: white;
+  color: black;
+}
+
+/* Thông tin phim */
+.movie-info {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.movie-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.movie-genre {
+  font-size: 14px;
+  color: gray;
+}
+
+.movie-rating {
+  font-size: 14px;
+  color: orange;
+}
