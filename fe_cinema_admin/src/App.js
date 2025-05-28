@@ -10,6 +10,7 @@ import Room from "./components/admin/Room";
 import Showtimes from "./components/admin/Showtimes";
 import Order from "./components/admin/Order";
 import Users from "./components/admin/UserManegement";
+import RoomDetail from "./components/admin/RoomDetail";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
                     <Route path="/" element={<Home />} />
                     <Route path="/movie" element={<MovieManagement />} />
                     <Route path="/room" element={<Room />} />
+                    <Route path="/room/:room_id" element={<RoomDetail/>}/>
                     <Route path="/showtimes" element={<Showtimes />} />
                     <Route
                       path="/showtimes/:showtime_id"
@@ -38,7 +40,7 @@ function App() {
               }
             />
             {/* Route cho Login */}
-            {/* <Route path="/login" element={<Login />} /> */}
+            <Route path="/login" element={<Login />} />
           </Routes>
         </BrowserRouter>
       </ToastProvider>

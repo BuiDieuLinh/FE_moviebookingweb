@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Navigate } from "react-router-dom";
 import { Col, Row, Container } from "react-bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -8,7 +8,11 @@ import Header from "./Header";
 
 const Sidebar = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-
+  const admin = localStorage.getItem("user_id");
+  if (!admin || admin === "") {
+    console.log("No user_id, redirecting to /login");
+    return <Navigate to="/login" replace />;
+  }
   return (
     <Container fluid className="vh-100">
       <Row className="vh-100">

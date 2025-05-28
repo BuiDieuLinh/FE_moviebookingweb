@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from './ToastContext';
 import { jwtDecode } from "jwt-decode";
-import Swal from "sweetalert2";
 import "./login.css";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_PORT;
 
 const CinemaAuth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -14,6 +14,7 @@ const CinemaAuth = () => {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({}); // Sử dụng object thay vì null
+  const { showToast } = useToast();
   const navigate = useNavigate();
 
   const handleSwitch = () => {
@@ -34,11 +35,7 @@ const CinemaAuth = () => {
             password
           });
           console.log(response.data);
-          Swal.fire({
-            title: "Signup Successful!",
-            icon: "success",
-            draggable: true
-          });
+          showToast("Thành công", "Đăng nhập thành công",);
           setIsLogin(true); // Chuyển sang login sau khi đăng ký thành công
         } catch (err) {
           console.error("Lỗi khi đăng ký tài khoản: ", err);
@@ -60,11 +57,16 @@ const CinemaAuth = () => {
       const { token } = response.data;
       const decoded = jwtDecode(token);
       const user_id = decoded.user_id;
+      const role = decoded.role;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user_id", user_id);
-
-      fetchUserInfo(user_id, token);
+      if(role === 'admin'){
+        showToast("Thông báo", "Đăng nhập thành công!", "success")
+        fetchUserInfo(user_id, token);
+      }else{
+        showToast("Warning", "Bạn không có quyền truy cập vào hệ thống này!","secondary")
+      }
     } catch (error) {
       setErrors({ general: "Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản." });
     }
@@ -156,7 +158,7 @@ const CinemaAuth = () => {
 
                 <div className="text-center mt-3">
                   <p className="auth-switch-text">
-                    {isLogin ? "Don't have an account? " : 'Already have an account? '}
+                    <span className='text-light'>{isLogin ? "Don't have an account? " : 'Already have an account? '}</span>
                     <span className="switch-text animate-switch" onClick={handleSwitch}>
                       {isLogin ? 'Register' : 'Login'}
                     </span>

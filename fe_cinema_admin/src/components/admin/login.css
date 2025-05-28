@@ -8,16 +8,18 @@
 }
 
 .cinema-auth-bg::before {
-  content: ''; /* Bắt buộc cho pseudo-element */
+  content: ""; /* Bắt buộc cho pseudo-element */
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/public/thumbnail.jpeg');
-  filter: blur(2px); /* Áp dụng blur cho hình ảnh, điều chỉnh giá trị theo ý muốn */
-  opacity: 0.5; /* Độ trong suốt của hình ảnh */
-  z-index: -1; /* Đặt hình ảnh phía sau nội dung */
+  /* background-image: url('public/thumbnail.jpeg'); */
+  filter: blur(
+    2px
+  ); 
+  opacity: 0.5; 
+  z-index: -1; 
 }
 
 .auth-card {
@@ -55,7 +57,7 @@
 
 .auth-title {
   color: #fff;
-  font-family: 'Arial', sans-serif;
+  font-family: "Arial", sans-serif;
   font-weight: 700;
   margin-bottom: 5px;
 }
@@ -65,8 +67,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .auth-subtitle {
@@ -81,7 +87,9 @@
   border-radius: 5px;
   padding: 10px;
   color: #333;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .auth-input:focus {
@@ -97,7 +105,9 @@
   font-weight: 600;
   border-radius: 5px;
   color: #fff;
-  transition: transform 0.3s, box-shadow 0.3s;
+  transition:
+    transform 0.3s,
+    box-shadow 0.3s;
 }
 
 .auth-button:hover {
