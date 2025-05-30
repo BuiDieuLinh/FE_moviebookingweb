@@ -32,15 +32,15 @@
 }
 
 .seat.regular {
-  background-color: #d1d0d0; /* Màu ghế thường */
+  background-color:  rgb(128, 128, 128); /* Màu ghế thường */
 }
 
 .seat.vip {
-  background-color: #ffcc00; /* Màu ghế VIP */
+  background-color: rgb(255, 132, 19); /* Màu ghế VIP */
 }
 
 .seat.couple {
-  background-color: #ff6666; /* Màu ghế đôi */
+  background-color:  rgb(255, 55, 65); /* Màu ghế đôi */
   width: 80px; /* Ghế đôi rộng hơn */
 }
 
@@ -144,7 +144,7 @@
 
 .card p {
   margin: 10px 0 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   color: #a9141e;
 }

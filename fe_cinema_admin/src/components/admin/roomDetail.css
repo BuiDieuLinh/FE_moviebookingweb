@@ -1,0 +1,72 @@
+.roomdetail-container{
+    margin-top: 65px;
+}
+.roomdetail{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas: 
+    "roominfo report"
+    "chart report";
+    gap: 10px;
+}
+.box{
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 15px;
+    height: calc(100vh - 150px);
+}
+.roominfo{
+    grid-area: roominfo;
+}
+.report-room{
+    grid-area: report;
+}
+.chart-room{
+    grid-area: chart;
+}
+
+.seatdetail {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 25px;
+  height: 25px;
+  margin: 3px;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-weight: bold;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.3s ease-in-out;
+  border: none;
+}
+
+.seatdetail.regular {
+  background-color:  rgb(128, 128, 128); /* Màu ghế thường */
+}
+
+.seatdetail.vip {
+  background-color:  rgb(255, 132, 19); /* Màu ghế VIP */
+}
+
+.seatdetail.couple {
+  background-color: rgb(255, 55, 65); /* Màu ghế đôi */
+  width: 56px; /* Ghế đôi rộng hơn */
+}
+
+.seatdetail.selected {
+  background-color: rgb(13, 202, 240) !important;
+  color: white;
+}
+
+.seatdetail:hover {
+  transform: scale(1.1);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Sắp xếp ghế theo hàng */
+.seatdetail-row {
+  display: flex;
+  justify-content: center;
+}
