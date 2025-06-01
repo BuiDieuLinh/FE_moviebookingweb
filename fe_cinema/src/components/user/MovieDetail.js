@@ -27,6 +27,7 @@ export const MovieDetail = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [selectedScreening, setSelectedScreening] = useState(null);
+  const [prices, setPrices] = useState({}); 
   const [totalPrice, setTotalPrice] = useState(0);
   const [countdown, setCountdown] = useState(600);
   const [countdownDisplay, setCountdownDisplay] = useState("10:00");
@@ -69,6 +70,31 @@ export const MovieDetail = () => {
     } catch (err) {
       console.error("Lỗi khi lấy danh sách ghế: ", err);
       setSeatData([]);
+    }
+  };
+
+  const fetchTicketPrices = async (screeningId, seatTypes) => {
+    try {
+      // Tạo mảng Promise cho các yêu cầu API
+      const pricePromises = seatTypes.map(async (seatType) => {
+        const response = await axios.get(
+          `${API_URL}/ticketprices/ticket-price?seat_type=${seatType}&screening_id=${screeningId}`
+        );
+        return { seatType, price: response.data.price };
+      });
+
+      // Chờ tất cả các Promise hoàn thành
+      const priceResults = await Promise.all(pricePromises);
+      
+      // Tạo đối tượng ánh xạ giá
+      return priceResults.reduce((acc, { seatType, price }) => {
+        acc[seatType] = price;
+        return acc;
+      }, {});
+    } catch (err) {
+      console.error('Lỗi khi lấy giá vé:', err);
+      // Giá mặc định (weekend) nếu lỗi, dựa trên ngày hiện tại (Chủ Nhật, 01/06/2025)
+      return { regular: 60000, vip: 75000, couple: 130000 };
     }
   };
 
@@ -134,12 +160,15 @@ export const MovieDetail = () => {
   };
 
   // Chọn suất chiếu
-  const handleSelectScreening = (screening) => {
+  const handleSelectScreening = async (screening) => {
     setSelectedScreening(screening);
     setSelectedSeats([]);
     setTotalPrice(0);
     fetchSeatsByRoom(screening.room_id, screening.screening_id);
     startCountdown();
+
+    const priceMap = await fetchTicketPrices(screening.screening_id, ['regular', 'vip', 'couple']);
+    setPrices(priceMap); // Cập nhật state prices
   };
 
   // Chọn/bỏ chọn ghế và tính tổng tiền
@@ -155,14 +184,10 @@ export const MovieDetail = () => {
       let total = 0;
       newSelected.forEach((selectedSeatId) => {
         const seat = seatData.find((s) => s.seat_id === selectedSeatId);
-        if (seat) {
-          if (seat.seat_type === "regular") {
-            total += 60000;
-          } else if (seat.seat_type === "vip") {
-            total += 65000;
-          } else if (seat.seat_type === "couple") {
-            total += 150000;
-          }
+        if (seat && prices[seat.seat_type]) {
+          total += prices[seat.seat_type]; // Lấy giá từ prices dựa trên seat_type
+        } else {
+          total += { regular: 60000, vip: 75000, couple: 130000 }[seat?.seat_type] || 0;
         }
       });
       setTotalPrice(total);
@@ -192,10 +217,13 @@ export const MovieDetail = () => {
         screening_id: selectedScreening.screening_id,
         selectedSeats: selectedSeats.map((seatId) => {
           const seat = seatData.find((s) => s.seat_id === seatId);
-          let price;
-          if (seat.seat_type === "regular") price = 60000;
-          else if (seat.seat_type === "vip") price = 65000;
-          else if (seat.seat_type === "couple") price = 150000;
+          let price = prices[seat.seat_type];
+          
+          if (!price) {
+            const defaultPrices = { regular: 60000, vip: 75000, couple: 130000 };
+            price = defaultPrices[seat.seat_type] || 60000;
+          }
+          
           return {
             seat_id: seat.seat_id,
             seat_name: seat.seat_number,
