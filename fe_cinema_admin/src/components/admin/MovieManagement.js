@@ -35,19 +35,28 @@ const MovieManagement = () => {
     trailer_url: "",
     origin: "",
   });
-  // State cho phân trang
-  const [currentPage, setCurrentPage] = useState(1);
-  const [moviesPerPage] = useState(7); // Số phim mỗi trang
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    limit: 10,
+    totalRecords: 0,
+    totalPages: 1,
+  });
 
   useEffect(() => {
-    fetchMovies();
+    fetchMovies(pagination.currentPage, pagination.limit);
   }, []);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (page = 1, limit = 10) => {
     try {
-      const response = await axios.get(`${API_URL}/movies`);
-      setMovies(response.data);
-      console.log(response.data);
+      const response = await axios.get(`${API_URL}/movies?page=${page}&limit=${limit}`);
+      setMovies(response.data.data);
+      console.log(response.data.data);
+      setPagination({
+        currentPage: response.data.pagination.currentPage,
+        limit: response.data.pagination.limit,
+        totalRecords: response.data.pagination.totalRecords,
+        totalPages: response.data.pagination.totalPages,
+      });
     } catch (error) {
       console.error("Lỗi khi lấy danh sách phim:", error);
     }
@@ -56,8 +65,8 @@ const MovieManagement = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFormData({ ...formData, poster_url: file }); // Lưu file tạm thời để gửi lên server
-      setImagePreview(URL.createObjectURL(file)); // Xem trước ảnh
+      setFormData({ ...formData, poster_url: file }); 
+      setImagePreview(URL.createObjectURL(file));
     }
   };
 
@@ -121,7 +130,7 @@ const MovieManagement = () => {
         !formData.age_restriction ||
         !formData.poster_url
       ) {
-        showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin bắt buộc!");
+        showToast("Vui lòng nhập đầy đủ thông tin bắt buộc!","danger");
         return;
       }
 
@@ -157,18 +166,18 @@ const MovieManagement = () => {
           },
         );
         if (response.status === 200) {
-          showToast("Phim", "Cập nhật phim thành công!");
+          showToast("Cập nhật phim thành công!","success");
         }
       } else {
         formDataToSend.append(
           "created_at",
           new Date().toISOString().slice(0, 19).replace("T", " "),
         );
-        response = await axios.post(API_URL, formDataToSend, {
+        response = await axios.post(`${API_URL}/movies`, formDataToSend, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         if (response.status === 201) {
-          showToast("Phim", "Thêm phim thành công!");
+          showToast("Thêm phim thành công!", "success");
         }
       }
 
@@ -176,45 +185,28 @@ const MovieManagement = () => {
       handleCloseModal();
     } catch (error) {
       console.error("Lỗi khi lưu phim:", error.response?.data || error.message);
-      showToast("Lỗi", "Lưu phim thất bại!");
+      showToast("Lưu phim thất bại!","danger");
     }
   };
 
   const handleDeleteMovie = async (id) => {
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${API_URL}/movies/${id}`);
       fetchMovies();
     } catch (error) {
       console.error("Lỗi khi xóa phim:", error);
     }
   };
 
-  // Lọc trạng thái
+  const handlePageChange = (page) => {
+    fetchMovies(page, pagination.limit);
+  };
+   // Lọc trạng thái
   const currentMovies = movies.filter((mv) => {
     const isNowShowing = new Date(mv.release_date) <= new Date();
     const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
     return selectStatus ? status === selectStatus : true;
   });
-
-  // Tính toán phân trang
-  const indexOfLastMovie = currentPage * moviesPerPage;
-  const indexOfFirstMovie = indexOfLastMovie - moviesPerPage;
-  const paginatedMovies = currentMovies.slice(
-    indexOfFirstMovie,
-    indexOfLastMovie,
-  );
-  const totalPages = Math.ceil(currentMovies.length / moviesPerPage);
-
-  // Hàm chuyển trang
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
-
-  // Tạo danh sách các số trang
-  const pageNumbers = [];
-  for (let i = 1; i <= totalPages; i++) {
-    pageNumbers.push(i);
-  }
 
   return (
     <div className="container-moviemng">
@@ -282,7 +274,8 @@ const MovieManagement = () => {
               </tr>
             </thead>
             <tbody>
-              {paginatedMovies.map((mv, index) => {
+              {currentMovies.length > 0 ? 
+              currentMovies.map((mv, index) => {
                 const isNowShowing = new Date(mv.release_date) <= new Date();
                 const status = isNowShowing ? "Đang chiếu" : "Sắp chiếu";
                 const btnStatus = isNowShowing ? "nowshow" : "commingshow";
@@ -312,33 +305,36 @@ const MovieManagement = () => {
                     </td>
                   </tr>
                 );
-              })}
+              }) : "Không có phim nào"}
             </tbody>
           </Table>
         </div>
 
         {/* Phân trang */}
-        <div className="d-flex justify-content-center">
-          <Pagination>
-            <Pagination.Prev
-              disabled={currentPage === 1}
-              onClick={() => handlePageChange(currentPage - 1)}
-            />
-            {pageNumbers.map((number) => (
-              <Pagination.Item
-                key={number}
-                active={number === currentPage}
-                onClick={() => handlePageChange(number)}
-              >
-                {number}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              disabled={currentPage === totalPages}
-              onClick={() => handlePageChange(currentPage + 1)}
-            />
-          </Pagination>
-        </div>
+        <Pagination className="justify-content-center mt-3">
+          <Pagination.First onClick={() => handlePageChange(1)} disabled={pagination.currentPage === 1} />
+          <Pagination.Prev
+            onClick={() => handlePageChange(pagination.currentPage - 1)}
+            disabled={pagination.currentPage === 1}
+          />
+          {[...Array(pagination.totalPages)].map((_, index) => (
+            <Pagination.Item
+              key={index + 1}
+              active={index + 1 === pagination.currentPage}
+              onClick={() => handlePageChange(index + 1)}
+            >
+              {index + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() => handlePageChange(pagination.currentPage + 1)}
+            disabled={pagination.currentPage === pagination.totalPages}
+          />
+          <Pagination.Last
+            onClick={() => handlePageChange(pagination.totalPages)}
+            disabled={pagination.currentPage === pagination.totalPages}
+          />
+        </Pagination>
         <Modal show={showModal} onHide={handleCloseModal} size="xl">
           <Modal.Header closeButton>
             <Modal.Title>
