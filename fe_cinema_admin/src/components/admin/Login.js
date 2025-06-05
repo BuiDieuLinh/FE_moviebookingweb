@@ -19,12 +19,12 @@ const CinemaAuth = () => {
 
   const handleSwitch = () => {
     setIsLogin(!isLogin);
-    setErrors({}); // Xóa lỗi khi chuyển tab
+    setErrors({}); 
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrors({}); // Reset lỗi trước khi gửi request
+    setErrors({}); 
 
     try {
       if (!isLogin) {
@@ -36,16 +36,16 @@ const CinemaAuth = () => {
           });
           console.log(response.data);
           showToast("Thành công", "Đăng nhập thành công",);
-          setIsLogin(true); // Chuyển sang login sau khi đăng ký thành công
+          setIsLogin(true); 
         } catch (err) {
           console.error("Lỗi khi đăng ký tài khoản: ", err);
           if (err.response && err.response.status === 400) {
             const { field, message } = err.response.data;
-            setErrors({ [field]: message }); // Lưu lỗi theo field
+            setErrors({ [field]: message });
           } else {
             setErrors({ general: "Đăng ký thất bại! Vui lòng thử lại." });
           }
-          return; // Dừng lại nếu đăng ký thất bại
+          return; 
         }
       }
 
@@ -56,30 +56,30 @@ const CinemaAuth = () => {
 
       const { token } = response.data;
       const decoded = jwtDecode(token);
-      const user_id = decoded.user_id;
+      const admin_id = decoded.user_id;
       const role = decoded.role;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user_id", user_id);
+      sessionStorage.setItem("token", token);
+      sessionStorage.setItem("admin_id", admin_id);
       if(role === 'admin'){
-        showToast("Thông báo", "Đăng nhập thành công!", "success")
-        fetchUserInfo(user_id, token);
+        showToast("Đăng nhập thành công!", "success")
+        fetchUserInfo(admin_id, token);
       }else{
-        showToast("Warning", "Bạn không có quyền truy cập vào hệ thống này!","secondary")
+        showToast("Bạn không có quyền truy cập vào hệ thống này!","danger")
       }
     } catch (error) {
       setErrors({ general: "Đăng nhập thất bại! Vui lòng kiểm tra lại tài khoản." });
     }
   };
 
-  const fetchUserInfo = async (user_id, token) => {
+  const fetchUserInfo = async (admin_id, token) => {
     try {
-      const response = await axios.get(`${API_URL}/users/${user_id}`, {
+      const response = await axios.get(`${API_URL}/users/${admin_id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const userData = response.data[0];
-      localStorage.setItem("user", JSON.stringify(userData));
+      sessionStorage.setItem("admin", JSON.stringify(userData));
       navigate("/");
     } catch (error) {
       setErrors({ general: "Không thể lấy thông tin người dùng!" });
@@ -110,11 +110,11 @@ const CinemaAuth = () => {
                   {!isLogin && (
                     <Form.Group className="mb-3 animate-slide-in">
                       <Form.Control
-                        type="email" // Đổi thành type="email" để validate email tốt hơn
+                        type="email" 
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        isInvalid={!!errors.email} // Kiểm tra lỗi email
+                        isInvalid={!!errors.email}
                         className="auth-input"
                       />
                       <Form.Control.Feedback type="invalid">
@@ -130,7 +130,7 @@ const CinemaAuth = () => {
                       className="auth-input"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      isInvalid={!!errors.username} // Kiểm tra lỗi username
+                      isInvalid={!!errors.username} 
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.username}

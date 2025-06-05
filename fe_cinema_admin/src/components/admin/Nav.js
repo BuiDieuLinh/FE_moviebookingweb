@@ -8,8 +8,8 @@ import Header from "./Header";
 
 const Sidebar = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const admin = localStorage.getItem("user_id");
-  if (!admin || admin === "") {
+  const admin = sessionStorage.getItem("admin_id");
+  if (!admin || admin === "customer" || admin === "") {
     console.log("No user_id, redirecting to /login");
     return <Navigate to="/login" replace />;
   }
@@ -81,6 +81,15 @@ const Sidebar = ({ children }) => {
             >
               <i className="fa-solid fa-ticket"></i>{" "}
               {!collapsed && <span>Order</span>}
+            </NavLink>
+            <NavLink
+              to="/prices"
+              className={({ isActive }) =>
+                `nav-link ${isActive ? "active" : ""}`
+              }
+            >
+              <i class="fa-solid fa-money-check-dollar"></i>{" "}
+              {!collapsed && <span>TicketPrice</span>}
             </NavLink>
             <NavLink
               to="/customer"
