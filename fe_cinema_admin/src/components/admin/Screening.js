@@ -156,7 +156,6 @@ export const Screening = () => {
           TIME_ZONE,
         );
 
-        // Kiểm tra trùng lặp thời gian
         return (
           (isBefore(startDateTime, screenEnd) &&
             isAfter(endDateTime, screenStart)) ||
@@ -175,77 +174,63 @@ export const Screening = () => {
     formDataScreen.end_time,
   ]);
 
-  const avaiRooms = useMemo(() => {
-    if (
-      !formDataScreen.screening_date ||
-      !formDataScreen.start_time ||
-      !formDataScreen.end_time
-    ) {
-      return [];
-    }
-    if (
-      !isValidDate(formDataScreen.screening_date) ||
-      !isValidTime(formDataScreen.start_time) ||
-      !isValidTime(formDataScreen.end_time)
-    ) {
-      showToast("Cảnh báo", "Dữ liệu nhập vào không đúng định dạng");
-      return [];
-    }
-    const screeningDate = formDataScreen.screening_date;
-
-    const startDateTime = toZonedTime(
-      new Date(`${screeningDate}T${formDataScreen.start_time}:00`),
-      TIME_ZONE,
-    );
-    const endDateTime = toZonedTime(
-      new Date(`${screeningDate}T${formDataScreen.end_time}:00`),
-      TIME_ZONE,
-    );
-    return rooms.filter((room) => {
-      const isBusy = screenings.some((screen) => {
-        if (screen.room_id !== room.room_id) return false;
-        if (screen.screening_date !== screeningDate) return false;
-
-        const screenStart = toZonedTime(
-          new Date(`${screen.screening_date}T${screen.start_time}:00`),
-          TIME_ZONE,
-        );
-        const screenEnd = toZonedTime(
-          new Date(`${screen.screening_date}T${screen.end_time}:00`),
-          TIME_ZONE,
-        );
-        return (
-          (isBefore(startDateTime, screenEnd) &&
-            isAfter(endDateTime, screenStart)) ||
-          (isBefore(endDateTime, screenStart) &&
-            isAfter(startDateTime, screenEnd))
-        );
-      });
-      return !isBusy;
-    });
-  }, [
-    rooms,
-    screenings,
-    formDataScreen.screening_date,
-    formDataScreen.start_time,
-    formDataScreen.end_time,
-  ]);
   const handleSaveScreening = async () => {
     try {
+      // Kiểm tra các trường bắt buộc
       if (!Object.values(formDataScreen).every((val) => val)) {
-        showToast("Cảnh báo", "Vui lòng nhập đầy đủ thông tin suất chiếu!");
+        showToast("Vui lòng nhập đầy đủ thông tin suất chiếu!", "danger");
         return;
       }
 
+      // Kiểm tra định dạng ngày và giờ
       if (
         !isValidDate(formDataScreen.screening_date) ||
         !isValidTime(formDataScreen.start_time) ||
         !isValidTime(formDataScreen.end_time)
       ) {
-        showToast("Lỗi", "Định dạng ngày hoặc giờ không hợp lệ!");
+        showToast("Định dạng ngày hoặc giờ không hợp lệ!", "danger");
         return;
       }
 
+      // Kiểm tra start_time < end_time
+      const startDateTime = toZonedTime(
+        new Date(`${formDataScreen.screening_date}T${formDataScreen.start_time}:00`),
+        TIME_ZONE
+      );
+      const endDateTime = toZonedTime(
+        new Date(`${formDataScreen.screening_date}T${formDataScreen.end_time}:00`),
+        TIME_ZONE
+      );
+      if (!isBefore(startDateTime, endDateTime)) {
+        showToast("Giờ bắt đầu phải nhỏ hơn giờ kết thúc!", "danger");
+        return;
+      }
+
+      // Kiểm tra screening_date trong khoảng start_time và end_time của showtime
+      const selectedShowtime = showtime.find(
+        (show) => show.showtime_id === formDataScreen.showtime_id
+      );
+      if (!selectedShowtime) {
+        showToast("Lịch chiếu không hợp lệ!", "danger");
+        return;
+      }
+
+      const showtimeStart = toZonedTime(new Date(selectedShowtime.start_time), TIME_ZONE);
+      const showtimeEnd = toZonedTime(new Date(selectedShowtime.end_time), TIME_ZONE);
+      const screeningDate = toZonedTime(new Date(formDataScreen.screening_date), TIME_ZONE);
+
+      if (
+        isBefore(screeningDate, showtimeStart) ||
+        isAfter(screeningDate, showtimeEnd)
+      ) {
+        showToast(
+          `Ngày chiếu phải nằm trong khoảng từ ${format(showtimeStart, "dd/MM/yyyy")} đến ${format(showtimeEnd, "dd/MM/yyyy")}!`,
+          "danger"
+        );
+        return;
+      }
+
+      // Định dạng dữ liệu trước khi gửi
       const formattedData = {
         ...formDataScreen,
         screening_date: format(
@@ -256,6 +241,7 @@ export const Screening = () => {
         end_time: formatTimeInput(formDataScreen.end_time),
       };
 
+      // Gửi yêu cầu API
       const response = selectedScreen
         ? await axios.put(
             `${API_URL}/screenings/${selectedScreen.screening_id}`,
@@ -264,21 +250,21 @@ export const Screening = () => {
         : await axios.post(`${API_URL}/screenings`, formattedData);
 
       showToast(
-        "Suất chiếu",
         selectedScreen
           ? "Cập nhật suất chiếu thành công!"
           : "Thêm suất chiếu thành công!",
+        "success"
       );
       fetchData();
       handleCloseModalScreen();
     } catch (error) {
       console.error("Lỗi khi lưu suất chiếu:", error);
-      showToast("Lỗi", "Lưu suất chiếu thất bại!");
+      showToast( "Lưu suất chiếu thất bại!", "danger");
     }
   };
 
   const formatDate = (dateString) => {
-    return format(toZonedTime(new Date(dateString), TIME_ZONE), "dd/MM/yyyy", {
+    return format( toZonedTime(new Date(dateString), TIME_ZONE), "dd/MM/yyyy", {
       locale: vi,
     });
   };
@@ -503,7 +489,7 @@ export const Screening = () => {
           <Modal.Body>
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label>Phim chiếu</Form.Label>
+                <Form.Label>Phim chiếu <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Select
                   name="showtime_id"
                   value={formDataScreen.showtime_id}
@@ -527,7 +513,7 @@ export const Screening = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Ngày chiếu</Form.Label>
+                <Form.Label>Ngày chiếu <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Control
                   type="date"
                   name="screening_date"
@@ -538,7 +524,7 @@ export const Screening = () => {
               </Form.Group>
               <Row>
                 <Form.Group as={Col} className="mb-3">
-                  <Form.Label>Giờ bắt đầu</Form.Label>
+                  <Form.Label>Giờ bắt đầu <span style={{ color: "red" }}>*</span></Form.Label>
                   <Form.Control
                     type="time"
                     name="start_time"
@@ -548,7 +534,7 @@ export const Screening = () => {
                   />
                 </Form.Group>
                 <Form.Group as={Col} className="mb-3">
-                  <Form.Label>Giờ kết thúc</Form.Label>
+                  <Form.Label>Giờ kết thúc <span style={{ color: "red" }}>*</span></Form.Label>
                   <Form.Control
                     type="time"
                     name="end_time"
@@ -559,7 +545,7 @@ export const Screening = () => {
                 </Form.Group>
               </Row>
               <Form.Group className="mb-3">
-                <Form.Label>Phòng chiếu</Form.Label>
+                <Form.Label>Phòng chiếu <span style={{ color: "red" }}>*</span></Form.Label>
                 <div className="d-flex flex-wrap gap-2">
                   {availableRooms.length > 0 ? (
                     availableRooms.map((room) => (
@@ -584,7 +570,7 @@ export const Screening = () => {
                 </div>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Hình thức chiếu</Form.Label>
+                <Form.Label>Hình thức chiếu <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Select
                   name="screening_format"
                   value={formDataScreen.screening_format}
@@ -597,7 +583,7 @@ export const Screening = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Hình thức dịch</Form.Label>
+                <Form.Label>Hình thức dịch <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Select
                   name="screening_translation"
                   value={formDataScreen.screening_translation}

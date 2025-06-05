@@ -53,20 +53,20 @@ export const Showtime = () => {
       console.error('Lỗi khi lấy danh sách lịch chiếu:', error);
       setShowtime([]);
       setPagination({ currentPage: 1, limit: 10, totalRecords: 0, totalPages: 1 });
-      showToast('Lỗi', 'Không thể tải danh sách lịch chiếu!');
+      showToast('Lỗi', 'Không thể tải danh sách lịch chiếu!',"error");
     }
   };
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (page = 1, limit = 10,) => {
     try {
-      const response = await axios.get(`${API_URL}/movies`);
-      const data = Array.isArray(response.data) ? response.data : [];
+      const response = await axios.get(`${API_URL}/movies?page=${page}&limit=${limit}`);
+      const data = Array.isArray(response.data.data) ? response.data.data : [];
       setMovies(data);
       console.log('Movies data:', data);
     } catch (error) {
       console.error('Lỗi khi lấy danh sách phim:', error);
       setMovies([]);
-      showToast('Lỗi', 'Không thể tải danh sách phim!');
+      showToast('Lỗi', 'Không thể tải danh sách phim!',"error");
     }
   };
 
@@ -96,26 +96,52 @@ export const Showtime = () => {
 
   const handleSaveShowTime = async () => {
     try {
+      // Kiểm tra các trường bắt buộc
       if (!formDataShowtime.movie_id || !formDataShowtime.start_time || !formDataShowtime.end_time) {
-        showToast('Cảnh báo', 'Vui lòng nhập đầy đủ thông tin!');
+        showToast('Vui lòng nhập đầy đủ thông tin!', 'danger');
         return;
       }
+
+      // Chuyển đổi chuỗi ngày thành đối tượng Date để so sánh
+      const startTime = new Date(formDataShowtime.start_time);
+      const endTime = new Date(formDataShowtime.end_time);
+      const today = toZonedTime(new Date(), TIME_ZONE);
+
+      // Kiểm tra định dạng ngày hợp lệ
+      if (isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+        showToast('Ngày bắt đầu hoặc ngày kết thúc không hợp lệ!', 'danger');
+        return;
+      }
+
+      // Kiểm tra start_time không được trước ngày hiện tại (tùy chọn)
+      if (startTime < today) {
+        showToast('Ngày bắt đầu không được là ngày trong quá khứ!', 'danger');
+        return;
+      }
+
+      // Kiểm tra start_time phải nhỏ hơn hoặc bằng end_time
+      if (startTime > endTime) {
+        showToast('Ngày bắt đầu phải nhỏ hơn hoặc bằng ngày kết thúc!', 'danger');
+        return;
+      }
+
+      // Định dạng dữ liệu trước khi gửi
       const formattedData = {
         ...formDataShowtime,
-        start_time: format(new Date(formDataShowtime.start_time), 'yyyy-MM-dd'),
-        end_time: format(new Date(formDataShowtime.end_time), 'yyyy-MM-dd'),
+        start_time: format(startTime, 'yyyy-MM-dd'),
+        end_time: format(endTime, 'yyyy-MM-dd'),
       };
 
       const response = selectedST
         ? await axios.put(`${API_URL}/showtimes/${selectedST.showtime_id}`, formattedData)
         : await axios.post(`${API_URL}/showtimes`, formattedData);
 
-      showToast('Lịch chiếu', selectedST ? 'Cập nhật lịch chiếu thành công!' : 'Thêm lịch chiếu thành công!');
+      showToast(selectedST ? 'Cập nhật lịch chiếu thành công!' : 'Thêm lịch chiếu thành công!', "success");
       fetchShowtime(pagination.currentPage, pagination.limit, searchStatus);
       handleCloseModal();
     } catch (error) {
       console.error('Lỗi khi lưu lịch chiếu:', error);
-      showToast('Lỗi', 'Lưu lịch chiếu thất bại!');
+      showToast('Lưu lịch chiếu thất bại!',"danger");
     }
   };
 
@@ -131,7 +157,7 @@ export const Showtime = () => {
     if (parsedEndDate < today) {
       return { label: 'Hoàn thành', class: 'completed' };
     } else if (parsedStartDate > today) {
-      return { label: 'Sắp chiếu', class: 'commingshow' };
+      return { label: 'Sắp chiếu', class: 'commingsoon' };
     } else {
       return { label: 'Đang chiếu', class: 'nowshowing' };
     }
@@ -262,7 +288,7 @@ export const Showtime = () => {
           <Modal.Body>
             <Form>
               <Form.Group className="mb-3">
-                <Form.Label>Phim chiếu</Form.Label>
+                <Form.Label>Phim chiếu <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Select name="movie_id" value={formDataShowtime.movie_id} onChange={handleInputChange}>
                   <option value="">Chọn phim</option>
                   {movies.map((movie) => (
@@ -273,7 +299,7 @@ export const Showtime = () => {
                 </Form.Select>
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Ngày bắt đầu</Form.Label>
+                <Form.Label>Ngày bắt đầu <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Control
                   type="date"
                   name="start_time"
@@ -283,7 +309,7 @@ export const Showtime = () => {
                 />
               </Form.Group>
               <Form.Group className="mb-3">
-                <Form.Label>Ngày kết thúc</Form.Label>
+                <Form.Label>Ngày kết thúc <span style={{ color: "red" }}>*</span></Form.Label>
                 <Form.Control
                   type="date"
                   name="end_time"
