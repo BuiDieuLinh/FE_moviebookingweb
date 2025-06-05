@@ -11,6 +11,7 @@ import Showtimes from "./components/admin/Showtimes";
 import Order from "./components/admin/Order";
 import Users from "./components/admin/UserManegement";
 import RoomDetail from "./components/admin/RoomDetail";
+import TicketPrice from "./components/admin/TicketPrice";
 
 function App() {
   return (
@@ -29,11 +30,9 @@ function App() {
                     <Route path="/room" element={<Room />} />
                     <Route path="/room/:room_id" element={<RoomDetail/>}/>
                     <Route path="/showtimes" element={<Showtimes />} />
-                    <Route
-                      path="/showtimes/:showtime_id"
-                      element={<ShowtimeDetail />}
-                    />
+                    <Route path="/showtimes/:showtime_id" element={<ShowtimeDetail />}/>
                     <Route path="/order" element={<Order />} />
+                    <Route path="/prices" element={<TicketPrice />} />
                     <Route path="/customer" element={<Users />} />
                   </Routes>
                 </Sidebar>
