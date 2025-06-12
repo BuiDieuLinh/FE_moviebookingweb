@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Badge } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from './ToastContext';
 import { jwtDecode } from "jwt-decode";
@@ -13,7 +14,7 @@ const CinemaAuth = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
-  const [errors, setErrors] = useState({}); // Sử dụng object thay vì null
+  const [errors, setErrors] = useState({}); 
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -72,11 +73,9 @@ const CinemaAuth = () => {
     }
   };
 
-  const fetchUserInfo = async (admin_id, token) => {
+  const fetchUserInfo = async (admin_id) => {
     try {
-      const response = await axios.get(`${API_URL}/users/${admin_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${API_URL}/users/${admin_id}`);
 
       const userData = response.data[0];
       sessionStorage.setItem("admin", JSON.stringify(userData));
@@ -84,6 +83,41 @@ const CinemaAuth = () => {
     } catch (error) {
       setErrors({ general: "Không thể lấy thông tin người dùng!" });
     }
+  };
+
+const handleLoginWithGoogle = async (credentialResponse) => {
+  console.log("credentialResponse:", credentialResponse);
+  try {
+    if (!credentialResponse || !credentialResponse.credential) {
+      throw new Error("Không tìm thấy token Google trong phản hồi");
+    }
+    console.log("Google token:", credentialResponse.credential);
+    const response = await axios.post(`${API_URL}/users/google-auth`, {
+      token: credentialResponse.credential
+    });
+    const { user_id, username, email, name, role } = response.data;
+
+    sessionStorage.setItem("admin_id", user_id); 
+
+    if (role === 'admin') {
+      showToast("Đăng nhập Google thành công!", "success");
+      fetchUserInfo(user_id);
+      window.location.href = '/';
+    } else {
+      showToast("Bạn không có quyền truy cập vào hệ thống này!", "danger");
+      sessionStorage.removeItem("admin_id");
+    }
+  } catch (error) {
+    console.error("Lỗi đăng nhập Google:", error);
+    const errorMessage = error.response?.data?.message || "Đăng nhập Google thất bại!";
+    setErrors({ general: errorMessage });
+    showToast(errorMessage, "error");
+  }
+};
+
+  const handleGoogleError = () => {
+    setErrors({ general: "Lỗi xác thực Google! Vui lòng thử lại." });
+    showToast("Lỗi xác thực Google!", "danger");
   };
 
   return (
@@ -154,6 +188,26 @@ const CinemaAuth = () => {
                   <Button type="submit" variant='danger' className="w-100 auth-button animate-button">
                     {isLogin ? 'Login' : 'Get Started'}
                   </Button>
+
+                  <div className="d-flex align-items-center my-3">
+                    <div className="flex-grow-1 border-top"></div>
+                    <span
+                      style={{color: '#fff', margin: '0 10px', width: 'fit-content' }}
+                    >
+                      hoặc
+                    </span>
+                    <div className="flex-grow-1 border-top"></div>
+                  </div>
+                  <GoogleLogin
+                    onSuccess={handleLoginWithGoogle}
+                    onError={() => {
+                      console.error("Google OAuth error");
+                      setErrors({ general: "Lỗi xác thực Google! Vui lòng thử lại." });
+                      showToast("Lỗi xác thực Google!", "danger");
+                    }}
+                    text="signin_with"
+                    width="100%"
+                  />
                 </Form>
 
                 <div className="text-center mt-3">

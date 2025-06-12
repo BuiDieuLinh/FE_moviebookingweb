@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { GoogleLogin } from '@react-oauth/google';
 import axios from "axios";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -45,7 +46,7 @@ const CinemaAuth = () => {
           console.error("Lỗi khi đăng ký tài khoản: ", err);
           if (err.response && err.response.status === 400) {
             const { field, message } = err.response.data;
-            setErrors({ [field]: message }); // Lưu lỗi theo field
+            setErrors({ [field]: message }); 
           } else {
             setErrors({ general: "Đăng ký thất bại! Vui lòng thử lại." });
           }
@@ -83,9 +84,7 @@ const CinemaAuth = () => {
 
   const fetchUserInfo = async (user_id, token) => {
     try {
-      const response = await axios.get(`${API_URL}/users/${user_id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(`${API_URL}/users/${user_id}`);
 
       const userData = response.data[0];
       localStorage.setItem("user", JSON.stringify(userData));
@@ -94,6 +93,27 @@ const CinemaAuth = () => {
       setErrors({ general: "Không thể lấy thông tin người dùng!" });
     }
   };
+
+  const handleLoginWithGoogle = async (credentialResponse) => {
+  console.log("credentialResponse:", credentialResponse);
+  try {
+    if (!credentialResponse || !credentialResponse.credential) {
+      throw new Error("Không tìm thấy token Google trong phản hồi");
+    }
+    console.log("Google token:", credentialResponse.credential);
+    const response = await axios.post(`${API_URL}/users/google-auth`, {
+      token: credentialResponse.credential
+    });
+    const { user_id, username, email, name, role } = response.data;
+
+    localStorage.setItem("user_id", user_id); 
+      fetchUserInfo(user_id);
+  } catch (error) {
+    console.error("Lỗi đăng nhập Google:", error);
+    const errorMessage = error.response?.data?.message || "Đăng nhập Google thất bại!";
+    setErrors({ general: errorMessage });
+  }
+};
 
   return (
     <div className="cinema-auth-bg">
@@ -131,11 +151,11 @@ const CinemaAuth = () => {
                   {!isLogin && (
                     <Form.Group className="mb-3 animate-slide-in">
                       <Form.Control
-                        type="email" // Đổi thành type="email" để validate email tốt hơn
+                        type="email"
                         placeholder="Email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        isInvalid={!!errors.email} // Kiểm tra lỗi email
+                        isInvalid={!!errors.email} 
                         className="auth-input"
                       />
                       <Form.Control.Feedback type="invalid">
@@ -151,7 +171,7 @@ const CinemaAuth = () => {
                       className="auth-input"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      isInvalid={!!errors.username} // Kiểm tra lỗi username
+                      isInvalid={!!errors.username} 
                     />
                     <Form.Control.Feedback type="invalid">
                       {errors.username}
@@ -180,6 +200,25 @@ const CinemaAuth = () => {
                   >
                     {isLogin ? "Login" : "Get Started"}
                   </Button>
+
+                  <div className="d-flex align-items-center my-3">
+                    <div className="flex-grow-1 border-top"></div>
+                    <span
+                      style={{color: '#fff', margin: '0 10px', width: 'fit-content' }}
+                    >
+                      hoặc
+                    </span>
+                    <div className="flex-grow-1 border-top"></div>
+                  </div>
+                  <GoogleLogin
+                    onSuccess={handleLoginWithGoogle}
+                    onError={() => {
+                      console.error("Google OAuth error");
+                      setErrors({ general: "Lỗi xác thực Google! Vui lòng thử lại." });
+                    }}
+                    text="signin_with"
+                    width="100%"
+                  />
                 </Form>
 
                 <div className="text-center mt-3">
