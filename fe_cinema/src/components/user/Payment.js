@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   Container,
@@ -18,10 +18,16 @@ const PaymentPage = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState("loading");
   const [orderId, setOrderId] = useState("");
+  const processedRef = useRef(false); // Sử dụng useRef thay vì useState để tránh re-render
 
   useEffect(() => {
+    if (processedRef.current) {
+      console.log("Đã xử lý, bỏ qua checkPayment");
+      return;
+    }
+    processedRef.current = true;
     checkPayment();
-  }, []);
+  }, []); 
   const checkPayment = async () => {
     const resultCode = searchParams.get("resultCode");
     const orderIdParam = searchParams.get("orderId");

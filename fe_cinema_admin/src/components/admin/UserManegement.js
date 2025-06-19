@@ -11,6 +11,7 @@ import {
   Pagination,
   Badge,
 } from "react-bootstrap";
+import ConfirmModal from "./ModalComfirm"; 
 
 const API_URL = process.env.REACT_APP_PORT;
 
@@ -24,11 +25,7 @@ const UserManagement = () => {
     totalPages: 1,
   });
   const [showModal, setShowModal] = useState(false);
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
-  const [showRevokeConfirmModal, setShowRevokeConfirmModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [actionUserId, setActionUserId] = useState(null);
   const [formData, setFormData] = useState({
     username: "",
     fullname: "",
@@ -36,6 +33,15 @@ const UserManagement = () => {
     role: "",
     phone: "",
     created_at: "",
+  });
+  // State for reusable ConfirmModal
+  const [confirmModal, setConfirmModal] = useState({
+    show: false,
+    title: "",
+    body: "",
+    confirmText: "",
+    confirmVariant: "primary",
+    onConfirm: () => {},
   });
 
   useEffect(() => {
@@ -90,7 +96,7 @@ const UserManagement = () => {
       if (selectedUser) {
         await axios.put(`${API_URL}/users/${selectedUser.user_id}`, updateData);
         showToast("Cập nhật người dùng thành công", "success");
-      } 
+      }
       fetchUsers(pagination.currentPage);
       handleCloseModal();
     } catch (error) {
@@ -99,55 +105,80 @@ const UserManagement = () => {
     }
   };
 
-  const handleDeleteUser = async () => {
+  const handleDeleteUser = async (userId) => {
     try {
-      await axios.delete(`${API_URL}/users/${actionUserId}`);
+      await axios.delete(`${API_URL}/users/${userId}`);
       showToast("Xóa người dùng thành công", "success");
       fetchUsers(pagination.currentPage);
-      setShowDeleteConfirmModal(false);
     } catch (error) {
       console.error("Error deleting user:", error);
       showToast("Không thể xóa người dùng", "error");
     }
   };
 
-  const handleSharePermission = async () => {
+  const handleSharePermission = async (userId) => {
     try {
-      await axios.patch(`${API_URL}/users/${actionUserId}`, { role: "admin" });
+      await axios.patch(`${API_URL}/users/${userId}`, { role: "admin" });
       showToast("Chia sẻ quyền admin thành công", "success");
       fetchUsers(pagination.currentPage);
-      setShowConfirmModal(false);
     } catch (error) {
       console.error("Error share permission:", error);
       showToast("Không thể chia sẻ quyền", "error");
     }
   };
 
-  const handleRevokePermission = async () => {
+  const handleRevokePermission = async (userId) => {
     try {
-      await axios.patch(`${API_URL}/users/${actionUserId}`, { role: "customer" });
+      await axios.patch(`${API_URL}/users/${userId}`, { role: "customer" });
       showToast("Thu hồi quyền admin thành công", "success");
       fetchUsers(pagination.currentPage);
-      setShowRevokeConfirmModal(false);
     } catch (error) {
       console.error("Error revoke permission:", error);
       showToast("Không thể thu hồi quyền", "error");
     }
   };
 
-  const openConfirmModal = (id) => {
-    setActionUserId(id);
-    setShowConfirmModal(true);
-  };
-
-  const openDeleteConfirmModal = (id) => {
-    setActionUserId(id);
-    setShowDeleteConfirmModal(true);
-  };
-
-  const openRevokeConfirmModal = (id) => {
-    setActionUserId(id);
-    setShowRevokeConfirmModal(true);
+  // Open ConfirmModal with specific configuration
+  const openConfirmModal = (id, type) => {
+    let config = {};
+    if (type === "share") {
+      config = {
+        show: true,
+        title: "Xác nhận gán quyền",
+        body: "Bạn có chắc chắn muốn gán vai trò admin cho người dùng này không?",
+        confirmText: "Xác nhận",
+        confirmVariant: "primary",
+        onConfirm: () => {
+          handleSharePermission(id);
+          setConfirmModal((prev) => ({ ...prev, show: false }));
+        },
+      };
+    } else if (type === "revoke") {
+      config = {
+        show: true,
+        title: "Xác nhận thu hồi quyền",
+        body: "Bạn có chắc chắn muốn thu hồi vai trò admin của người dùng này không?",
+        confirmText: "Thu hồi",
+        confirmVariant: "warning",
+        onConfirm: () => {
+          handleRevokePermission(id);
+          setConfirmModal((prev) => ({ ...prev, show: false }));
+        },
+      };
+    } else if (type === "delete") {
+      config = {
+        show: true,
+        title: "Xác nhận xóa",
+        body: "Bạn có chắc chắn muốn xóa người dùng này không?",
+        confirmText: "Xóa",
+        confirmVariant: "danger",
+        onConfirm: () => {
+          handleDeleteUser(id);
+          setConfirmModal((prev) => ({ ...prev, show: false }));
+        },
+      };
+    }
+    setConfirmModal(config);
   };
 
   const pageNumbers = [];
@@ -205,7 +236,7 @@ const UserManagement = () => {
                       variant="outline-danger"
                       size="sm"
                       className="me-2"
-                      onClick={() => openDeleteConfirmModal(user.user_id)}
+                      onClick={() => openConfirmModal(user.user_id, "delete")}
                     >
                       <i className="fas fa-trash"></i>
                     </Button>
@@ -213,7 +244,7 @@ const UserManagement = () => {
                       <Button
                         variant="outline-warning"
                         size="sm"
-                        onClick={() => openRevokeConfirmModal(user.user_id)}
+                        onClick={() => openConfirmModal(user.user_id, "revoke")}
                       >
                         <i className="fas fa-undo"></i>
                       </Button>
@@ -221,7 +252,7 @@ const UserManagement = () => {
                       <Button
                         variant="outline-secondary"
                         size="sm"
-                        onClick={() => openConfirmModal(user.user_id)}
+                        onClick={() => openConfirmModal(user.user_id, "share")}
                       >
                         <i className="fas fa-share"></i>
                       </Button>
@@ -329,74 +360,16 @@ const UserManagement = () => {
           </Modal.Footer>
         </Modal>
 
-        {/* Modal for Confirm Share Permission */}
-        <Modal show={showConfirmModal} onHide={() => setShowConfirmModal(false)}>
-          <Modal.Header closeButton>
-            <Modal.Title>Xác nhận gán quyền</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Bạn có chắc chắn muốn gán vai trò admin cho người dùng này không?
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowConfirmModal(false)}
-            >
-              Hủy
-            </Button>
-            <Button variant="primary" onClick={handleSharePermission}>
-              Xác nhận
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {/* Modal for Confirm Revoke Permission */}
-        <Modal
-          show={showRevokeConfirmModal}
-          onHide={() => setShowRevokeConfirmModal(false)}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Xác nhận thu hồi quyền</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Bạn có chắc chắn muốn thu hồi vai trò admin của người dùng này không?
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowRevokeConfirmModal(false)}
-            >
-              Hủy
-            </Button>
-            <Button variant="warning" onClick={handleRevokePermission}>
-              Thu hồi
-            </Button>
-          </Modal.Footer>
-        </Modal>
-
-        {/* Modal for Confirm Delete */}
-        <Modal
-          show={showDeleteConfirmModal}
-          onHide={() => setShowDeleteConfirmModal(false)}
-        >
-          <Modal.Header closeButton>
-            <Modal.Title>Xác nhận xóa</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            Bạn có chắc chắn muốn xóa người dùng này không?
-          </Modal.Body>
-          <Modal.Footer>
-            <Button
-              variant="secondary"
-              onClick={() => setShowDeleteConfirmModal(false)}
-            >
-              Hủy
-            </Button>
-            <Button variant="danger" onClick={handleDeleteUser}>
-              Xóa
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        {/* Reusable ConfirmModal */}
+        <ConfirmModal
+          show={confirmModal.show}
+          onHide={() => setConfirmModal((prev) => ({ ...prev, show: false }))}
+          title={confirmModal.title}
+          body={confirmModal.body}
+          confirmText={confirmModal.confirmText}
+          confirmVariant={confirmModal.confirmVariant}
+          onConfirm={confirmModal.onConfirm}
+        />
       </div>
     </div>
   );

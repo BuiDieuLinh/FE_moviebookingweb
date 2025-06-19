@@ -227,6 +227,8 @@ export const Screening = () => {
           `Ngày chiếu phải nằm trong khoảng từ ${format(showtimeStart, "dd/MM/yyyy")} đến ${format(showtimeEnd, "dd/MM/yyyy")}!`,
           "danger"
         );
+        if(screeningDate.current)
+          screeningDate.current.focus();
         return;
       }
 
@@ -295,7 +297,7 @@ export const Screening = () => {
   const upcomingShowtimes = showtime.filter((show) => {
     const startDate = toZonedTime(new Date(show.start_time), TIME_ZONE);
     const endDate = toZonedTime(new Date(show.end_time), TIME_ZONE);
-    return isAfter(now, startDate) && isBefore(now, endDate);
+    return isAfter(startDate, now) || isBefore(now, endDate) ;
   });
 
   const getStatusInfo = (screening) => {

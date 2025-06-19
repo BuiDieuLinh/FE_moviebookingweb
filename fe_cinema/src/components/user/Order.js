@@ -101,11 +101,6 @@ const Order = () => {
     }
   };
 
-  const formatTime = (timeString) => {
-    const [hours, minutes] = timeString.split(":");
-    return `${hours}:${minutes}`;
-  };
-
   if (error) {
     return (
       <div className="text-light text-center my-4">

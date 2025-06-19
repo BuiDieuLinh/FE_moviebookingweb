@@ -4,6 +4,9 @@ import { useParams } from 'react-router-dom'
 import './roomDetail.css'
 import { Button, Form } from 'react-bootstrap';
 import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, BarElement, LinearScale, CategoryScale, BarController, LineController, LineElement, PointElement, Tooltip, Legend } from 'chart.js';
+
+ChartJS.register(BarElement, LinearScale, CategoryScale, BarController, LineController, LineElement, PointElement, Tooltip, Legend);
 
 const API_URL = process.env.REACT_APP_PORT;
 // Hàm generateSeats giữ nguyên
@@ -36,7 +39,7 @@ export default function RoomDetail() {
   const [reportRoom, setReportRoom] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [date, setDate] = useState('2025-05-29'); 
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]); 
   const [duration, setDuration] = useState('day'); 
 
   useEffect(() => {
@@ -138,7 +141,7 @@ export default function RoomDetail() {
       <div className='roomdetail'>
         <div className='box roominfo'>
           {(() => {
-            const { styleRoomType, roomTypeDisplay, styleStatus, statusDisplay } = getType();
+            const { roomTypeDisplay, styleStatus, statusDisplay } = getType();
             return (
               <div className="d-flex align-items-center flex-wrap gap-2 mb-3 pb-2 border-bottom">
                 <h5 className="fw-bold mb-0 me-2 text-dark"> 

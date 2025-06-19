@@ -110,9 +110,5 @@
 
 .barcode-section .barcode-image {
   margin: auto;
-  max-width: 60%;
-}
-
-.barcode-section p {
-  margin-top: 0.5rem;
+  max-width: 50%;
 }

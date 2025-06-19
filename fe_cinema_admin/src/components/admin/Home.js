@@ -3,6 +3,10 @@ import { Container, Row, Col, Card, Table, Badge } from "react-bootstrap";
 import { Line } from "react-chartjs-2";
 import "./home.css";
 import axios from "axios";
+import { Chart as ChartJS, LinearScale, CategoryScale, LineController, LineElement, PointElement } from "chart.js";
+
+// Đăng ký các thành phần
+ChartJS.register(LinearScale, CategoryScale, LineController, LineElement, PointElement);
 
 const API_URL = process.env.REACT_APP_PORT;
 const Home = () => {
@@ -18,7 +22,6 @@ const Home = () => {
         setReport(response.data.data);
         const responseHB = await axios.get(`${API_URL}/reports/historybooking`);
         setHistoryBooking(responseHB.data);
-        // Lấy doanh thu 7 ngày gần nhất
         const revenueResponse = await axios.get(
           `${API_URL}/reports/revenue-daily`,
         );
@@ -40,7 +43,7 @@ const Home = () => {
     return `${parseFloat(value).toLocaleString("vi-VN")}đ`;
   };
 
-  // Hàm định dạng ngày (tùy chọn, nếu bạn muốn định dạng khác)
+  // Hàm định dạng ngày
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       year: "numeric",
@@ -48,20 +51,21 @@ const Home = () => {
       day: "2-digit",
     });
   };
-  // Dữ liệu cho biểu đồ doanh thu theo ngày (Line Chart)
+
   const revenueChartData = {
     labels: dailyRevenueData.map((item) => formatDate(item.date)),
     datasets: [
       {
         label: "Doanh thu (VNĐ)",
         data: dailyRevenueData.map((item) => item.revenue),
-        borderColor: "#007bff", // Xanh dương sáng nổi bật (màu Bootstrap primary)
+        borderColor: "#007bff",
         backgroundColor: "rgba(0, 123, 255, 0.3)",
         fill: true,
         tension: 0.3,
       },
     ],
   };
+
   return (
     <div style={{ marginTop: "70px" }}>
       <Container fluid>
@@ -127,10 +131,14 @@ const Home = () => {
                     },
                     scales: {
                       y: {
+                        type: "linear", 
                         ticks: {
                           callback: (value) =>
                             `${value.toLocaleString("vi-VN")}đ`,
                         },
+                      },
+                      x: {
+                        type: "category", 
                       },
                     },
                   }}
@@ -149,7 +157,6 @@ const Home = () => {
                     <tr>
                       <th></th>
                       <th>Khách hàng</th>
-                      {/* <th>Số tiền</th> */}
                       <th>Thời gian</th>
                       <th>Tình trạng</th>
                     </tr>
@@ -160,7 +167,6 @@ const Home = () => {
                         <tr key={hb.id || hb.created_at}>
                           <td>{index + 1}</td>
                           <td>{hb.username}</td>
-                          {/* <td className="total-price">{formatCurrency(hb.total_price)}</td> */}
                           <td>{formatDate(hb.created_at)}</td>
                           <td>
                             <Badge

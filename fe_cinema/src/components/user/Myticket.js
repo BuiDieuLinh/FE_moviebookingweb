@@ -235,7 +235,7 @@ const MyTickets = () => {
             <Modal.Header closeButton className="bg-dark text-light border-0">
               <Modal.Title>Thông tin chi tiết vé</Modal.Title>
             </Modal.Header>
-            <Modal.Body className="bg-dark text-light">
+            <Modal.Body className="bg-dark text-light py-0">
               {selectedTicket && (
                 <div className="ticket-details">
                   <Row>
@@ -251,17 +251,17 @@ const MyTickets = () => {
                       <h4 className="text-uppercase mb-3 text-danger fw-bold">
                         {selectedTicket.movie_title}
                       </h4>
-                      <p className="text-light">
+                      <p className="text-light m-0">
                         {formatDateTime(
                           selectedTicket.screening_date,
                           selectedTicket.time,
                         )}{" "}
                         ({selectedTicket.screening_format})
                       </p>
-                      <p>
+                      <p className="m-0">
                         <strong>Phòng chiếu:</strong> {selectedTicket.room_name}
                       </p>
-                      <p>
+                      <p className="m-0">
                         <strong>Ghế:</strong>{" "}
                         {selectedTicket.seats
                           .map((seat) => seat.seat_name)

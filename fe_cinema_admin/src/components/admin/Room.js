@@ -5,12 +5,8 @@ import {
   Button,
   Form,
   Modal,
-  Dropdown,
   Table,
-  Accordion,
 } from "react-bootstrap";
-import { Bar } from "react-chartjs-2";
-import Chart from "chart.js/auto";
 import "./room.css";
 import { useNavigate } from "react-router-dom";
 
@@ -75,7 +71,7 @@ export const Room = () => {
       setScreenings(responseScreenings.data || []);
     } catch (error) {
       console.error("Lỗi khi lấy dữ liệu:", error);
-      showToast("Lỗi", "Không thể lấy dữ liệu phòng!","error");
+      showToast("Không thể lấy dữ liệu phòng!","danger");
       setRooms([]); 
     }
   };
@@ -96,7 +92,7 @@ export const Room = () => {
   const handleSaveRoom = async () => {
     try {
       if (!formData.room_name || !formData.room_type) {
-        showToast("Warning", "Vui lòng nhập đầy đủ thông tin phòng!", "warning");
+        showToast("Vui lòng nhập đầy đủ thông tin phòng!", "danger");
         return;
       }
       const roomId = selectedRoom
@@ -112,10 +108,10 @@ export const Room = () => {
 
       if (selectedRoom) {
         await axios.put(`${API_URL}/rooms/${selectedRoom.room_id}`, dataToSave);
-        showToast("Phòng", "Cập nhật phòng thành công!","success");
+        showToast("Cập nhật phòng thành công!","success");
       } else {
         await axios.post(`${API_URL}/rooms`, dataToSave);
-        showToast("Phòng", "Thêm phòng thành công!", "success");
+        showToast("Thêm phòng thành công!", "success");
         const seatsToCreate = seatData.map((seat) => ({
           seat_id: `${seat.id}-${roomId}`,
           seat_number: seat.id,
@@ -123,14 +119,14 @@ export const Room = () => {
           room_id: roomId,
         }));
         await axios.post(`${API_URL}/seats/bulk`, seatsToCreate);
-        showToast("Ghế", "Tạo ghế cho phòng thành công!","success");
+        showToast( "Tạo ghế cho phòng thành công!","success");
       }
 
       fetchData();
       handleCloseModal();
     } catch (error) {
       console.error("Lỗi khi lưu phòng:", error);
-      showToast("Lỗi", "Lưu phòng thất bại!","error");
+      showToast("Lưu phòng thất bại!","danger");
     }
   };
 
